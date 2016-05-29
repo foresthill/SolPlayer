@@ -14,6 +14,7 @@
 		BBC632A61CFB2AD3006407C9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BBC632A41CFB2AD3006407C9 /* LaunchScreen.storyboard */; };
 		BBC632B11CFB2AD3006407C9 /* SolPlayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC632B01CFB2AD3006407C9 /* SolPlayerTests.swift */; };
 		BBC632BC1CFB2AD3006407C9 /* SolPlayerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC632BB1CFB2AD3006407C9 /* SolPlayerUITests.swift */; };
+		BBC632CA1CFB3654006407C9 /* BGM.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BBC632C91CFB3654006407C9 /* BGM.mp3 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +48,7 @@
 		BBC632B71CFB2AD3006407C9 /* SolPlayerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SolPlayerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BBC632BB1CFB2AD3006407C9 /* SolPlayerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolPlayerUITests.swift; sourceTree = "<group>"; };
 		BBC632BD1CFB2AD3006407C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BBC632C91CFB3654006407C9 /* BGM.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = BGM.mp3; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +103,7 @@
 				BBC6329D1CFB2AD3006407C9 /* ViewController.swift */,
 				BBC6329F1CFB2AD3006407C9 /* Main.storyboard */,
 				BBC632A21CFB2AD3006407C9 /* Assets.xcassets */,
+				BBC632C91CFB3654006407C9 /* BGM.mp3 */,
 				BBC632A41CFB2AD3006407C9 /* LaunchScreen.storyboard */,
 				BBC632A71CFB2AD3006407C9 /* Info.plist */,
 			);
@@ -232,6 +235,7 @@
 				BBC632A61CFB2AD3006407C9 /* LaunchScreen.storyboard in Resources */,
 				BBC632A31CFB2AD3006407C9 /* Assets.xcassets in Resources */,
 				BBC632A11CFB2AD3006407C9 /* Main.storyboard in Resources */,
+				BBC632CA1CFB3654006407C9 /* BGM.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
