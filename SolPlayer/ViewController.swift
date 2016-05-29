@@ -14,18 +14,19 @@ class ViewController: UIViewController {
     @IBOutlet weak var buttonPlay: UIButton!
     
     var audioEngine: AVAudioEngine!
-    var audioFilePlayer: AVAudioPlayerNode!
+    var audioPlayerNode: AVAudioPlayerNode!
     var audioFile: AVAudioFile!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
+        /*
         //AVAudioEngineの生成
         audioEngine = AVAudioEngine()
         
         //AVPlayerNodeの生成
-        audioFilePlayer = AVAudioPlayerNode()
+        audioPlayerNode = AVAudioPlayerNode()
         
         //AVAudioFileの生成
         do {
@@ -36,10 +37,10 @@ class ViewController: UIViewController {
         }
         
         //AVAudioEngineの開始
-        audioEngine.attachNode(audioFilePlayer)
+        audioEngine.attachNode(audioPlayerNode)
         
         //AVPlayerNodeをAVAudioEngineへ
-        audioEngine.connect(audioFilePlayer, to: audioEngine.mainMixerNode, format: audioFile.processingFormat)
+        audioEngine.connect(audioPlayerNode, to: audioEngine.mainMixerNode, format: audioFile.processingFormat)
         
         //AVAudioEngineの開始
         do {
@@ -47,18 +48,55 @@ class ViewController: UIViewController {
         } catch {
             
         }
+        */
+        
+        reverb()
         
     }
     
     @IBAction func buttonPlayPressed(sender: UIButton) {
-        if (audioFilePlayer.playing) {
-            audioFilePlayer.pause()
+        if (audioPlayerNode.playing) {
+            audioPlayerNode.pause()
             buttonPlay.setTitle("PLAY", forState: .Normal)
         } else {
-            audioFilePlayer.scheduleFile(audioFile, atTime: nil, completionHandler: nil)
-            audioFilePlayer.play()
+            audioPlayerNode.scheduleFile(audioFile, atTime: nil, completionHandler: nil)
+            audioPlayerNode.play()
             buttonPlay.setTitle("PAUSE", forState: .Normal)
         }
+    }
+    
+    func reverb() {
+        //リバーブを準備する
+        let reverbEffect = AVAudioUnitReverb()
+        reverbEffect.loadFactoryPreset(AVAudioUnitReverbPreset.LargeHall2)
+        reverbEffect.wetDryMix = 50
+        
+        //AVAudioEngineとAVAudioPlayerNodeを生成する
+        audioEngine = AVAudioEngine()
+        audioPlayerNode = AVAudioPlayerNode()
+        
+        //AudioFileを準備する
+        let audioPath = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("BGM", ofType: "mp3")!)
+        do {
+            audioFile = try AVAudioFile(forReading: audioPath)
+        } catch {
+            
+        }
+        audioEngine.attachNode(audioPlayerNode)
+        audioEngine.attachNode(reverbEffect)
+        
+        audioEngine.connect(audioPlayerNode, to: reverbEffect, format: audioFile.processingFormat)
+        audioEngine.connect(reverbEffect, to: audioEngine.mainMixerNode, format: audioFile.processingFormat)
+        
+        audioEngine.prepare()
+        do {
+            try audioEngine.start()
+        } catch {
+            
+        }
+        
+        audioPlayerNode.scheduleFile(audioFile, atTime: nil) { () -> Void in print("complete") }
+        audioPlayerNode.play()
     }
     
 
