@@ -21,7 +21,6 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        /*
         //AVAudioEngineの生成
         audioEngine = AVAudioEngine()
         
@@ -36,22 +35,21 @@ class ViewController: UIViewController {
             
         }
         
+        //エフェクトを適用してAVAudioEngineを準備する
+        //reverb()
+        timePitch()
+
         //AVAudioEngineの開始
-        audioEngine.attachNode(audioPlayerNode)
-        
-        //AVPlayerNodeをAVAudioEngineへ
-        audioEngine.connect(audioPlayerNode, to: audioEngine.mainMixerNode, format: audioFile.processingFormat)
-        
-        //AVAudioEngineの開始
+        audioEngine.prepare()
         do {
             try audioEngine.start()
         } catch {
             
         }
-        */
-        
-        reverb()
-        
+ 
+        //AVAudioEngineの開始
+        audioPlayerNode.scheduleFile(audioFile, atTime: nil) { () -> Void in print("complete") }
+        audioPlayerNode.play()
     }
     
     @IBAction func buttonPlayPressed(sender: UIButton) {
@@ -71,32 +69,30 @@ class ViewController: UIViewController {
         reverbEffect.loadFactoryPreset(AVAudioUnitReverbPreset.LargeHall2)
         reverbEffect.wetDryMix = 50
         
-        //AVAudioEngineとAVAudioPlayerNodeを生成する
-        audioEngine = AVAudioEngine()
-        audioPlayerNode = AVAudioPlayerNode()
-        
-        //AudioFileを準備する
-        let audioPath = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("BGM", ofType: "mp3")!)
-        do {
-            audioFile = try AVAudioFile(forReading: audioPath)
-        } catch {
-            
-        }
+        //AVAudioEngineにアタッチ
         audioEngine.attachNode(audioPlayerNode)
         audioEngine.attachNode(reverbEffect)
-        
+
+        //AVPlayerNodeをAVAudioEngineへ
         audioEngine.connect(audioPlayerNode, to: reverbEffect, format: audioFile.processingFormat)
         audioEngine.connect(reverbEffect, to: audioEngine.mainMixerNode, format: audioFile.processingFormat)
         
-        audioEngine.prepare()
-        do {
-            try audioEngine.start()
-        } catch {
-            
-        }
+    }
+    
+    func timePitch() {
+        //ピッチを準備する
+        let timePitch = AVAudioUnitTimePitch()
+        timePitch.pitch = 1000
+        //timePitch.rate = 0.5
         
-        audioPlayerNode.scheduleFile(audioFile, atTime: nil) { () -> Void in print("complete") }
-        audioPlayerNode.play()
+        //AVAudioEngineにアタッチ
+        audioEngine.attachNode(audioPlayerNode)
+        audioEngine.attachNode(timePitch)
+        
+        //AVPlayerNodeをAVAudioEngineへ
+        audioEngine.connect(audioPlayerNode, to: timePitch, format: audioFile.processingFormat)
+        audioEngine.connect(timePitch, to: audioEngine.mainMixerNode, format: audioFile.processingFormat)
+        
     }
     
 
