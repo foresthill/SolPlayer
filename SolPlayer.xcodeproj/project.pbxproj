@@ -1,0 +1,505 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		BBC6329C1CFB2AD3006407C9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC6329B1CFB2AD3006407C9 /* AppDelegate.swift */; };
+		BBC6329E1CFB2AD3006407C9 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC6329D1CFB2AD3006407C9 /* ViewController.swift */; };
+		BBC632A11CFB2AD3006407C9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BBC6329F1CFB2AD3006407C9 /* Main.storyboard */; };
+		BBC632A31CFB2AD3006407C9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BBC632A21CFB2AD3006407C9 /* Assets.xcassets */; };
+		BBC632A61CFB2AD3006407C9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BBC632A41CFB2AD3006407C9 /* LaunchScreen.storyboard */; };
+		BBC632B11CFB2AD3006407C9 /* SolPlayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC632B01CFB2AD3006407C9 /* SolPlayerTests.swift */; };
+		BBC632BC1CFB2AD3006407C9 /* SolPlayerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC632BB1CFB2AD3006407C9 /* SolPlayerUITests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		BBC632AD1CFB2AD3006407C9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BBC632901CFB2AD3006407C9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BBC632971CFB2AD3006407C9;
+			remoteInfo = SolPlayer;
+		};
+		BBC632B81CFB2AD3006407C9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BBC632901CFB2AD3006407C9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BBC632971CFB2AD3006407C9;
+			remoteInfo = SolPlayer;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		BBC632981CFB2AD3006407C9 /* SolPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SolPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BBC6329B1CFB2AD3006407C9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		BBC6329D1CFB2AD3006407C9 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		BBC632A01CFB2AD3006407C9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		BBC632A21CFB2AD3006407C9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		BBC632A51CFB2AD3006407C9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		BBC632A71CFB2AD3006407C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BBC632AC1CFB2AD3006407C9 /* SolPlayerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SolPlayerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BBC632B01CFB2AD3006407C9 /* SolPlayerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolPlayerTests.swift; sourceTree = "<group>"; };
+		BBC632B21CFB2AD3006407C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BBC632B71CFB2AD3006407C9 /* SolPlayerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SolPlayerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BBC632BB1CFB2AD3006407C9 /* SolPlayerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolPlayerUITests.swift; sourceTree = "<group>"; };
+		BBC632BD1CFB2AD3006407C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BBC632951CFB2AD3006407C9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BBC632A91CFB2AD3006407C9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BBC632B41CFB2AD3006407C9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		BBC6328F1CFB2AD3006407C9 = {
+			isa = PBXGroup;
+			children = (
+				BBC6329A1CFB2AD3006407C9 /* SolPlayer */,
+				BBC632AF1CFB2AD3006407C9 /* SolPlayerTests */,
+				BBC632BA1CFB2AD3006407C9 /* SolPlayerUITests */,
+				BBC632991CFB2AD3006407C9 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		BBC632991CFB2AD3006407C9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BBC632981CFB2AD3006407C9 /* SolPlayer.app */,
+				BBC632AC1CFB2AD3006407C9 /* SolPlayerTests.xctest */,
+				BBC632B71CFB2AD3006407C9 /* SolPlayerUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BBC6329A1CFB2AD3006407C9 /* SolPlayer */ = {
+			isa = PBXGroup;
+			children = (
+				BBC6329B1CFB2AD3006407C9 /* AppDelegate.swift */,
+				BBC6329D1CFB2AD3006407C9 /* ViewController.swift */,
+				BBC6329F1CFB2AD3006407C9 /* Main.storyboard */,
+				BBC632A21CFB2AD3006407C9 /* Assets.xcassets */,
+				BBC632A41CFB2AD3006407C9 /* LaunchScreen.storyboard */,
+				BBC632A71CFB2AD3006407C9 /* Info.plist */,
+			);
+			path = SolPlayer;
+			sourceTree = "<group>";
+		};
+		BBC632AF1CFB2AD3006407C9 /* SolPlayerTests */ = {
+			isa = PBXGroup;
+			children = (
+				BBC632B01CFB2AD3006407C9 /* SolPlayerTests.swift */,
+				BBC632B21CFB2AD3006407C9 /* Info.plist */,
+			);
+			path = SolPlayerTests;
+			sourceTree = "<group>";
+		};
+		BBC632BA1CFB2AD3006407C9 /* SolPlayerUITests */ = {
+			isa = PBXGroup;
+			children = (
+				BBC632BB1CFB2AD3006407C9 /* SolPlayerUITests.swift */,
+				BBC632BD1CFB2AD3006407C9 /* Info.plist */,
+			);
+			path = SolPlayerUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		BBC632971CFB2AD3006407C9 /* SolPlayer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BBC632C01CFB2AD3006407C9 /* Build configuration list for PBXNativeTarget "SolPlayer" */;
+			buildPhases = (
+				BBC632941CFB2AD3006407C9 /* Sources */,
+				BBC632951CFB2AD3006407C9 /* Frameworks */,
+				BBC632961CFB2AD3006407C9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SolPlayer;
+			productName = SolPlayer;
+			productReference = BBC632981CFB2AD3006407C9 /* SolPlayer.app */;
+			productType = "com.apple.product-type.application";
+		};
+		BBC632AB1CFB2AD3006407C9 /* SolPlayerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BBC632C31CFB2AD3006407C9 /* Build configuration list for PBXNativeTarget "SolPlayerTests" */;
+			buildPhases = (
+				BBC632A81CFB2AD3006407C9 /* Sources */,
+				BBC632A91CFB2AD3006407C9 /* Frameworks */,
+				BBC632AA1CFB2AD3006407C9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BBC632AE1CFB2AD3006407C9 /* PBXTargetDependency */,
+			);
+			name = SolPlayerTests;
+			productName = SolPlayerTests;
+			productReference = BBC632AC1CFB2AD3006407C9 /* SolPlayerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		BBC632B61CFB2AD3006407C9 /* SolPlayerUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BBC632C61CFB2AD3006407C9 /* Build configuration list for PBXNativeTarget "SolPlayerUITests" */;
+			buildPhases = (
+				BBC632B31CFB2AD3006407C9 /* Sources */,
+				BBC632B41CFB2AD3006407C9 /* Frameworks */,
+				BBC632B51CFB2AD3006407C9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BBC632B91CFB2AD3006407C9 /* PBXTargetDependency */,
+			);
+			name = SolPlayerUITests;
+			productName = SolPlayerUITests;
+			productReference = BBC632B71CFB2AD3006407C9 /* SolPlayerUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BBC632901CFB2AD3006407C9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0730;
+				LastUpgradeCheck = 0730;
+				ORGANIZATIONNAME = "Morioka Naoya";
+				TargetAttributes = {
+					BBC632971CFB2AD3006407C9 = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
+					BBC632AB1CFB2AD3006407C9 = {
+						CreatedOnToolsVersion = 7.3.1;
+						TestTargetID = BBC632971CFB2AD3006407C9;
+					};
+					BBC632B61CFB2AD3006407C9 = {
+						CreatedOnToolsVersion = 7.3.1;
+						TestTargetID = BBC632971CFB2AD3006407C9;
+					};
+				};
+			};
+			buildConfigurationList = BBC632931CFB2AD3006407C9 /* Build configuration list for PBXProject "SolPlayer" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = BBC6328F1CFB2AD3006407C9;
+			productRefGroup = BBC632991CFB2AD3006407C9 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BBC632971CFB2AD3006407C9 /* SolPlayer */,
+				BBC632AB1CFB2AD3006407C9 /* SolPlayerTests */,
+				BBC632B61CFB2AD3006407C9 /* SolPlayerUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		BBC632961CFB2AD3006407C9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BBC632A61CFB2AD3006407C9 /* LaunchScreen.storyboard in Resources */,
+				BBC632A31CFB2AD3006407C9 /* Assets.xcassets in Resources */,
+				BBC632A11CFB2AD3006407C9 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BBC632AA1CFB2AD3006407C9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BBC632B51CFB2AD3006407C9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BBC632941CFB2AD3006407C9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BBC6329E1CFB2AD3006407C9 /* ViewController.swift in Sources */,
+				BBC6329C1CFB2AD3006407C9 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BBC632A81CFB2AD3006407C9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BBC632B11CFB2AD3006407C9 /* SolPlayerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BBC632B31CFB2AD3006407C9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BBC632BC1CFB2AD3006407C9 /* SolPlayerUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BBC632AE1CFB2AD3006407C9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BBC632971CFB2AD3006407C9 /* SolPlayer */;
+			targetProxy = BBC632AD1CFB2AD3006407C9 /* PBXContainerItemProxy */;
+		};
+		BBC632B91CFB2AD3006407C9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BBC632971CFB2AD3006407C9 /* SolPlayer */;
+			targetProxy = BBC632B81CFB2AD3006407C9 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		BBC6329F1CFB2AD3006407C9 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				BBC632A01CFB2AD3006407C9 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		BBC632A41CFB2AD3006407C9 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				BBC632A51CFB2AD3006407C9 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		BBC632BE1CFB2AD3006407C9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		BBC632BF1CFB2AD3006407C9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		BBC632C11CFB2AD3006407C9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = SolPlayer/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = jp.foresthill.SolPlayer;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		BBC632C21CFB2AD3006407C9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = SolPlayer/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = jp.foresthill.SolPlayer;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		BBC632C41CFB2AD3006407C9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = SolPlayerTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = jp.foresthill.SolPlayerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SolPlayer.app/SolPlayer";
+			};
+			name = Debug;
+		};
+		BBC632C51CFB2AD3006407C9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = SolPlayerTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = jp.foresthill.SolPlayerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SolPlayer.app/SolPlayer";
+			};
+			name = Release;
+		};
+		BBC632C71CFB2AD3006407C9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = SolPlayerUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = jp.foresthill.SolPlayerUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = SolPlayer;
+			};
+			name = Debug;
+		};
+		BBC632C81CFB2AD3006407C9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = SolPlayerUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = jp.foresthill.SolPlayerUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = SolPlayer;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		BBC632931CFB2AD3006407C9 /* Build configuration list for PBXProject "SolPlayer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BBC632BE1CFB2AD3006407C9 /* Debug */,
+				BBC632BF1CFB2AD3006407C9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BBC632C01CFB2AD3006407C9 /* Build configuration list for PBXNativeTarget "SolPlayer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BBC632C11CFB2AD3006407C9 /* Debug */,
+				BBC632C21CFB2AD3006407C9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		BBC632C31CFB2AD3006407C9 /* Build configuration list for PBXNativeTarget "SolPlayerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BBC632C41CFB2AD3006407C9 /* Debug */,
+				BBC632C51CFB2AD3006407C9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		BBC632C61CFB2AD3006407C9 /* Build configuration list for PBXNativeTarget "SolPlayerUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BBC632C71CFB2AD3006407C9 /* Debug */,
+				BBC632C81CFB2AD3006407C9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = BBC632901CFB2AD3006407C9 /* Project object */;
+}
