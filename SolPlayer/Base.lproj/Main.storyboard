@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="cvf-OU-G6m">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
@@ -27,6 +27,13 @@
                                     <action selector="buttonPlayPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="4nM-fD-2Pr"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Z03-Ps-Q6B">
+                                <rect key="frame" x="371" y="186" width="139" height="30"/>
+                                <state key="normal" title="AVPlayer"/>
+                                <connections>
+                                    <segue destination="xEE-dd-yTk" kind="show" id="vlQ-Fm-3yD"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
@@ -34,12 +41,35 @@
                             <constraint firstItem="5a8-Zd-8Nx" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="T4P-54-x4e"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" id="O0G-2R-3gj"/>
                     <connections>
                         <outlet property="buttonPlay" destination="5a8-Zd-8Nx" id="o9L-bk-NcI"/>
+                        <segue destination="5M1-io-k7w" kind="push" identifier="toUserConfig" id="pux-Mb-uAm"/>
+                        <segue destination="xEE-dd-yTk" kind="modal" identifier="toAVPlayer" id="Ej0-YR-IEx"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="1090" y="542"/>
+        </scene>
+        <!--User Config View Controller-->
+        <scene sceneID="dMe-Ui-niw">
+            <objects>
+                <viewController id="5M1-io-k7w" customClass="UserConfigViewController" customModule="SolPlayer" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="9uy-Lk-Dgz"/>
+                        <viewControllerLayoutGuide type="bottom" id="Reh-Ul-kd0"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="spU-xl-JAU">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="amW-Ny-ozT"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="R56-Xu-nkU" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1789" y="893"/>
         </scene>
         <!--AV Player View Controller-->
         <scene sceneID="CTN-X2-lUn">
@@ -47,7 +77,28 @@
                 <avPlayerViewController videoGravity="AVLayerVideoGravityResizeAspect" id="xEE-dd-yTk" sceneMemberID="viewController"/>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="yTB-Dm-ZQ9" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="839" y="144"/>
+            <point key="canvasLocation" x="1781" y="138"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="3Bd-vv-1Eg">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="cvf-OU-G6m" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="CbG-ed-v7H">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="RgJ-ZR-7SA"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="TwU-n4-d8k" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="316" y="366"/>
         </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="Ej0-YR-IEx"/>
+    </inferredMetricsTieBreakers>
 </document>

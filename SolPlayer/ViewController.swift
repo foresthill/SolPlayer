@@ -50,6 +50,10 @@ class ViewController: UIViewController {
         //AVAudioEngineの開始
         audioPlayerNode.scheduleFile(audioFile, atTime: nil) { () -> Void in print("complete") }
         audioPlayerNode.play()
+        
+        //設定画面（UserConfigViewController）へ飛ぶ barButtonSystemItem: UIBarButtonSystemItem.Bookmarks
+        let btn: UIBarButtonItem = UIBarButtonItem.init(barButtonSystemItem: UIBarButtonSystemItem.Compose, target: self, action: #selector(ViewController.toAVPlayer))
+        navigationItem.rightBarButtonItem = btn
     }
     
     @IBAction func buttonPlayPressed(sender: UIButton) {
@@ -82,7 +86,7 @@ class ViewController: UIViewController {
     func timePitch() {
         //ピッチを準備する
         let timePitch = AVAudioUnitTimePitch()
-        timePitch.pitch = 1000
+        timePitch.pitch = -31 //440Hz→444.34Hz
         //timePitch.rate = 0.5
         
         //AVAudioEngineにアタッチ
@@ -93,6 +97,16 @@ class ViewController: UIViewController {
         audioEngine.connect(audioPlayerNode, to: timePitch, format: audioFile.processingFormat)
         audioEngine.connect(timePitch, to: audioEngine.mainMixerNode, format: audioFile.processingFormat)
         
+    }
+    
+    // 設定ボタンをタップした時の処理
+    func toUserConfig(){
+        performSegueWithIdentifier("toUserConfig", sender: self)
+    }
+    
+    // 設定ボタンをタップした時の処理
+    func toAVPlayer(){
+        performSegueWithIdentifier("toAVPlayer", sender: self)
     }
     
 
