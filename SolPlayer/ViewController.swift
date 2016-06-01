@@ -41,6 +41,10 @@ class ViewController: UIViewController {
         //AVAudioEngineの準備/再生
         output()
         
+        //AVAudioPlaynodeの開始
+        audioPlayerNode.scheduleFile(audioFile, atTime: nil) { () -> Void in print("complete") }
+        audioPlayerNode.play()
+        
         //設定画面（UserConfigViewController）へ飛ぶ barButtonSystemItem: UIBarButtonSystemItem.Bookmarks
         let btn: UIBarButtonItem = UIBarButtonItem.init(barButtonSystemItem: UIBarButtonSystemItem.Compose, target: self, action: #selector(ViewController.toUserConfig))
         navigationItem.rightBarButtonItem = btn
@@ -62,6 +66,7 @@ class ViewController: UIViewController {
             //timePitch() //ちな、アタッチし直すことって出来る？  →　ダメ。'com.apple.coreaudio.avfaudio', reason: 'required condition is false: !nodeimpl->HasEngineImpl()' デタッチ＆アタッチすればいいの？アタッチ順はリストで持つ？
             //audioPlayerNode.play()
             output()
+            audioPlayerNode.play()
             buttonPlay.setTitle("PAUSE", forState: .Normal)
         }
     }
@@ -95,9 +100,6 @@ class ViewController: UIViewController {
             
         }
         
-        //AVAudioEngineの開始
-        audioPlayerNode.scheduleFile(audioFile, atTime: nil) { () -> Void in print("complete") }
-        audioPlayerNode.play()
     }
     
     func reverb() -> AVAudioUnitReverb {
