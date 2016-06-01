@@ -38,21 +38,8 @@ class ViewController: UIViewController {
             
         }
         
-        //エフェクトを適用してAVAudioEngineを準備する
-        //reverb()
-        timePitch()
-
-        //AVAudioEngineの開始
-        audioEngine.prepare()
-        do {
-            try audioEngine.start()
-        } catch {
-            
-        }
- 
-        //AVAudioEngineの開始
-        audioPlayerNode.scheduleFile(audioFile, atTime: nil) { () -> Void in print("complete") }
-        audioPlayerNode.play()
+        //AVAudioEngineの準備/再生
+        output()
         
         //設定画面（UserConfigViewController）へ飛ぶ barButtonSystemItem: UIBarButtonSystemItem.Bookmarks
         let btn: UIBarButtonItem = UIBarButtonItem.init(barButtonSystemItem: UIBarButtonSystemItem.Compose, target: self, action: #selector(ViewController.toUserConfig))
@@ -73,28 +60,54 @@ class ViewController: UIViewController {
         } else {
             audioPlayerNode.scheduleFile(audioFile, atTime: nil, completionHandler: nil)
             //timePitch() //ちな、アタッチし直すことって出来る？  →　ダメ。'com.apple.coreaudio.avfaudio', reason: 'required condition is false: !nodeimpl->HasEngineImpl()' デタッチ＆アタッチすればいいの？アタッチ順はリストで持つ？
-            audioPlayerNode.play()
+            //audioPlayerNode.play()
+            output()
             buttonPlay.setTitle("PAUSE", forState: .Normal)
         }
     }
     
-    func reverb() {
+    func output(){
+        //stop and reset
+        audioEngine.stop()
+        audioEngine.reset()
+        
+        //アタッチリスト
+        var attachList:Array<AVAudioNode> = [audioPlayerNode, reverb(), timePitch(1.0), audioEngine.mainMixerNode]
+        
+        //AVAudioEngineにアタッチ
+        /*TODO:なんか綺麗にかけないのかなぁ forEachとかで。。*/
+        for i in 0 ... attachList.count-1 {
+            audioEngine.attachNode(attachList[i])
+        }
+        
+        for i in 1 ... attachList.count-1 {
+            audioEngine.connect(attachList[i-1], to:attachList[i], format:audioFile.processingFormat)
+        }
+        
+        //AVAudioEngineの開始
+        audioEngine.prepare()
+        do {
+            try audioEngine.start()
+        } catch {
+            
+        }
+        
+        //AVAudioEngineの開始
+        audioPlayerNode.scheduleFile(audioFile, atTime: nil) { () -> Void in print("complete") }
+        audioPlayerNode.play()
+    }
+    
+    func reverb() -> AVAudioUnitReverb {
         //リバーブを準備する
         let reverbEffect = AVAudioUnitReverb()
         reverbEffect.loadFactoryPreset(AVAudioUnitReverbPreset.LargeHall2)
         reverbEffect.wetDryMix = 50
         
-        //AVAudioEngineにアタッチ
-        audioEngine.attachNode(audioPlayerNode)
-        audioEngine.attachNode(reverbEffect)
-
-        //AVPlayerNodeをAVAudioEngineへ
-        audioEngine.connect(audioPlayerNode, to: reverbEffect, format: audioFile.processingFormat)
-        audioEngine.connect(reverbEffect, to: audioEngine.mainMixerNode, format: audioFile.processingFormat)
-        
+        return reverbEffect
+    
     }
     
-    func timePitch() {
+    func timePitch(rate:Float) -> AVAudioUnitTimePitch {
         //ピッチを準備する
         let timePitch = AVAudioUnitTimePitch()
         
@@ -109,15 +122,10 @@ class ViewController: UIViewController {
                 timePitch.pitch = 0
                 break
         }
-        //timePitch.rate = 0.5
+
+        timePitch.rate = rate
         
-        //AVAudioEngineにアタッチ
-        audioEngine.attachNode(audioPlayerNode)
-        audioEngine.attachNode(timePitch)
-        
-        //AVPlayerNodeをAVAudioEngineへ
-        audioEngine.connect(audioPlayerNode, to: timePitch, format: audioFile.processingFormat)
-        audioEngine.connect(timePitch, to: audioEngine.mainMixerNode, format: audioFile.processingFormat)
+        return timePitch
         
     }
     
