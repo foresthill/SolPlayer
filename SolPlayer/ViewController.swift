@@ -76,13 +76,15 @@ class ViewController: UIViewController {
         
         //AVAudioEngineにアタッチ
         /*TODO:なんか綺麗にかけないのかなぁ forEachとかで。。*/
-        for i in 0 ... attachList.count-1 {
+        for i in 0 ... attachList.count-2 {
             audioEngine.attachNode(attachList[i])
+            audioEngine.connect(attachList[i], to:attachList[i+1], format:audioFile.processingFormat)
+
         }
         
-        for i in 1 ... attachList.count-1 {
-            audioEngine.connect(attachList[i-1], to:attachList[i], format:audioFile.processingFormat)
-        }
+//        for i in 1 ... attachList.count-1 {
+//            audioEngine.connect(attachList[i-1], to:attachList[i], format:audioFile.processingFormat)
+//        }
         
         //AVAudioEngineの開始
         audioEngine.prepare()
