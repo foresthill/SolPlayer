@@ -25,7 +25,7 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view, typically from a nib.
         
         //AVAudioEngineの生成
-        audioEngine = AVAudioEngine()
+        //audioEngine = AVAudioEngine()
         
         //AVPlayerNodeの生成
         audioPlayerNode = AVAudioPlayerNode()
@@ -68,9 +68,12 @@ class ViewController: UIViewController {
     
     func output(){
         //stop and reset
-        audioEngine.stop()
-        audioEngine.reset()
+        //audioEngine.stop()
+        //audioEngine.reset()
         
+        audioEngine = AVAudioEngine()
+        
+
         //アタッチリスト
         var attachList:Array<AVAudioNode> = [audioPlayerNode, reverb(), timePitch(1.0), audioEngine.mainMixerNode]
         
@@ -78,13 +81,11 @@ class ViewController: UIViewController {
         /*TODO:なんか綺麗にかけないのかなぁ forEachとかで。。*/
         for i in 0 ... attachList.count-2 {
             audioEngine.attachNode(attachList[i])
-            audioEngine.connect(attachList[i], to:attachList[i+1], format:audioFile.processingFormat)
-
         }
         
-//        for i in 1 ... attachList.count-1 {
-//            audioEngine.connect(attachList[i-1], to:attachList[i], format:audioFile.processingFormat)
-//        }
+        for i in 1 ... attachList.count-1 {
+            audioEngine.connect(attachList[i-1], to:attachList[i], format:audioFile.processingFormat)
+        }
         
         //AVAudioEngineの開始
         audioEngine.prepare()
