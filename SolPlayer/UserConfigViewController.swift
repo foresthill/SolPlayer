@@ -9,10 +9,41 @@
 import UIKit
 
 class UserConfigViewController: UIViewController {
+    
+    @IBOutlet weak var solModeSegment: UISegmentedControl!
+    
+    //ユーザ設定保存用変数
+    var config: NSUserDefaults!
 
     override func viewDidLoad() {
+
+        super.viewDidLoad()
         
+        config = NSUserDefaults.standardUserDefaults()
         
+        let defaultConfig = config.objectForKey("solMode")
+        
+        if(defaultConfig != nil){
+            solModeSegment.selectedSegmentIndex = defaultConfig as! Int
+        
+        }
+        
+        // タイトルの設定
+        self.navigationItem.title = "ユーザ設定"
+        
+        //self.navigationItem.prompt = ""
+        
+    }
+
+    //「戻る」ボタン押下時に呼ばれるメソッド
+    override func viewWillDisappear(animated: Bool) {
+        //ユーザ設定に保存
+        config.setObject(solModeSegment.selectedSegmentIndex, forKey: "solMode")
+
+        let viewControllers = self.navigationController?.viewControllers
+        let vc:ViewController = viewControllers?.first as! ViewController
+        
+        vc.solMode = solModeSegment.selectedSegmentIndex
     }
 
     override func didReceiveMemoryWarning() {

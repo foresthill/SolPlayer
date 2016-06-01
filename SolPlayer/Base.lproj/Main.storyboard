@@ -3,6 +3,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -27,13 +28,6 @@
                                     <action selector="buttonPlayPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="4nM-fD-2Pr"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Z03-Ps-Q6B">
-                                <rect key="frame" x="371" y="186" width="139" height="30"/>
-                                <state key="normal" title="AVPlayer"/>
-                                <connections>
-                                    <segue destination="xEE-dd-yTk" kind="show" id="vlQ-Fm-3yD"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
@@ -45,7 +39,6 @@
                     <connections>
                         <outlet property="buttonPlay" destination="5a8-Zd-8Nx" id="o9L-bk-NcI"/>
                         <segue destination="5M1-io-k7w" kind="push" identifier="toUserConfig" id="pux-Mb-uAm"/>
-                        <segue destination="xEE-dd-yTk" kind="modal" identifier="toAVPlayer" id="Ej0-YR-IEx"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -63,21 +56,55 @@
                     <view key="view" contentMode="scaleToFill" id="spU-xl-JAU">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="q95-Tm-LMA">
+                                <rect key="frame" x="433" y="104" width="137" height="29"/>
+                                <segments>
+                                    <segment title="Off"/>
+                                    <segment title="Ver.1"/>
+                                    <segment title="Ver.2"/>
+                                </segments>
+                            </segmentedControl>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="ソルフェジオのモード" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZeR-Rc-hcS">
+                                <rect key="frame" x="30" y="104" width="170" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BBh-Li-tB5">
+                                <rect key="frame" x="30" y="147" width="540" height="100"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="100" id="NLh-dM-eMi"/>
+                                </constraints>
+                                <string key="text">ソルフェジオ変換の種類を選択します。
+
+【Off】ソルフェジオ変換しません
+【Ver.1】Aの音が440Hz→444Hz（C:528Hz）となるように変換します
+【Ver.2】Aの音が440Hz→432Hzとなるように変換します</string>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailingMargin" secondItem="BBh-Li-tB5" secondAttribute="trailing" constant="10" id="00q-2E-ITh"/>
+                            <constraint firstItem="BBh-Li-tB5" firstAttribute="leading" secondItem="ZeR-Rc-hcS" secondAttribute="leading" id="3rc-G1-3ex"/>
+                            <constraint firstItem="ZeR-Rc-hcS" firstAttribute="leading" secondItem="spU-xl-JAU" secondAttribute="leadingMargin" constant="10" id="LaA-1w-pm7"/>
+                            <constraint firstItem="ZeR-Rc-hcS" firstAttribute="top" secondItem="9uy-Lk-Dgz" secondAttribute="bottom" constant="40" id="QXm-DL-OCT"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="q95-Tm-LMA" secondAttribute="trailing" constant="10" id="pbP-dW-1mr"/>
+                            <constraint firstItem="BBh-Li-tB5" firstAttribute="top" secondItem="q95-Tm-LMA" secondAttribute="bottom" constant="15" id="x8M-bV-BFW"/>
+                            <constraint firstItem="q95-Tm-LMA" firstAttribute="top" secondItem="9uy-Lk-Dgz" secondAttribute="bottom" constant="40" id="xeO-hx-SX5"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="amW-Ny-ozT"/>
+                    <connections>
+                        <outlet property="solModeSegment" destination="q95-Tm-LMA" id="7bR-UO-S8z"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="R56-Xu-nkU" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1789" y="893"/>
-        </scene>
-        <!--AV Player View Controller-->
-        <scene sceneID="CTN-X2-lUn">
-            <objects>
-                <avPlayerViewController videoGravity="AVLayerVideoGravityResizeAspect" id="xEE-dd-yTk" sceneMemberID="viewController"/>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="yTB-Dm-ZQ9" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="1781" y="138"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="3Bd-vv-1Eg">
@@ -98,7 +125,4 @@
             <point key="canvasLocation" x="316" y="366"/>
         </scene>
     </scenes>
-    <inferredMetricsTieBreakers>
-        <segue reference="Ej0-YR-IEx"/>
-    </inferredMetricsTieBreakers>
 </document>

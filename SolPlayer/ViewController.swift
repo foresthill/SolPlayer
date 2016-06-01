@@ -17,6 +17,9 @@ class ViewController: UIViewController {
     var audioPlayerNode: AVAudioPlayerNode!
     var audioFile: AVAudioFile!
     
+    //ソルフェジオのモード（ver1:440→444Hz、ver2:440→432Hz）
+    var solMode = 1
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -52,8 +55,15 @@ class ViewController: UIViewController {
         audioPlayerNode.play()
         
         //設定画面（UserConfigViewController）へ飛ぶ barButtonSystemItem: UIBarButtonSystemItem.Bookmarks
-        let btn: UIBarButtonItem = UIBarButtonItem.init(barButtonSystemItem: UIBarButtonSystemItem.Compose, target: self, action: #selector(ViewController.toAVPlayer))
+        let btn: UIBarButtonItem = UIBarButtonItem.init(barButtonSystemItem: UIBarButtonSystemItem.Compose, target: self, action: #selector(ViewController.toUserConfig))
         navigationItem.rightBarButtonItem = btn
+        
+        //設定値を取得する
+        let config = NSUserDefaults.standardUserDefaults()
+        let result = config.objectForKey("solMode")
+        if(result != nil){
+            solMode = result as! Int
+        }
     }
     
     @IBAction func buttonPlayPressed(sender: UIButton) {
@@ -62,6 +72,7 @@ class ViewController: UIViewController {
             buttonPlay.setTitle("PLAY", forState: .Normal)
         } else {
             audioPlayerNode.scheduleFile(audioFile, atTime: nil, completionHandler: nil)
+            //timePitch() //ちな、アタッチし直すことって出来る？  →　ダメ。'com.apple.coreaudio.avfaudio', reason: 'required condition is false: !nodeimpl->HasEngineImpl()' デタッチ＆アタッチすればいいの？アタッチ順はリストで持つ？
             audioPlayerNode.play()
             buttonPlay.setTitle("PAUSE", forState: .Normal)
         }
@@ -86,7 +97,18 @@ class ViewController: UIViewController {
     func timePitch() {
         //ピッチを準備する
         let timePitch = AVAudioUnitTimePitch()
-        timePitch.pitch = -31 //440Hz→444.34Hz
+        
+        switch solMode{
+            case 1:
+                timePitch.pitch = 170   //440Hz→444.34Hz
+                break
+            case 2:
+                timePitch.pitch = -310   //440Hz→432.xxHz
+                break
+            default:
+                timePitch.pitch = 0
+                break
+        }
         //timePitch.rate = 0.5
         
         //AVAudioEngineにアタッチ
@@ -104,9 +126,9 @@ class ViewController: UIViewController {
         performSegueWithIdentifier("toUserConfig", sender: self)
     }
     
-    // 設定ボタンをタップした時の処理
-    func toAVPlayer(){
-        performSegueWithIdentifier("toAVPlayer", sender: self)
+    // プレイリストの「編集」ボタンをタップした時の処理
+    func toPlaylist(){
+        performSegueWithIdentifier("toPlaylist", sender: self)
     }
     
 
