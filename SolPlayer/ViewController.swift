@@ -14,6 +14,9 @@ class ViewController: UIViewController {
 
     @IBOutlet weak var buttonPlay: UIButton!
     
+    
+    
+    
     var audioEngine: AVAudioEngine!
     var audioPlayerNode: AVAudioPlayerNode!
     var audioFile: AVAudioFile!
@@ -52,23 +55,6 @@ class ViewController: UIViewController {
 
         //AVAudioUnitの準備/再生
         output()
-        
-        //AVPlayerViewController
-//        let player = AVPlayer(URL: NSURL(fileURLWithPath:
-//            NSBundle.mainBundle().pathForResource("BGM", ofType: "mp3")!))
-        //let playerController = AVPlayerViewController()     //AVKit
-        //playerController.player = player
-        //self.addChildViewController(playerController.player)
-        //self.view.addSubview(playerController.view)
-        //playerController.view.frame = self.view.frame
-        
-//        let playerLayer = AVPlayerLayer(player: player)
-//        playerLayer.frame = self.view.bounds
-//        self.view.layer.addSublayer(playerLayer)
-//        
-//        player.play()
-        
-
         
         
         //設定画面（UserConfigViewController）へ飛ぶ barButtonSystemItem: UIBarButtonSystemItem.Bookmarks
@@ -130,7 +116,7 @@ class ViewController: UIViewController {
         //ミキサー出力
         audioEngine.connect(attachList.last!, to:audioEngine.mainMixerNode, format:audioFile.processingFormat)
         
-        /*
+        
         //AVAudioEngineの開始
         audioEngine.prepare()
         do {
@@ -142,7 +128,7 @@ class ViewController: UIViewController {
         //AVAudioPlaynodeの開始
         audioPlayerNode.scheduleFile(audioFile, atTime: nil) { () -> Void in print("complete") }
         audioPlayerNode.play()
- */
+ 
         
     }
     
