@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AVKit
 import AVFoundation
 
 class ViewController: UIViewController {
@@ -17,15 +18,22 @@ class ViewController: UIViewController {
     var audioPlayerNode: AVAudioPlayerNode!
     var audioFile: AVAudioFile!
     
+    //エフェクトを外出し（2016/06/03）
+    var reverbEffect = AVAudioUnitReverb()
+    var timePitch = AVAudioUnitTimePitch()
+    
     //ソルフェジオのモード（ver1:440→444Hz、ver2:440→432Hz）
     var solMode = 1
+    
+    //
+    var player:AVPlayer!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
         //AVAudioEngineの生成
-        //audioEngine = AVAudioEngine()
+        audioEngine = AVAudioEngine()
         
         //AVPlayerNodeの生成
         audioPlayerNode = AVAudioPlayerNode()
@@ -37,9 +45,31 @@ class ViewController: UIViewController {
         } catch {
             
         }
-        
-        //AVAudioEngineの準備/再生
+
+        //暫定的
+        reverb()
+        timePitch(1.0)
+
+        //AVAudioUnitの準備/再生
         output()
+        
+        //AVPlayerViewController
+//        let player = AVPlayer(URL: NSURL(fileURLWithPath:
+//            NSBundle.mainBundle().pathForResource("BGM", ofType: "mp3")!))
+        //let playerController = AVPlayerViewController()     //AVKit
+        //playerController.player = player
+        //self.addChildViewController(playerController.player)
+        //self.view.addSubview(playerController.view)
+        //playerController.view.frame = self.view.frame
+        
+//        let playerLayer = AVPlayerLayer(player: player)
+//        playerLayer.frame = self.view.bounds
+//        self.view.layer.addSublayer(playerLayer)
+//        
+//        player.play()
+        
+
+        
         
         //設定画面（UserConfigViewController）へ飛ぶ barButtonSystemItem: UIBarButtonSystemItem.Bookmarks
         let btn: UIBarButtonItem = UIBarButtonItem.init(barButtonSystemItem: UIBarButtonSystemItem.Compose, target: self, action: #selector(ViewController.toUserConfig))
@@ -58,10 +88,12 @@ class ViewController: UIViewController {
             audioPlayerNode.pause()
             buttonPlay.setTitle("PLAY", forState: .Normal)
         } else {
-            //audioPlayerNode.scheduleFile(audioFile, atTime: nil, completionHandler: nil)
+            audioPlayerNode.scheduleFile(audioFile, atTime: nil, completionHandler: nil)
             //timePitch() //ちな、アタッチし直すことって出来る？  →　ダメ。'com.apple.coreaudio.avfaudio', reason: 'required condition is false: !nodeimpl->HasEngineImpl()' デタッチ＆アタッチすればいいの？アタッチ順はリストで持つ？
-            //audioPlayerNode.play()
-            output()
+            audioPlayerNode.play()
+            timePitch(1.0)
+
+            //output()
             buttonPlay.setTitle("PAUSE", forState: .Normal)
         }
     }
@@ -72,17 +104,20 @@ class ViewController: UIViewController {
         //audioEngine.reset()
         
         //アタッチリスト
-        var attachList:Array<AVAudioNode> = [audioPlayerNode, reverb(), timePitch(1.0)]
+        var attachList:Array<AVAudioNode> = [audioPlayerNode, reverbEffect, timePitch]
         
+        /*
         //初期化
         if(audioEngine == nil){
             audioEngine = AVAudioEngine()
         } else {
             //AVAudioEngineをデタッチ
+            audioEngine.stop()
             for i in 0 ... attachList.count-1 {
                 audioEngine.detachNode(attachList[i])
             }
         }
+         */
         
         //AVAudioEngineにアタッチ
         /*TODO:なんか綺麗にかけないのかなぁ forEachとかで。。*/
@@ -95,7 +130,7 @@ class ViewController: UIViewController {
         //ミキサー出力
         audioEngine.connect(attachList.last!, to:audioEngine.mainMixerNode, format:audioFile.processingFormat)
         
-        
+        /*
         //AVAudioEngineの開始
         audioEngine.prepare()
         do {
@@ -107,22 +142,25 @@ class ViewController: UIViewController {
         //AVAudioPlaynodeの開始
         audioPlayerNode.scheduleFile(audioFile, atTime: nil) { () -> Void in print("complete") }
         audioPlayerNode.play()
+ */
         
     }
     
-    func reverb() -> AVAudioUnitReverb {
+    //func reverb() -> AVAudioUnitReverb {
+    func reverb() {
         //リバーブを準備する
-        let reverbEffect = AVAudioUnitReverb()
+        //let reverbEffect = AVAudioUnitReverb()
         reverbEffect.loadFactoryPreset(AVAudioUnitReverbPreset.LargeHall2)
         reverbEffect.wetDryMix = 50
         
-        return reverbEffect
+        //return reverbEffect
     
     }
     
-    func timePitch(rate:Float) -> AVAudioUnitTimePitch {
+    //func timePitch(rate:Float) -> AVAudioUnitTimePitch {
+    func timePitch(rate:Float) {
+        
         //ピッチを準備する
-        let timePitch = AVAudioUnitTimePitch()
         
         switch solMode{
             case 1:
@@ -138,7 +176,7 @@ class ViewController: UIViewController {
 
         timePitch.rate = rate
         
-        return timePitch
+        //return timePitch
         
     }
     

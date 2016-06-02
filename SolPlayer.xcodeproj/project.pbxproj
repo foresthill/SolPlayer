@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		BB7DA6741CFD055000A5A706 /* UserConfigViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7DA6731CFD055000A5A706 /* UserConfigViewController.swift */; };
-		BB7DA6761CFE45F000A5A706 /* MyAVPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7DA6751CFE45F000A5A706 /* MyAVPlayerViewController.swift */; };
+		BB7DA6761CFE45F000A5A706 /* EmbedAVPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7DA6751CFE45F000A5A706 /* EmbedAVPlayerViewController.swift */; };
 		BBC6329C1CFB2AD3006407C9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC6329B1CFB2AD3006407C9 /* AppDelegate.swift */; };
 		BBC6329E1CFB2AD3006407C9 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC6329D1CFB2AD3006407C9 /* ViewController.swift */; };
 		BBC632A11CFB2AD3006407C9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BBC6329F1CFB2AD3006407C9 /* Main.storyboard */; };
@@ -38,7 +38,7 @@
 
 /* Begin PBXFileReference section */
 		BB7DA6731CFD055000A5A706 /* UserConfigViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserConfigViewController.swift; sourceTree = "<group>"; };
-		BB7DA6751CFE45F000A5A706 /* MyAVPlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyAVPlayerViewController.swift; sourceTree = "<group>"; };
+		BB7DA6751CFE45F000A5A706 /* EmbedAVPlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmbedAVPlayerViewController.swift; sourceTree = "<group>"; };
 		BBC632981CFB2AD3006407C9 /* SolPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SolPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BBC6329B1CFB2AD3006407C9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		BBC6329D1CFB2AD3006407C9 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -105,7 +105,7 @@
 			children = (
 				BBC6329B1CFB2AD3006407C9 /* AppDelegate.swift */,
 				BBC6329D1CFB2AD3006407C9 /* ViewController.swift */,
-				BB7DA6751CFE45F000A5A706 /* MyAVPlayerViewController.swift */,
+				BB7DA6751CFE45F000A5A706 /* EmbedAVPlayerViewController.swift */,
 				BBC6329F1CFB2AD3006407C9 /* Main.storyboard */,
 				BB7DA6731CFD055000A5A706 /* UserConfigViewController.swift */,
 				BBC632A21CFB2AD3006407C9 /* Assets.xcassets */,
@@ -268,7 +268,7 @@
 			files = (
 				BBC6329E1CFB2AD3006407C9 /* ViewController.swift in Sources */,
 				BBC6329C1CFB2AD3006407C9 /* AppDelegate.swift in Sources */,
-				BB7DA6761CFE45F000A5A706 /* MyAVPlayerViewController.swift in Sources */,
+				BB7DA6761CFE45F000A5A706 /* EmbedAVPlayerViewController.swift in Sources */,
 				BB7DA6741CFD055000A5A706 /* UserConfigViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
