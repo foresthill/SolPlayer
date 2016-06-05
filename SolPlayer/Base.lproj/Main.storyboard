@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="cvf-OU-G6m">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="pGT-ah-CjV">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
-        <!--View Controller-->
+        <!--Item-->
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="SolPlayer" customModuleProvider="target" sceneMemberID="viewController">
@@ -107,6 +107,7 @@
                             <constraint firstItem="5a8-Zd-8Nx" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="T4P-54-x4e"/>
                         </constraints>
                     </view>
+                    <tabBarItem key="tabBarItem" title="Item" id="EXf-S4-5AE"/>
                     <navigationItem key="navigationItem" id="O0G-2R-3gj"/>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina55"/>
                     <connections>
@@ -117,14 +118,13 @@
                         <outlet property="speedLabel" destination="X4g-LQ-Ehi" id="Lb9-pK-YhU"/>
                         <outlet property="speedSlider" destination="Fak-xp-40e" id="DRF-YO-HF1"/>
                         <outlet property="timeSlider" destination="uKK-pi-yjk" id="yoa-Nh-Kfd"/>
-                        <segue destination="5M1-io-k7w" kind="push" identifier="toUserConfig" id="pux-Mb-uAm"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1087.5" y="411.5"/>
+            <point key="canvasLocation" x="1811" y="272"/>
         </scene>
-        <!--User Config View Controller-->
+        <!--Item-->
         <scene sceneID="dMe-Ui-niw">
             <objects>
                 <viewController id="5M1-io-k7w" customClass="UserConfigViewController" customModule="SolPlayer" customModuleProvider="target" sceneMemberID="viewController">
@@ -133,25 +133,28 @@
                         <viewControllerLayoutGuide type="bottom" id="Reh-Ul-kd0"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="spU-xl-JAU">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="q95-Tm-LMA">
-                                <rect key="frame" x="247" y="104" width="137" height="29"/>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="q95-Tm-LMA">
+                                <rect key="frame" x="433" y="104" width="137" height="29"/>
                                 <segments>
                                     <segment title="Off"/>
                                     <segment title="Ver.1"/>
                                     <segment title="Ver.2"/>
                                 </segments>
+                                <connections>
+                                    <action selector="solModeChange:" destination="5M1-io-k7w" eventType="valueChanged" id="x8X-Oe-rmO"/>
+                                </connections>
                             </segmentedControl>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="ソルフェジオのモード" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZeR-Rc-hcS">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="ソルフェジオのモード" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZeR-Rc-hcS">
                                 <rect key="frame" x="30" y="104" width="170" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BBh-Li-tB5">
-                                <rect key="frame" x="30" y="147" width="354" height="100"/>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" misplaced="YES" editable="NO" textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BBh-Li-tB5">
+                                <rect key="frame" x="30" y="147" width="540" height="100"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="100" id="NLh-dM-eMi"/>
@@ -176,6 +179,7 @@
                             <constraint firstItem="q95-Tm-LMA" firstAttribute="top" secondItem="9uy-Lk-Dgz" secondAttribute="bottom" constant="40" id="xeO-hx-SX5"/>
                         </constraints>
                     </view>
+                    <tabBarItem key="tabBarItem" title="Item" id="QVf-OH-A6W"/>
                     <navigationItem key="navigationItem" id="amW-Ny-ozT"/>
                     <connections>
                         <outlet property="solModeSegment" destination="q95-Tm-LMA" id="7bR-UO-S8z"/>
@@ -183,25 +187,25 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="R56-Xu-nkU" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1789" y="893"/>
+            <point key="canvasLocation" x="1848" y="1163"/>
         </scene>
-        <!--Navigation Controller-->
-        <scene sceneID="3Bd-vv-1Eg">
+        <!--Tab Bar Controller-->
+        <scene sceneID="PZX-Pb-aGd">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="cvf-OU-G6m" sceneMemberID="viewController">
+                <tabBarController automaticallyAdjustsScrollViewInsets="NO" id="pGT-ah-CjV" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="CbG-ed-v7H">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                    <tabBar key="tabBar" contentMode="scaleToFill" id="UOQ-gX-idJ">
                         <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <nil name="viewControllers"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    </tabBar>
                     <connections>
-                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="RgJ-ZR-7SA"/>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="viewControllers" id="jFU-wz-j82"/>
+                        <segue destination="5M1-io-k7w" kind="relationship" relationship="viewControllers" id="UPY-2W-F2k"/>
                     </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="TwU-n4-d8k" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                </tabBarController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Zpe-ll-R8h" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="316" y="366"/>
+            <point key="canvasLocation" x="1180" y="411"/>
         </scene>
     </scenes>
 </document>

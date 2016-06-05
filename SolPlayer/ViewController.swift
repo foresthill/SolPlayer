@@ -74,10 +74,12 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate {
         //
         //timeSlider.maximumValue = Float()
         
+        /*
         
         //設定画面（UserConfigViewController）へ飛ぶ barButtonSystemItem: UIBarButtonSystemItem.Bookmarks
         let btn: UIBarButtonItem = UIBarButtonItem.init(barButtonSystemItem: UIBarButtonSystemItem.Compose, target: self, action: #selector(ViewController.toUserConfig))
         navigationItem.rightBarButtonItem = btn
+         */
         
         //設定値を取得する
         let config = NSUserDefaults.standardUserDefaults()
@@ -85,6 +87,8 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate {
         if(result != nil){
             solMode = result as! Int
         }
+        
+        
     }
     
     
