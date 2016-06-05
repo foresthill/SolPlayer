@@ -62,7 +62,7 @@ class ViewController: UIViewController {
     var config: NSUserDefaults!
     
     //プレイリスト
-    var playlist: [MPMediaItem]!
+    //var playlist: [MPMediaItem]!
     
     //再生中の曲番号
     var numbar: Int!
@@ -80,7 +80,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        playlist = nil
+        //playlist = nil
 
         //1.audioFileを読み込む
         readAudioFile()
@@ -121,8 +121,11 @@ class ViewController: UIViewController {
             
             //サンプルレートの取得
             sampleRate = audioFile.fileFormat.sampleRate
+            //再生時間
             duration = Double(audioFile.length) / sampleRate
+            //終了時間のラベルを設定
             endTimeLabel.text = formatTimeString(Float(duration))
+            //スライダーの最大値を設定
             timeSlider.maximumValue = Float(duration)
 
         } catch {

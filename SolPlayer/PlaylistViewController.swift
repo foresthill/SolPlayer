@@ -57,8 +57,10 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         picker.delegate = self
         //複数選択を可にする（true/falseで設定）
         picker.allowsPickingMultipleItems = true
-        
-
+        //AssetURLが読み込めない音源は表示しない
+        picker.showsItemsWithProtectedAssets = false
+        //CloudItemsもAssetURLが読み込めないので表示しない
+        picker.showsCloudItems = false
         //ピッカーを表示する
         presentViewController(picker, animated:true, completion: nil)
     }
