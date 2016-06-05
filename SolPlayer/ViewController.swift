@@ -9,8 +9,9 @@
 import UIKit
 import AVKit
 import AVFoundation
+import MediaPlayer
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, MPMediaPickerControllerDelegate {
 
     @IBOutlet weak var playButton: UIButton!
     
@@ -297,7 +298,7 @@ class ViewController: UIViewController {
     }
     
     /** 
-     ソルフェジオモードon/off
+     ソルフェジオモードon/off（ピッチ変更）処理
      */
     func pitchChange(){
         if(solSwitch.on){
@@ -318,17 +319,23 @@ class ViewController: UIViewController {
     }
     
     /**
-     再生処理変更
+     再生スピード変更処理
      */
     func speedChange(){
         timePitch.rate = speedSlider.value
         speedLabel.text = "x \((round(speedSlider.value*10)/10))"
     }
     
+    /**
+     シークバーを動かした時の処理
+     */
     func timeShift(){
         
         //let current = currentPlayTime()
         let current = timeSlider.value
+        
+        //退避
+        offset = Double(current)
         
         //シーク位置（AVAudioFramePosition）取得
         let restartPosition = AVAudioFramePosition(Float(sampleRate) * current)
@@ -338,11 +345,9 @@ class ViewController: UIViewController {
         
         //残りフレーム数（AVAudioFrameCount）取得
         let remainFrames = AVAudioFrameCount(Float(sampleRate) * remainSeconds)
-        
-        print("current=\(current),restartPosition=\(restartPosition),remainTime=\(remainSeconds),remainFrame=\(remainFrames)")
-        
-        //退避
-        offset = Double(current)
+
+        //pause状態でseekbarを動かした場合→動かした後もpause状態を維持する（最後につじつま合わせる）
+        let playing = audioPlayerNode.playing
         
         audioPlayerNode.stop()
         
@@ -353,9 +358,17 @@ class ViewController: UIViewController {
         
         audioPlayerNode.play()
         
+        //画面を値に合わせる
+        didEverySecondPassed()
+        
+        //一度playしてからpauseしないと画面に反映されないため
+        if(!playing){
+            pause()
+        }
+        
     }
     
-    // ??
+    /*
     func syncUI() {
         if((self.player.currentItem != nil) &&
             (self.player.currentItem?.status == AVPlayerItemStatus.ReadyToPlay)) {
@@ -364,8 +377,11 @@ class ViewController: UIViewController {
             self.playButton.enabled = false
         }
     }
+    */
     
-    /* 毎秒ごとに行われる処理（timerで管理） */
+    /**
+     毎秒ごとに行われる処理（timerで管理）
+     */
     func didEverySecondPassed(){
         
         let current = currentPlayTime()
