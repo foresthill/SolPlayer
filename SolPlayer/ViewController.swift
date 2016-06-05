@@ -11,11 +11,15 @@ import AVKit
 import AVFoundation
 import MediaPlayer
 
-class ViewController: UIViewController, MPMediaPickerControllerDelegate {
+class ViewController: UIViewController {
 
     @IBOutlet weak var playButton: UIButton!
+    @IBOutlet weak var stopButton: UIButton!
     
     @IBOutlet weak var solSwitch: UISwitch!
+    
+    @IBOutlet weak var songTitle: UILabel!
+    @IBOutlet weak var artist: UILabel!
     
     @IBOutlet weak var timeSlider: UISlider!
     @IBOutlet weak var nowTimeLabel: UILabel!
@@ -24,6 +28,7 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate {
     @IBOutlet weak var speedSlider: UISlider!
     @IBOutlet weak var speedLabel: UILabel!
 
+    //AVKit
     var audioEngine: AVAudioEngine!
     var audioPlayerNode: AVAudioPlayerNode!
     var audioFile: AVAudioFile!
@@ -51,44 +56,44 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate {
     var sampleRate: Double!
     
     //時間をずらした時の辻褄あわせ
-    //var offset: Double!
     var offset = 0.0
-    //var nodeTime: AVAudioTime!
     
+    //ユーザ設定値
+    var config: NSUserDefaults!
+    
+    //プレイリスト
+    var playlist: [MPMediaItem]!
+    
+    //再生中の曲番号
+    var numbar: Int!
+    
+    //停止フラグ（プレイリストの再読み込みなど）
+    var stopFlg = true
+    
+    //appDelegate外出し
+    //var appDelegate: AppDelegate!
+    
+    /** 
+     初期処理
+     */
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
+        playlist = nil
 
         //1.audioFileを読み込む
         readAudioFile()
 
         //2.AVAudioUnitの準備/再生
-        initAudioEngine()
+        //initAudioEngine()
         
         //タイマーを初期化
         timer = NSTimer()
         
-        //ビューが最初に表示された時に一貫性のあるユーザインタフェースを提供
-        //syncUI()
-        
-        //
-        //timeSlider.maximumValue = Float()
-        
-        /*
-        
-        //設定画面（UserConfigViewController）へ飛ぶ barButtonSystemItem: UIBarButtonSystemItem.Bookmarks
-        let btn: UIBarButtonItem = UIBarButtonItem.init(barButtonSystemItem: UIBarButtonSystemItem.Compose, target: self, action: #selector(ViewController.toUserConfig))
-        navigationItem.rightBarButtonItem = btn
-         */
-        
         //設定値を取得する
-        let config = NSUserDefaults.standardUserDefaults()
-        let result = config.objectForKey("solMode")
-        if(result != nil){
-            solMode = result as! Int
-        }
-        
-        
+        config = NSUserDefaults.standardUserDefaults()
+
     }
     
     
@@ -96,11 +101,24 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate {
      audioFileを読み込む
      */
     func readAudioFile(){
+        
+        //AppDelegateのインスタンスを取得しplayListを取得
+        
+        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+        let playlist = appDelegate.playlist
+        
         //読み込み処理
         do {
-            //AVAudioFileの読み込み
-            audioFile = try AVAudioFile(forReading: NSURL(fileURLWithPath:
-                NSBundle.mainBundle().pathForResource("BGM", ofType: "mp3")!))
+            if(playlist != nil){
+                //AVAudioFileの読み込み
+                audioFile = try AVAudioFile(forReading: playlist![0].assetURL!)
+
+            } else {
+                audioFile = try AVAudioFile(forReading: NSURL(fileURLWithPath:
+                    NSBundle.mainBundle().pathForResource("BGM", ofType: "mp3")!))
+                
+            }
+            
             //サンプルレートの取得
             sampleRate = audioFile.fileFormat.sampleRate
             duration = Double(audioFile.length) / sampleRate
@@ -110,6 +128,9 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate {
         } catch {
             //TODO:ファイルが読み込めなかった場合のエラーハンドリング
         }
+        
+        //AudioEngineを初期化
+        initAudioEngine()
     }
     
     /** 
@@ -147,12 +168,6 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate {
         } catch {
             
         }
-        
-        /*
-         //AVAudioPlaynodeの開始
-         audioPlayerNode.scheduleFile(audioFile, atTime: nil) { () -> Void in print("complete") }
-         audioPlayerNode.play()
-         */
         
     }
 
@@ -203,6 +218,12 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate {
         //タイマー始動
         timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: #selector(ViewController.didEverySecondPassed), userInfo: nil, repeats: true)
         
+        //再読み込み
+        if stopFlg {
+            readAudioFile()
+            stopFlg = false
+        }
+        
         //再生
         audioPlayerNode.scheduleFile(audioFile, atTime: nil, completionHandler: nil)
         audioPlayerNode.play()
@@ -210,7 +231,7 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate {
     }
     
     /**
-     停止処理
+     一時停止処理
      */
     func pause(){
         
@@ -223,6 +244,28 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate {
         
         audioPlayerNode.pause()
         playButton.setTitle("PLAY", forState: .Normal)
+        
+    }
+    
+    /**
+     停止処理
+     */
+    func stop(){
+        
+        timer = nil
+        
+        audioPlayerNode.stop()
+        
+        nowTimeLabel.text = "00:00:00"
+        endTimeLabel.text = "00:00:00"
+        
+        offset = 0.0
+        
+        timeSlider.value = 0
+        
+        pausedTime = 0.0
+        
+        stopFlg = true
         
     }
     
@@ -266,31 +309,6 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate {
     
     }
     
-    /*
-    //func timePitch(rate:Float) -> AVAudioUnitTimePitch {
-    func timePitch(rate:Float) {
-        
-        //ピッチを準備する
-        
-        switch solMode{
-            case 1:
-                timePitch.pitch = 170   //440Hz→444.34Hz
-                break
-            case 2:
-                timePitch.pitch = -310   //440Hz→432.xxHz
-                break
-            default:
-                timePitch.pitch = 0
-                break
-        }
-
-        //timePitch.rate = rate
-        
-        //return timePitch
-        
-    }
- */
-    
     // 設定ボタンをタップした時の処理
     func toUserConfig(){
         performSegueWithIdentifier("toUserConfig", sender: self)
@@ -305,6 +323,13 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate {
      ソルフェジオモードon/off（ピッチ変更）処理
      */
     func pitchChange(){
+        
+        //設定値を取得する
+        let result = config.objectForKey("solMode")
+        if(result != nil){
+            solMode = result as! Int
+        }
+        
         if(solSwitch.on){
             switch solMode{
             case 1:
@@ -371,18 +396,7 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate {
         }
         
     }
-    
-    /*
-    func syncUI() {
-        if((self.player.currentItem != nil) &&
-            (self.player.currentItem?.status == AVPlayerItemStatus.ReadyToPlay)) {
-            self.playButton.enabled = true
-        } else {
-            self.playButton.enabled = false
-        }
-    }
-    */
-    
+
     /**
      毎秒ごとに行われる処理（timerで管理）
      */
@@ -417,21 +431,27 @@ class ViewController: UIViewController, MPMediaPickerControllerDelegate {
     }
     
     /**
-     再生速度のスライダーが変更時された時（Action→ValueChanged）
-     - parameter sender: UISlider
+     停止ボタンが押された時
      */
-    @IBAction func speedSliderAction(sender: UISlider) {
-        speedChange()
+    @IBAction func stopButtonAction(sender: UIButton) {
+        stop()
     }
     
     /**
-     再生時間のスライダーが変更時された時（Action→ValueChanged）
+     再生時間のスライダーが変更された時（Action→ValueChanged）
      - parameter sender: UISlider
      */
     @IBAction func timeSliderAction(sender: UISlider) {
         timeShift()
     }
-
+    
+    /**
+     再生速度のスライダーが変更された時（Action→ValueChanged）
+     - parameter sender: UISlider
+     */
+    @IBAction func speedSliderAction(sender: UISlider) {
+        speedChange()
+    }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()

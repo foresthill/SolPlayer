@@ -7,11 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BB7855A11D03D75B00FB0914 /* PlaylistViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7855A01D03D75B00FB0914 /* PlaylistViewController.swift */; };
+		BB7855A31D03F61200FB0914 /* Song.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7855A21D03F61200FB0914 /* Song.swift */; };
 		BB7DA6741CFD055000A5A706 /* UserConfigViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7DA6731CFD055000A5A706 /* UserConfigViewController.swift */; };
 		BB7DA6761CFE45F000A5A706 /* EmbedAVPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7DA6751CFE45F000A5A706 /* EmbedAVPlayerViewController.swift */; };
 		BBC6329C1CFB2AD3006407C9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC6329B1CFB2AD3006407C9 /* AppDelegate.swift */; };
 		BBC6329E1CFB2AD3006407C9 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC6329D1CFB2AD3006407C9 /* ViewController.swift */; };
-		BBC632A11CFB2AD3006407C9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BBC6329F1CFB2AD3006407C9 /* Main.storyboard */; };
+		BBC632A11CFB2AD3006407C9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BBC6329F1CFB2AD3006407C9 /* Main.storyboard */; settings = {ASSET_TAGS = (aa, ); }; };
 		BBC632A31CFB2AD3006407C9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BBC632A21CFB2AD3006407C9 /* Assets.xcassets */; };
 		BBC632A61CFB2AD3006407C9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BBC632A41CFB2AD3006407C9 /* LaunchScreen.storyboard */; };
 		BBC632B11CFB2AD3006407C9 /* SolPlayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC632B01CFB2AD3006407C9 /* SolPlayerTests.swift */; };
@@ -37,6 +39,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BB7855A01D03D75B00FB0914 /* PlaylistViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaylistViewController.swift; sourceTree = "<group>"; };
+		BB7855A21D03F61200FB0914 /* Song.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Song.swift; sourceTree = "<group>"; };
 		BB7DA6731CFD055000A5A706 /* UserConfigViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserConfigViewController.swift; sourceTree = "<group>"; };
 		BB7DA6751CFE45F000A5A706 /* EmbedAVPlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmbedAVPlayerViewController.swift; sourceTree = "<group>"; };
 		BBC632981CFB2AD3006407C9 /* SolPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SolPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -105,8 +109,10 @@
 			children = (
 				BBC6329B1CFB2AD3006407C9 /* AppDelegate.swift */,
 				BBC6329D1CFB2AD3006407C9 /* ViewController.swift */,
+				BB7855A21D03F61200FB0914 /* Song.swift */,
 				BB7DA6751CFE45F000A5A706 /* EmbedAVPlayerViewController.swift */,
 				BBC6329F1CFB2AD3006407C9 /* Main.storyboard */,
+				BB7855A01D03D75B00FB0914 /* PlaylistViewController.swift */,
 				BB7DA6731CFD055000A5A706 /* UserConfigViewController.swift */,
 				BBC632A21CFB2AD3006407C9 /* Assets.xcassets */,
 				BBC632C91CFB3654006407C9 /* BGM.mp3 */,
@@ -196,6 +202,9 @@
 		BBC632901CFB2AD3006407C9 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				KnownAssetTags = (
+					aa,
+				);
 				LastSwiftUpdateCheck = 0730;
 				LastUpgradeCheck = 0730;
 				ORGANIZATIONNAME = "Morioka Naoya";
@@ -266,7 +275,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BB7855A31D03F61200FB0914 /* Song.swift in Sources */,
 				BBC6329E1CFB2AD3006407C9 /* ViewController.swift in Sources */,
+				BB7855A11D03D75B00FB0914 /* PlaylistViewController.swift in Sources */,
 				BBC6329C1CFB2AD3006407C9 /* AppDelegate.swift in Sources */,
 				BB7DA6761CFE45F000A5A706 /* EmbedAVPlayerViewController.swift in Sources */,
 				BB7DA6741CFD055000A5A706 /* UserConfigViewController.swift in Sources */,

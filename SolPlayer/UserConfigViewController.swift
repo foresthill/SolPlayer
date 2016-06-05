@@ -36,23 +36,12 @@ class UserConfigViewController: UIViewController {
     }
     @IBAction func solModeChange(sender: UISegmentedControl) {
         //ユーザ設定に保存
-        config.setObject(solModeSegment.selectedSegmentIndex, forKey: "solMode")
+        config.setObject(solModeSegment.selectedSegmentIndex + 1, forKey: "solMode")
     }
 
     //「戻る」ボタン押下時に呼ばれるメソッド
     override func viewWillDisappear(animated: Bool) {
-        
-        /*
-        //ユーザ設定に保存
-        config.setObject(solModeSegment.selectedSegmentIndex, forKey: "solMode")
-
-        let viewControllers = self.navigationController?.viewControllers
-        let vc:ViewController = viewControllers?.first as! ViewController
-        
-        vc.solMode = solModeSegment.selectedSegmentIndex
-        */
-        
-        
+        //
     }
 
     override func didReceiveMemoryWarning() {
