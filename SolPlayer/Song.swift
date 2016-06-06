@@ -11,7 +11,7 @@ import MediaPlayer
 
 class Song {
     
-    /*あれ？独自クラス作らんでもMPMediaItemそのまま使えばよくね？？→軽量化の要件が出たら。*/
+    /*あれ？独自クラス作らんでもMPMediaItemそのまま使えばよくね？？→軽量化の要件が出たら。→結局中身がよく分からんので作ることに。*/
     
     /** 曲名 */
     var title: String?
@@ -24,7 +24,7 @@ class Song {
     /** アルバム名 */
     var albumTitle: String?
     /** アートワーク */
-    var artwork: String?
+    var artwork: UIImage?
     /** 発売日 */
     var releaseDate: String?
     /** レート */
@@ -47,7 +47,7 @@ class Song {
         self.artist = mediaItem.artist
         self.albumArtist = mediaItem.albumArtist
         self.albumTitle = mediaItem.albumTitle
-        //self.artwork = mediaItem.artwork.
+        self.artwork = mediaItem.artwork?.imageWithSize(CGSize.init(width: 150, height: 150))
         //self.releaseDate = mediaItem.releaseDate
         //self.totalTime = mediaItem.?
     }

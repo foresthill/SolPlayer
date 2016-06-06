@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BB659A751D04ED3C005535FC /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB659A741D04ED3C005535FC /* AppError.swift */; };
 		BB7855A11D03D75B00FB0914 /* PlaylistViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7855A01D03D75B00FB0914 /* PlaylistViewController.swift */; };
 		BB7855A31D03F61200FB0914 /* Song.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7855A21D03F61200FB0914 /* Song.swift */; };
 		BB7DA6741CFD055000A5A706 /* UserConfigViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7DA6731CFD055000A5A706 /* UserConfigViewController.swift */; };
@@ -39,6 +40,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BB659A741D04ED3C005535FC /* AppError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
 		BB7855A01D03D75B00FB0914 /* PlaylistViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaylistViewController.swift; sourceTree = "<group>"; };
 		BB7855A21D03F61200FB0914 /* Song.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Song.swift; sourceTree = "<group>"; };
 		BB7DA6731CFD055000A5A706 /* UserConfigViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserConfigViewController.swift; sourceTree = "<group>"; };
@@ -110,6 +112,7 @@
 				BBC6329B1CFB2AD3006407C9 /* AppDelegate.swift */,
 				BBC6329D1CFB2AD3006407C9 /* ViewController.swift */,
 				BB7855A21D03F61200FB0914 /* Song.swift */,
+				BB659A741D04ED3C005535FC /* AppError.swift */,
 				BB7DA6751CFE45F000A5A706 /* EmbedAVPlayerViewController.swift */,
 				BBC6329F1CFB2AD3006407C9 /* Main.storyboard */,
 				BB7855A01D03D75B00FB0914 /* PlaylistViewController.swift */,
@@ -281,6 +284,7 @@
 				BBC6329C1CFB2AD3006407C9 /* AppDelegate.swift in Sources */,
 				BB7DA6761CFE45F000A5A706 /* EmbedAVPlayerViewController.swift in Sources */,
 				BB7DA6741CFD055000A5A706 /* UserConfigViewController.swift in Sources */,
+				BB659A751D04ED3C005535FC /* AppError.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

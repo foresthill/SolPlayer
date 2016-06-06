@@ -18,8 +18,9 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var solSwitch: UISwitch!
     
-    @IBOutlet weak var songTitle: UILabel!
-    @IBOutlet weak var artist: UILabel!
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var artistLabel: UILabel!
+    @IBOutlet weak var artworkImage: UIImageView!
     
     @IBOutlet weak var timeSlider: UISlider!
     @IBOutlet weak var nowTimeLabel: UILabel!
@@ -27,6 +28,8 @@ class ViewController: UIViewController {
 
     @IBOutlet weak var speedSlider: UISlider!
     @IBOutlet weak var speedLabel: UILabel!
+    @IBOutlet weak var speedSegment: UISegmentedControl!
+    
 
     //AVKit
     var audioEngine: AVAudioEngine!
@@ -62,16 +65,16 @@ class ViewController: UIViewController {
     var config: NSUserDefaults!
     
     //プレイリスト
-    //var playlist: [MPMediaItem]!
+    var playlist: [Song]!
     
     //再生中の曲番号
-    var numbar: Int!
+    var number: Int!
     
     //停止フラグ（プレイリストの再読み込みなど）
     var stopFlg = true
     
     //appDelegate外出し
-    //var appDelegate: AppDelegate!
+    var appDelegate: AppDelegate!
     
     /** 
      初期処理
@@ -80,16 +83,16 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        //playlist = nil
-
-        //1.audioFileを読み込む
-        readAudioFile()
+        //0.初期化
+        playlist = nil
+        number = 0
+        appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+        
+        //AVPlayerNodeの初期化（二度手間だがnilを防ぐ）
+        audioPlayerNode = AVAudioPlayerNode()
 
         //2.AVAudioUnitの準備/再生
         //initAudioEngine()
-        
-        //タイマーを初期化
-        timer = NSTimer()
         
         //設定値を取得する
         config = NSUserDefaults.standardUserDefaults()
@@ -100,41 +103,59 @@ class ViewController: UIViewController {
     /**
      audioFileを読み込む
      */
-    func readAudioFile(){
+    func readAudioFile() throws {
         
         //AppDelegateのインスタンスを取得しplayListを取得
         
-        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-        let playlist = appDelegate.playlist
+        //let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+        playlist = appDelegate.playlist
+        number = appDelegate.number
         
         //読み込み処理
-        do {
-            if(playlist != nil){
-                //AVAudioFileの読み込み
-                audioFile = try AVAudioFile(forReading: playlist![0].assetURL!)
+        if(playlist != nil){
 
-            } else {
-                audioFile = try AVAudioFile(forReading: NSURL(fileURLWithPath:
-                    NSBundle.mainBundle().pathForResource("BGM", ofType: "mp3")!))
-                
+            //AVAudioFileの読み込み（errorが発生した場合はメソッドの外へthrowされる）
+            
+            //プレイリストが変更されている場合
+            if(number >= playlist.count){
+                number = playlist.count - 1
             }
+            
+            let song = playlist[number]
+            
+            audioFile = try AVAudioFile(forReading: song.assetURL!)
             
             //サンプルレートの取得
             sampleRate = audioFile.fileFormat.sampleRate
+            
             //再生時間
             duration = Double(audioFile.length) / sampleRate
+            
             //終了時間のラベルを設定
-            endTimeLabel.text = formatTimeString(Float(duration))
+            titleLabel.text = song.title ?? "No Title"
+            artistLabel.text = song.artist ?? "Unknown Artist"
+            endTimeLabel.text = formatTimeString(Float(duration)) ?? "99:59:59"
+            artworkImage.image = song.artwork ?? nil            
+            
             //スライダーの最大値を設定
             timeSlider.maximumValue = Float(duration)
-
-        } catch {
-            //TODO:ファイルが読み込めなかった場合のエラーハンドリング
-        }
+            
+            //AudioEngineを初期化
+            initAudioEngine()
+            
+            //タイマーを初期化
+            //timer = NSTimer()
         
-        //AudioEngineを初期化
-        initAudioEngine()
+        } else {
+            //プレイリストが存在しない場合
+            throw AppError.NoPlayListError
+        }
+    
+
     }
+    
+    /** プレイリストを読み込み最新化 */
+    
     
     /** 
      AudioEngineを初期化
@@ -151,8 +172,12 @@ class ViewController: UIViewController {
         reverbEffect = AVAudioUnitReverb()
         timePitch = AVAudioUnitTimePitch()
         
-        var attachList:Array<AVAudioNode> = [audioPlayerNode, reverbEffect, timePitch]
+        //ピッチを適用
+        //reverb()
+        pitchChange()
         
+        var attachList:Array<AVAudioNode> = [audioPlayerNode, reverbEffect, timePitch]
+
         //AVAudioEngineにアタッチ
         /*TODO:なんか綺麗にかけないのかなぁ forEachとかで。。*/
         for i in 0 ... attachList.count-1 {
@@ -191,9 +216,9 @@ class ViewController: UIViewController {
             let playerTime = audioPlayerNode.playerTimeForNodeTime(nodeTime!)
             let currentTime = (Double(playerTime!.sampleTime) / sampleRate)
             
-            print(nodeTime)
-            print(playerTime)
-            print(currentTime)
+//            print(nodeTime)
+//            print(playerTime)
+//            print(currentTime)
             
             return (Float)(currentTime + offset)
             //return (Float)(currentTime)
@@ -209,23 +234,50 @@ class ViewController: UIViewController {
 
     
     /* 再生処理 */
-    func play(){
+    func play() throws {
         //停止時に変更された内容を適用
         //apply()
         
-        //2度押し対策？
-        if audioPlayerNode.playing {
-            return
+        //2度押し対策？一旦コメントアウト。
+//        if audioPlayerNode.playing {
+//            return
+//        }
+        
+        
+        //再読み込み（あるいは初回再生時）
+        if stopFlg {
+            //停止→再生
+            do {
+                //音源ファイルを読み込む
+                try readAudioFile()
+                
+                //player起動
+                startPlayer()
+                
+                //停止フラグをfalseに
+                stopFlg = false
+
+            } catch {
+                //TODO:ファイルが読み込めなかった場合のエラーハンドリング
+                throw AppError.CantPlayError
+            }
+            
+        } else {
+            //一時停止→再生
+
+            //player起動
+            startPlayer()
+
         }
         
+    }
+    
+    /** 
+     player起動（暫定的）
+     */
+    func startPlayer(){
         //タイマー始動
         timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: #selector(ViewController.didEverySecondPassed), userInfo: nil, repeats: true)
-        
-        //再読み込み
-        if stopFlg {
-            readAudioFile()
-            stopFlg = false
-        }
         
         //再生
         audioPlayerNode.scheduleFile(audioFile, atTime: nil, completionHandler: nil)
@@ -255,20 +307,22 @@ class ViewController: UIViewController {
      */
     func stop(){
         
-        timer = nil
-        
-        audioPlayerNode.stop()
-        
-        nowTimeLabel.text = "00:00:00"
-        endTimeLabel.text = "00:00:00"
-        
-        offset = 0.0
-        
-        timeSlider.value = 0
-        
-        pausedTime = 0.0
-        
-        stopFlg = true
+        if !stopFlg {
+            //タイマーを初期化
+            timer = nil
+            //
+            audioPlayerNode.stop()
+            //画面表示を初期化
+            nowTimeLabel.text = "00:00:00"
+            endTimeLabel.text = "00:00:00"
+            playButton.setTitle("PLAY", forState: .Normal)
+            timeSlider.value = 0
+            //その他必要なパラメータを初期化
+            offset = 0.0
+            pausedTime = 0.0
+            //停止フラグをtrueに
+            stopFlg = true
+        }
         
     }
     
@@ -394,10 +448,59 @@ class ViewController: UIViewController {
         didEverySecondPassed()
         
         //一度playしてからpauseしないと画面に反映されないため
-        if(!playing){
+        if !playing {
             pause()
         }
         
+    }
+    
+    /**
+     プレイリストの前の曲を読みこむ
+     */
+    func prevSong(){
+        
+        while playlist != nil && appDelegate.number > 0 {
+            //-number
+            //number = number - 1
+            appDelegate.number = appDelegate.number - 1
+            
+            do {
+                stop()
+                try play()
+                return
+            } catch {
+                
+            }
+        }
+    }
+    
+    /**
+     プレイリストの次の曲を読みこむ
+     */
+    func nextSong(){
+        
+        while playlist != nil && appDelegate.number < playlist.count-1 {
+            //+number
+            //number = number + 1
+            //+appDelegate.number
+            appDelegate.number = appDelegate.number + 1
+            do {
+                stop()
+                try play()
+                return
+            } catch {
+                
+            }
+        }
+    }
+    
+    func alert(){
+        let alertController = UIAlertController(title: "info", message: "再生できる曲がありません", preferredStyle: .Alert)
+        
+        let defaultAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
+        alertController.addAction(defaultAction)
+        
+        presentViewController(alertController, animated: true, completion: nil)
     }
 
     /**
@@ -429,7 +532,12 @@ class ViewController: UIViewController {
         if audioPlayerNode.playing {
             pause() //再生時→停止処理
         } else {
-            play()  //停止時→再生処理
+            do{
+                try play()  //停止時→再生処理
+            } catch {
+                //エラーハンドリング
+                alert()
+            }
         }
     }
     
@@ -453,6 +561,28 @@ class ViewController: UIViewController {
      - parameter sender: UISlider
      */
     @IBAction func speedSliderAction(sender: UISlider) {
+        speedChange()
+    }
+    
+    
+    @IBAction func prevButtonAction(sender: AnyObject) {
+        prevSong()
+    }
+    
+    /**
+     次の曲ボタン（「＞」）が押された時
+     */
+    @IBAction func nextButtonAction(sender: UIButton) {
+        nextSong()
+    }
+    
+    @IBAction func speedSegmentAction(sender: UISegmentedControl) {
+        var speed = 0.25
+        for _ in 0 ... speedSegment.selectedSegmentIndex {
+            speed = speed * 2
+        }
+        speedSlider.value = Float(speed)
+        
         speedChange()
     }
     
