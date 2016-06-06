@@ -44,9 +44,11 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         //Delegateを設定する
         tableView.delegate = self
         
-        //編集ボタンの配置
-        navigationItem.rightBarButtonItem = editButtonItem()
+        // タイトルの設定
+        self.navigationItem.title = "プレイリスト"
         
+        //編集ボタンの配置
+        navigationItem.leftBarButtonItem = editButtonItem()
         
     }
     

@@ -96,9 +96,11 @@ class ViewController: UIViewController {
         
         //設定値を取得する
         config = NSUserDefaults.standardUserDefaults()
-
+        let defaultConfig = config.objectForKey("solMode")
+        if(defaultConfig != nil){
+            solMode = defaultConfig as! Int
+        }
     }
-    
     
     /**
      audioFileを読み込む

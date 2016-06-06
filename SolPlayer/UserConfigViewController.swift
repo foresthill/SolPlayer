@@ -24,7 +24,7 @@ class UserConfigViewController: UIViewController {
         let defaultConfig = config.objectForKey("solMode")
         
         if(defaultConfig != nil){
-            solModeSegment.selectedSegmentIndex = defaultConfig as! Int
+            solModeSegment.selectedSegmentIndex = (defaultConfig as! Int) - 1
         
         }
         
