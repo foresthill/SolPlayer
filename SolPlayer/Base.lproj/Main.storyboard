@@ -279,6 +279,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="gsg-ne-u4y"/>
                     <connections>
+                        <outlet property="playListPicker" destination="2s1-zW-QL5" id="2v4-7r-wcr"/>
                         <outlet property="tableView" destination="ipP-p0-UHz" id="Apy-1H-xzz"/>
                     </connections>
                 </viewController>

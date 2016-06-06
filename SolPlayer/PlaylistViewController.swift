@@ -18,6 +18,8 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     
     @IBOutlet weak var tableView: UITableView!
     
+    @IBOutlet weak var playListPicker: UIPickerView!
+    
     //@IBOutlet weak var testText: UITextView!
     
     override func viewDidLoad() {
@@ -39,7 +41,7 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         
         //DataSourceの設定をする
-        tableView.dataSource = self   //エラー
+        tableView.dataSource = self
         
         //Delegateを設定する
         tableView.delegate = self
@@ -49,6 +51,11 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         
         //編集ボタンの配置
         navigationItem.leftBarButtonItem = editButtonItem()
+        
+        //playList
+//        if playListPicker.numberOfComponents == 0 {
+//            playListPicker.setValue("default", forKey: "default")
+//        }
         
     }
     
@@ -113,14 +120,22 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     }
     
     /**
-     tableView用メソッド（3.削除可能なセルのindexPath）
+     tableView用メソッド（3.編集モードに入る）
+     */
+    override func setEditing(editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: animated)
+        tableView.editing = editing
+    }
+    
+    /**
+     tableView用メソッド（4.削除可能なセルのindexPath）
      */
     func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
         return true
     }
     
     /**
-     tableView用メソッド（4.実際に削除された時の処理を実装する）
+     tableView用メソッド（5.実際に削除された時の処理の実装）
      */
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         //実データ削除メソッド
@@ -129,6 +144,24 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         //events.removeAtIndex(indexPath.row)   //これがないと、絶対にエラーが出る
         //それからテーブルの更新
         tableView.deleteRowsAtIndexPaths([NSIndexPath(forRow: indexPath.row, inSection: 0)], withRowAnimation: UITableViewRowAnimation.Fade)
+    }
+    
+    /**
+     tableView用メソッド（6.並び替え処理を可能にする）
+     */
+    func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        return true
+    }
+    
+    /**
+     tableView用メソッド（7.並び替え処理の実装）
+     */
+    func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
+//        let targetTitle = titles[sourceIndexPath.row]
+//        if let index = titles.indexOf(targetTitle) {
+//            titles.removeAtIndex(index)
+//            titles.insert(targetTitle, atIndex: destinationIndexPath.row)
+//        }
     }
     
     override func didReceiveMemoryWarning() {
