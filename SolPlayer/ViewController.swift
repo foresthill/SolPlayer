@@ -548,6 +548,12 @@ class ViewController: UIViewController {
         //timeSlider.value = current / Float(duration)
         timeSlider.value = current
         
+        //曲の最後に到達したら次の曲へ
+        if current >= Float(duration) {
+            stop()
+            nextSong()
+        }
+        
     }
     
     /**
