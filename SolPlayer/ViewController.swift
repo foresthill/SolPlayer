@@ -90,6 +90,13 @@ class ViewController: UIViewController {
         
         //AVPlayerNodeの初期化（二度手間だがnilを防ぐ）
         audioPlayerNode = AVAudioPlayerNode()
+        
+        //エフェクトの初期化
+        reverbEffect = AVAudioUnitReverb()
+        timePitch = AVAudioUnitTimePitch()
+        
+        //スライダーを操作不能に #72
+        timeSlider.enabled = false
 
         //2.AVAudioUnitの準備/再生
         //initAudioEngine()
@@ -110,49 +117,45 @@ class ViewController: UIViewController {
         //AppDelegateのインスタンスを取得しplayListを取得
         
         //let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-        playlist = appDelegate.playlist
-        number = appDelegate.number
+        //playlist = appDelegate.playlist
         
-        //読み込み処理
-        if(playlist != nil){
-
-            //AVAudioFileの読み込み（errorが発生した場合はメソッドの外へthrowされる）
-            
-            //プレイリストが変更されている場合
-            if(number >= playlist.count){
-                number = playlist.count - 1
-            }
-            
-            let song = playlist[number]
-            
-            audioFile = try AVAudioFile(forReading: song.assetURL!)
-            
-            //サンプルレートの取得
-            sampleRate = audioFile.fileFormat.sampleRate
-            
-            //再生時間
-            duration = Double(audioFile.length) / sampleRate
-            
-            //終了時間のラベルを設定
-            titleLabel.text = song.title ?? "No Title"
-            artistLabel.text = song.artist ?? "Unknown Artist"
-            endTimeLabel.text = formatTimeString(Float(duration)) ?? "99:59:59"
-            artworkImage.image = song.artwork ?? nil            
-            
-            //スライダーの最大値を設定
-            timeSlider.maximumValue = Float(duration)
-            
-            //AudioEngineを初期化
-            initAudioEngine()
-            
-            //タイマーを初期化
-            //timer = NSTimer()
-        
-        } else {
-            //プレイリストが存在しない場合
+        if !playable() {
             throw AppError.NoPlayListError
         }
-    
+        
+        //AVAudioFileの読み込み処理（errorが発生した場合はメソッドの外へthrowされる）
+        number = appDelegate.number
+        
+        //プレイリストが変更されている場合
+        if(number >= playlist.count){
+            number = playlist.count - 1
+        }
+        
+        let song = playlist[number]
+        
+        audioFile = try AVAudioFile(forReading: song.assetURL!)
+        
+        //サンプルレートの取得
+        sampleRate = audioFile.fileFormat.sampleRate
+        
+        //再生時間
+        duration = Double(audioFile.length) / sampleRate
+        
+        //終了時間のラベルを設定
+        titleLabel.text = song.title ?? "No Title"
+        artistLabel.text = song.artist ?? "Unknown Artist"
+        endTimeLabel.text = formatTimeString(Float(duration)) ?? "99:59:59"
+        artworkImage.image = song.artwork ?? nil            
+        
+        //スライダーの最大値を設定
+        timeSlider.maximumValue = Float(duration)
+        
+        //AudioEngineを初期化
+        initAudioEngine()
+        
+        //タイマーを初期化
+        //timer = NSTimer()
+
 
     }
     
@@ -169,15 +172,8 @@ class ViewController: UIViewController {
 
         //AVPlayerNodeの生成
         audioPlayerNode = AVAudioPlayerNode()
-
+        
         //アタッチリスト
-        reverbEffect = AVAudioUnitReverb()
-        timePitch = AVAudioUnitTimePitch()
-        
-        //ピッチを適用
-        //reverb()
-        pitchChange()
-        
         var attachList:Array<AVAudioNode> = [audioPlayerNode, reverbEffect, timePitch]
 
         //AVAudioEngineにアタッチ
@@ -258,6 +254,9 @@ class ViewController: UIViewController {
                 
                 //停止フラグをfalseに
                 stopFlg = false
+                
+                //画面と再生箇所を同期をとる（停止時にいじられてもOKにする）
+                timeSlider.value = 0.0
 
             } catch {
                 //TODO:ファイルが読み込めなかった場合のエラーハンドリング
@@ -285,6 +284,9 @@ class ViewController: UIViewController {
         audioPlayerNode.scheduleFile(audioFile, atTime: nil, completionHandler: nil)
         audioPlayerNode.play()
         playButton.setTitle("PAUSE", forState: .Normal)
+        
+        //スライダーを操作可能に #72
+        timeSlider.enabled = true
     }
     
     /**
@@ -318,7 +320,11 @@ class ViewController: UIViewController {
             nowTimeLabel.text = "00:00:00"
             endTimeLabel.text = "00:00:00"
             playButton.setTitle("PLAY", forState: .Normal)
+            
+            //timeSliderを0に固定していじらせない #72
             timeSlider.value = 0
+            timeSlider.enabled = false
+            
             //その他必要なパラメータを初期化
             offset = 0.0
             pausedTime = 0.0
@@ -419,6 +425,11 @@ class ViewController: UIViewController {
      */
     func timeShift(){
         
+        //プレイリストが読み込まれていない時にシークバーの処理を動作しないようにする #72
+        if !playable() || audioFile == nil {
+            return
+        }
+        
         //let current = currentPlayTime()
         let current = timeSlider.value
         
@@ -461,9 +472,11 @@ class ViewController: UIViewController {
      */
     func prevSong(){
         
-        while playlist != nil && appDelegate.number > 0 {
-            //-number
-            //number = number - 1
+        if !playable() {
+            return
+        }
+        
+        while appDelegate.number > 0 {
             appDelegate.number = appDelegate.number - 1
             
             do {
@@ -481,21 +494,38 @@ class ViewController: UIViewController {
      */
     func nextSong(){
         
-        while playlist != nil && appDelegate.number < playlist.count-1 {
-            //+number
-            //number = number + 1
-            //+appDelegate.number
+        if !playable() {
+            return
+        }
+        
+        while appDelegate.number < playlist.count-1 {
             appDelegate.number = appDelegate.number + 1
             do {
                 stop()
                 try play()
                 return
             } catch {
-                
+                //
             }
         }
     }
     
+    /** 再生可能かどうか判定する（シークバーや次へなどの判定用）*/
+    func playable() -> Bool{
+        
+        playlist = appDelegate.playlist
+        
+        if(playlist != nil && playlist.count > 0){
+            return true
+        }
+        
+        return false
+        
+    }
+    
+    /**
+     再生できる曲が無い場合にアラートを表示する
+     */
     func alert(){
         let alertController = UIAlertController(title: "info", message: "再生できる曲がありません", preferredStyle: .Alert)
         

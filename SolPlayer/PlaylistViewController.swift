@@ -22,6 +22,9 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     
     //@IBOutlet weak var testText: UITextView!
     
+    //appDelegate外出し
+    var appDelegate: AppDelegate!
+    
     override func viewDidLoad() {
         //背景色
         //self.view.backgroundColor = UIColor.cyanColor()   //下の色も変わってしまうのでコメントアウト
@@ -29,7 +32,7 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         //player = MPMusicPlayerController.applicationMusicPlayer()
         //player = MPMusicPlayerController.systemMusicPlayer()  //「ミュージック」アプリの再生状況を反映したものになる
         
-        let appDelegate:AppDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+        appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
         playlist = appDelegate.playlist
         
         //nil対策？→せいかい！
@@ -138,10 +141,10 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
      tableView用メソッド（5.実際に削除された時の処理の実装）
      */
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        //実データ削除メソッド
-        //removeEvent(indexPath.row)
         //先にデータを更新する
-        //events.removeAtIndex(indexPath.row)   //これがないと、絶対にエラーが出る
+        playlist?.removeAtIndex(indexPath.row)   //これがないと、絶対にエラーが出る
+        //大本のデータ更新
+        appDelegate.playlist = playlist
         //それからテーブルの更新
         tableView.deleteRowsAtIndexPaths([NSIndexPath(forRow: indexPath.row, inSection: 0)], withRowAnimation: UITableViewRowAnimation.Fade)
     }
@@ -157,11 +160,14 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
      tableView用メソッド（7.並び替え処理の実装）
      */
     func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
-//        let targetTitle = titles[sourceIndexPath.row]
-//        if let index = titles.indexOf(targetTitle) {
-//            titles.removeAtIndex(index)
-//            titles.insert(targetTitle, atIndex: destinationIndexPath.row)
-//        }
+        let targetSong = playlist![sourceIndexPath.row]
+        //if let index = playlist?.indexOf(targetSong) {
+            playlist?.removeAtIndex(sourceIndexPath.row)
+            playlist?.insert(targetSong, atIndex: destinationIndexPath.row)
+        //}
+        //大本のデータ更新
+        appDelegate.playlist = playlist
+        
     }
     
     override func didReceiveMemoryWarning() {
