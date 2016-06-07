@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		BB659A751D04ED3C005535FC /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB659A741D04ED3C005535FC /* AppError.swift */; };
-		BB7855A11D03D75B00FB0914 /* PlaylistViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7855A01D03D75B00FB0914 /* PlaylistViewController.swift */; };
+		BB66AF8E1D076DE9007CA80A /* PlaylistViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7855A01D03D75B00FB0914 /* PlaylistViewController.swift */; };
 		BB7855A31D03F61200FB0914 /* Song.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7855A21D03F61200FB0914 /* Song.swift */; };
 		BB7DA6741CFD055000A5A706 /* UserConfigViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7DA6731CFD055000A5A706 /* UserConfigViewController.swift */; };
 		BB7DA6761CFE45F000A5A706 /* EmbedAVPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7DA6751CFE45F000A5A706 /* EmbedAVPlayerViewController.swift */; };
@@ -280,7 +280,7 @@
 			files = (
 				BB7855A31D03F61200FB0914 /* Song.swift in Sources */,
 				BBC6329E1CFB2AD3006407C9 /* ViewController.swift in Sources */,
-				BB7855A11D03D75B00FB0914 /* PlaylistViewController.swift in Sources */,
+				BB66AF8E1D076DE9007CA80A /* PlaylistViewController.swift in Sources */,
 				BBC6329C1CFB2AD3006407C9 /* AppDelegate.swift in Sources */,
 				BB7DA6761CFE45F000A5A706 /* EmbedAVPlayerViewController.swift in Sources */,
 				BB7DA6741CFD055000A5A706 /* UserConfigViewController.swift in Sources */,

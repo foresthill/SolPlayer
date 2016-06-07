@@ -398,10 +398,10 @@ class ViewController: UIViewController {
         if(solSwitch.on){
             switch solMode{
             case 1:
-                timePitch.pitch = 170   //440Hz→444.34Hz
+                timePitch.pitch = 17   //440Hz→444.34Hz
                 break
             case 2:
-                timePitch.pitch = -310   //440Hz→432.xxHz
+                timePitch.pitch = -31   //440Hz→432.xxHz
                 break
             default:
                 timePitch.pitch = 0

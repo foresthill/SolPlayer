@@ -67,8 +67,8 @@
                                 <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Playlist" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="41H-OZ-4bF">
-                                <rect key="frame" x="30" y="526" width="54" height="20.5"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="再生中のプレイリスト" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="41H-OZ-4bF">
+                                <rect key="frame" x="30" y="526" width="170" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
@@ -114,7 +114,7 @@
                                     <action selector="timeSliderAction:" destination="BYZ-38-t0r" eventType="valueChanged" id="RDr-dc-Wn2"/>
                                 </connections>
                             </slider>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="default" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eFg-Mw-MpI">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="default" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eFg-Mw-MpI">
                                 <rect key="frame" x="30" y="556" width="42.5" height="16"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                 <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
@@ -235,8 +235,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="プレイリスト" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Rqn-eL-Gok">
-                                <rect key="frame" x="249" y="74" width="102" height="21"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="選択／新規作成" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Rqn-eL-Gok">
+                                <rect key="frame" x="240" y="74" width="119" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
@@ -246,14 +246,19 @@
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </tableView>
                             <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2s1-zW-QL5">
-                                <rect key="frame" x="0.0" y="110" width="600" height="100"/>
+                                <rect key="frame" x="0.0" y="100" width="600" height="100"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="100" id="qsY-S1-IIa"/>
                                 </constraints>
                             </pickerView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cme-R5-sin">
-                                <rect key="frame" x="515" y="218" width="60" height="30"/>
-                                <state key="normal" title="曲を追加"/>
+                                <rect key="frame" x="501" y="205" width="74" height="28"/>
+                                <color key="backgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                <inset key="contentEdgeInsets" minX="7" minY="5" maxX="7" maxY="5"/>
+                                <state key="normal" title="曲を追加">
+                                    <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                </state>
                                 <connections>
                                     <action selector="addSong:" destination="abt-em-hzf" eventType="touchUpInside" id="f6w-AH-eHY"/>
                                 </connections>
@@ -266,9 +271,8 @@
                             <constraint firstItem="ipP-p0-UHz" firstAttribute="top" secondItem="Rqn-eL-Gok" secondAttribute="bottom" constant="150" id="CPG-2v-KJw"/>
                             <constraint firstAttribute="trailingMargin" secondItem="cme-R5-sin" secondAttribute="trailing" constant="5" id="K26-JV-IBd"/>
                             <constraint firstAttribute="trailing" secondItem="ipP-p0-UHz" secondAttribute="trailing" id="LUG-hD-D9r"/>
-                            <constraint firstItem="cme-R5-sin" firstAttribute="top" secondItem="2s1-zW-QL5" secondAttribute="bottom" constant="8" id="RNt-f9-cf1"/>
-                            <constraint firstItem="cme-R5-sin" firstAttribute="top" secondItem="2s1-zW-QL5" secondAttribute="bottom" constant="8" id="SSU-ac-wbg"/>
-                            <constraint firstItem="2s1-zW-QL5" firstAttribute="top" secondItem="Rqn-eL-Gok" secondAttribute="bottom" constant="15" id="anH-30-BhF"/>
+                            <constraint firstItem="cme-R5-sin" firstAttribute="top" secondItem="2s1-zW-QL5" secondAttribute="bottom" constant="5" id="RNt-f9-cf1"/>
+                            <constraint firstItem="2s1-zW-QL5" firstAttribute="top" secondItem="Rqn-eL-Gok" secondAttribute="bottom" constant="5" id="anH-30-BhF"/>
                             <constraint firstAttribute="trailing" secondItem="2s1-zW-QL5" secondAttribute="trailing" id="dqf-P5-fbI"/>
                             <constraint firstItem="2s1-zW-QL5" firstAttribute="centerX" secondItem="pgO-C4-ZbK" secondAttribute="centerX" id="kOo-Rz-bOC"/>
                             <constraint firstItem="ipP-p0-UHz" firstAttribute="leading" secondItem="pgO-C4-ZbK" secondAttribute="leading" id="nfW-8H-Idu"/>

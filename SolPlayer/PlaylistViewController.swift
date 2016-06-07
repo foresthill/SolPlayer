@@ -9,7 +9,7 @@
 import UIKit
 import MediaPlayer
 
-class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate, UITableViewDataSource, UITableViewDelegate {
+class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate, UITableViewDataSource, UITableViewDelegate, UIPickerViewDataSource, UIPickerViewDelegate {
 
     //var player: MPMusicPlayerController!
     
@@ -24,6 +24,10 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     
     //appDelegate外出し
     var appDelegate: AppDelegate!
+    
+    //ダミーのplaylist
+    //let playlistDummy = ["default", "Rock", "20160609", "プレイリストを新規作成"]
+    let playlistDummy = ["default"]
     
     override func viewDidLoad() {
         //背景色
@@ -49,16 +53,21 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         //Delegateを設定する
         tableView.delegate = self
         
+        //表示
+        
         // タイトルの設定
         self.navigationItem.title = "プレイリスト"
         
         //編集ボタンの配置
         navigationItem.leftBarButtonItem = editButtonItem()
         
+        //「曲を追加」ボタンの配置→「プレイリスト追加」へ
+//        let addSongButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Add, target: self, action: #selector(PlaylistViewController.addSong))
+//        navigationItem.setRightBarButtonItem(addSongButton, animated: true)
+
         //playList
-//        if playListPicker.numberOfComponents == 0 {
-//            playListPicker.setValue("default", forKey: "default")
-//        }
+        playListPicker.delegate = self
+        playListPicker.dataSource = self
         
     }
     
@@ -117,8 +126,16 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
      tableView用メソッド（2.セルの内容）
      */
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        //表示設定
         let cell: UITableViewCell = UITableViewCell(style: UITableViewCellStyle.Subtitle, reuseIdentifier: "Cell")
+        cell.textLabel?.numberOfLines = 2
+        cell.detailTextLabel?.numberOfLines = 0 //0にすると制限なし（「…」とならない）
+        
+        //表示内容
         cell.textLabel?.text = playlist![indexPath.row].title
+        //cell.textLabel?.text = "\(indexPath.row).\(playlist[indexPath.row].title)"
+        cell.detailTextLabel?.text = playlist![indexPath.row].artist
+        
         return cell
     }
     
@@ -168,6 +185,36 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         //大本のデータ更新
         appDelegate.playlist = playlist
         
+    }
+    
+    /**
+     UIPicker用メソッド（1.表示列）
+     */
+    func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    /**
+     UIPicker用メソッド（2.表示個数）
+     */
+    func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return playlistDummy.count
+    }
+    
+    /**
+     UIPicker用メソッド（3.表示内容）
+     */
+    func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return playlistDummy[row] as String
+    }
+    
+    /**
+     UIPicker用メソッド（4.選択時）
+     */
+    func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        //TODO:プレイリスト読み込み処理
+        
+        //TODO:「プレイリストを新規作成」を選択された場合
     }
     
     override func didReceiveMemoryWarning() {
