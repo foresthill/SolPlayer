@@ -1,0 +1,87 @@
+
+/* Class = "UILabel"; text = "再生中のプレイリスト"; ObjectID = "41H-OZ-4bF"; */
+"41H-OZ-4bF.text" = "再生中のプレイリスト";
+
+/* Class = "UIButton"; normalTitle = "▶"; ObjectID = "5a8-Zd-8Nx"; */
+"5a8-Zd-8Nx.normalTitle" = "▶";
+
+/* Class = "UITextView"; text = "ソルフェジオ変換の種類を選択します。\n\n【Ver.1】Aの音が440Hz→444Hz（C:528Hz）となるように変換します\n【Ver.2】Aの音が440Hz→432Hzとなるように変換します"; ObjectID = "BBh-Li-tB5"; */
+"BBh-Li-tB5.text" = "ソルフェジオ変換の種類を選択します。\n\n【Ver.1】Aの音が440Hz→444Hz（C:528Hz）となるように変換します\n【Ver.2】Aの音が440Hz→432Hzとなるように変換します";
+
+/* Class = "UISegmentedControl"; D3Y-v3-jLs.segmentTitles[0] = "x0.5"; ObjectID = "D3Y-v3-jLs"; */
+"D3Y-v3-jLs.segmentTitles[0]" = "x0.5";
+
+/* Class = "UISegmentedControl"; D3Y-v3-jLs.segmentTitles[1] = "x1.0"; ObjectID = "D3Y-v3-jLs"; */
+"D3Y-v3-jLs.segmentTitles[1]" = "x1.0";
+
+/* Class = "UISegmentedControl"; D3Y-v3-jLs.segmentTitles[2] = "x2.0"; ObjectID = "D3Y-v3-jLs"; */
+"D3Y-v3-jLs.segmentTitles[2]" = "x2.0";
+
+/* Class = "UISegmentedControl"; D3Y-v3-jLs.segmentTitles[3] = "x4.0"; ObjectID = "D3Y-v3-jLs"; */
+"D3Y-v3-jLs.segmentTitles[3]" = "x4.0";
+
+/* Class = "UISegmentedControl"; D3Y-v3-jLs.segmentTitles[4] = "x8.0"; ObjectID = "D3Y-v3-jLs"; */
+"D3Y-v3-jLs.segmentTitles[4]" = "x8.0";
+
+/* Class = "UITabBarItem"; title = "再生"; ObjectID = "EXf-S4-5AE"; */
+"EXf-S4-5AE.title" = "再生";
+
+/* Class = "UITabBarItem"; title = "プレイリスト"; ObjectID = "EgF-pw-0r5"; */
+"EgF-pw-0r5.title" = "プレイリスト";
+
+/* Class = "UILabel"; text = "SolPlayer ver1.0"; ObjectID = "Gtm-1I-BXc"; */
+"Gtm-1I-BXc.text" = "SolPlayer ver1.0";
+
+/* Class = "UILabel"; text = "Unkwonn Artist"; ObjectID = "QM4-Y4-3De"; */
+"QM4-Y4-3De.text" = "Unkwonn Artist";
+
+/* Class = "UITabBarItem"; title = "設定"; ObjectID = "QVf-OH-A6W"; */
+"QVf-OH-A6W.title" = "設定";
+
+/* Class = "UIButton"; normalTitle = "■"; ObjectID = "Qu3-AK-yLB"; */
+"Qu3-AK-yLB.normalTitle" = "■";
+
+/* Class = "UILabel"; text = "選択／新規作成"; ObjectID = "Rqn-eL-Gok"; */
+"Rqn-eL-Gok.text" = "選択／新規作成";
+
+/* Class = "UILabel"; text = "設定"; ObjectID = "Wbi-Tc-nhF"; */
+"Wbi-Tc-nhF.text" = "設定";
+
+/* Class = "UILabel"; text = "x 1.0"; ObjectID = "X4g-LQ-Ehi"; */
+"X4g-LQ-Ehi.text" = "x 1.0";
+
+/* Class = "UILabel"; text = "Option"; ObjectID = "Z0o-wI-htU"; */
+"Z0o-wI-htU.text" = "Option";
+
+/* Class = "UILabel"; text = "ソルフェジオのモード"; ObjectID = "ZeR-Rc-hcS"; */
+"ZeR-Rc-hcS.text" = "ソルフェジオのモード";
+
+/* Class = "UIButton"; normalTitle = "曲を追加"; ObjectID = "cme-R5-sin"; */
+"cme-R5-sin.normalTitle" = "曲を追加";
+
+/* Class = "UILabel"; text = "default"; ObjectID = "eFg-Mw-MpI"; */
+"eFg-Mw-MpI.text" = "default";
+
+/* Class = "UILabel"; text = "Untitled"; ObjectID = "eVk-O8-mRi"; */
+"eVk-O8-mRi.text" = "Untitled";
+
+/* Class = "UILabel"; text = "再生速度"; ObjectID = "jqk-m6-XYb"; */
+"jqk-m6-XYb.text" = "再生速度";
+
+/* Class = "UILabel"; text = "00:00:00"; ObjectID = "lL4-Vs-x9n"; */
+"lL4-Vs-x9n.text" = "00:00:00";
+
+/* Class = "UISegmentedControl"; q95-Tm-LMA.segmentTitles[0] = "Ver.1"; ObjectID = "q95-Tm-LMA"; */
+"q95-Tm-LMA.segmentTitles[0]" = "Ver.1";
+
+/* Class = "UISegmentedControl"; q95-Tm-LMA.segmentTitles[1] = "Ver.2"; ObjectID = "q95-Tm-LMA"; */
+"q95-Tm-LMA.segmentTitles[1]" = "Ver.2";
+
+/* Class = "UIButton"; normalTitle = ">|"; ObjectID = "qPF-tK-T57"; */
+"qPF-tK-T57.normalTitle" = ">|";
+
+/* Class = "UIButton"; normalTitle = "|<"; ObjectID = "sdu-4d-lCR"; */
+"sdu-4d-lCR.normalTitle" = "|<";
+
+/* Class = "UILabel"; text = "-99:99:99"; ObjectID = "yM9-zp-XEH"; */
+"yM9-zp-XEH.text" = "-99:99:99";

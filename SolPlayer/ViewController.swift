@@ -107,6 +107,21 @@ class ViewController: UIViewController {
         if(defaultConfig != nil){
             solMode = defaultConfig as! Int
         }
+        
+        //ロック時にも再生を続ける
+        let session: AVAudioSession = AVAudioSession.sharedInstance()
+        
+        //ロック時も再生のカテゴリを指定
+        do {
+            try session.setCategory(AVAudioSessionCategoryPlayback)
+            //オーディオセッションを有効化
+            try session.setActive(true)
+        } catch {
+        
+        }
+        
+        
+        
     }
     
     /**

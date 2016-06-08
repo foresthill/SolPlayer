@@ -41,6 +41,8 @@
 
 /* Begin PBXFileReference section */
 		BB659A741D04ED3C005535FC /* AppError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
+		BB66AF8F1D087ACA007CA80A /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Main.strings; sourceTree = "<group>"; };
+		BB66AF901D087ACA007CA80A /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		BB7855A01D03D75B00FB0914 /* PlaylistViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaylistViewController.swift; sourceTree = "<group>"; };
 		BB7855A21D03F61200FB0914 /* Song.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Song.swift; sourceTree = "<group>"; };
 		BB7DA6731CFD055000A5A706 /* UserConfigViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserConfigViewController.swift; sourceTree = "<group>"; };
@@ -214,6 +216,11 @@
 				TargetAttributes = {
 					BBC632971CFB2AD3006407C9 = {
 						CreatedOnToolsVersion = 7.3.1;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+						};
 					};
 					BBC632AB1CFB2AD3006407C9 = {
 						CreatedOnToolsVersion = 7.3.1;
@@ -324,6 +331,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				BBC632A01CFB2AD3006407C9 /* Base */,
+				BB66AF8F1D087ACA007CA80A /* ja */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -332,6 +340,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				BBC632A51CFB2AD3006407C9 /* Base */,
+				BB66AF901D087ACA007CA80A /* ja */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
