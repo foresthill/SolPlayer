@@ -120,6 +120,7 @@ class ViewController: UIViewController {
         
         }
         
+        UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
         
         
     }
@@ -570,6 +571,37 @@ class ViewController: UIViewController {
         }
         
     }
+    
+    /**
+     ロック画面からのイベントを処理する
+     */
+    override func remoteControlReceivedWithEvent(event: UIEvent?) {
+        if event?.type == UIEventType.RemoteControl {
+            switch event!.subtype {
+            case UIEventSubtype.RemoteControlPlay:
+                do { try play() } catch { }
+                break
+            case UIEventSubtype.RemoteControlPause:
+                pause()
+                break
+            case UIEventSubtype.RemoteControlStop:
+                stop()
+                break
+            case UIEventSubtype.RemoteControlPreviousTrack:
+                prevSong()
+                break
+            case UIEventSubtype.RemoteControlNextTrack:
+                nextSong()
+                break
+            default:
+                break
+            }
+        }
+    }
+    
+    /**
+     ViewControllerでこの処理を実装する場合はファーストレスポンダになる必要がある
+     */
     
     /**
      solfeggioスイッチが押された時（Action→ValueChanged）
