@@ -76,6 +76,9 @@ class ViewController: UIViewController {
     //appDelegate外出し
     var appDelegate: AppDelegate!
     
+    //画面ロック時の曲情報を持つインスタンス
+    //var defaultCenter: MPNowPlayingInfoCenter!
+    
     /** 
      初期処理
      */
@@ -108,20 +111,23 @@ class ViewController: UIViewController {
             solMode = defaultConfig as! Int
         }
         
-        //ロック時にも再生を続ける
+        //画面ロック時にも再生を続ける
         let session: AVAudioSession = AVAudioSession.sharedInstance()
         
-        //ロック時も再生のカテゴリを指定
+        //画面ロック時も再生のカテゴリを指定
         do {
-            try session.setCategory(AVAudioSessionCategoryPlayback)
+            //try session.setCategory(AVAudioSessionCategoryPlayback)
+            try session.setCategory(AVAudioSessionCategoryPlayAndRecord)
             //オーディオセッションを有効化
             try session.setActive(true)
         } catch {
         
         }
-        
+        //画面ロック時のアクションを取得する
         UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
         
+        //画面ロック時の曲情報を持つインスタンス
+        //var defaultCenter = MPNowPlayingInfoCenter.defaultCenter()
         
     }
     
@@ -157,12 +163,6 @@ class ViewController: UIViewController {
         //再生時間
         duration = Double(audioFile.length) / sampleRate
         
-        //終了時間のラベルを設定
-        titleLabel.text = song.title ?? "No Title"
-        artistLabel.text = song.artist ?? "Unknown Artist"
-        endTimeLabel.text = formatTimeString(Float(duration)) ?? "99:59:59"
-        artworkImage.image = song.artwork ?? nil            
-        
         //スライダーの最大値を設定
         timeSlider.maximumValue = Float(duration)
         
@@ -171,7 +171,26 @@ class ViewController: UIViewController {
         
         //タイマーを初期化
         //timer = NSTimer()
-
+        
+        //終了時間のラベルを設定
+        titleLabel.text = song.title ?? "No Title"
+        artistLabel.text = song.artist ?? "Unknown Artist"
+        endTimeLabel.text = formatTimeString(Float(duration)) ?? "99:59:59"
+        artworkImage.image = song.artwork?.imageWithSize(CGSize.init(width: 150, height: 150)) ?? nil
+        
+        //画面ロック時の情報を指定 #73
+        let defaultCenter = MPNowPlayingInfoCenter.defaultCenter()
+//        defaultCenter.nowPlayingInfo![MPMediaItemPropertyTitle] = titleLabel.text
+//        defaultCenter.nowPlayingInfo![MPMediaItemPropertyArtist] = artistLabel.text
+//        defaultCenter.nowPlayingInfo![MPMediaItemPropertyArtwork] = artworkImage.image
+//        defaultCenter.nowPlayingInfo![MPMediaItemPropertyPlaybackDuration] = duration
+        
+        defaultCenter.nowPlayingInfo = [
+            MPMediaItemPropertyTitle:titleLabel.text!,
+            MPMediaItemPropertyArtist:artistLabel.text!,
+            MPMediaItemPropertyArtwork:song.artwork!,
+            MPMediaItemPropertyPlaybackDuration:duration!
+        ]
 
     }
     
@@ -580,9 +599,9 @@ class ViewController: UIViewController {
             switch event!.subtype {
             case UIEventSubtype.RemoteControlPlay:
                 do { try play() } catch { }
-                break
             case UIEventSubtype.RemoteControlPause:
                 pause()
+            case UIEventSubtype.RemoteControlTogglePlayPause:
                 break
             case UIEventSubtype.RemoteControlStop:
                 stop()

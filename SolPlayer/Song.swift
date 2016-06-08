@@ -24,7 +24,8 @@ class Song {
     /** アルバム名 */
     var albumTitle: String?
     /** アートワーク */
-    var artwork: UIImage?
+    //var artwork: UIImage?
+    var artwork: MPMediaItemArtwork?
     /** 発売日 */
     var releaseDate: String?
     /** レート */
@@ -47,7 +48,8 @@ class Song {
         self.artist = mediaItem.artist
         self.albumArtist = mediaItem.albumArtist
         self.albumTitle = mediaItem.albumTitle
-        self.artwork = mediaItem.artwork?.imageWithSize(CGSize.init(width: 150, height: 150))
+        //self.artwork = mediaItem.artwork?.imageWithSize(CGSize.init(width: 150, height: 150))
+        self.artwork = mediaItem.artwork
         //self.releaseDate = mediaItem.releaseDate
         //self.totalTime = mediaItem.?
     }
