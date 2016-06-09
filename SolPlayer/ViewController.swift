@@ -172,7 +172,7 @@ class ViewController: UIViewController {
         //タイマーを初期化
         //timer = NSTimer()
         
-        //終了時間のラベルを設定
+        //プレイヤーラベルを設定
         titleLabel.text = song.title ?? "No Title"
         artistLabel.text = song.artist ?? "Unknown Artist"
         endTimeLabel.text = formatTimeString(Float(duration)) ?? "99:59:59"
@@ -180,18 +180,19 @@ class ViewController: UIViewController {
         
         //画面ロック時の情報を指定 #73
         let defaultCenter = MPNowPlayingInfoCenter.defaultCenter()
-//        defaultCenter.nowPlayingInfo![MPMediaItemPropertyTitle] = titleLabel.text
-//        defaultCenter.nowPlayingInfo![MPMediaItemPropertyArtist] = artistLabel.text
-//        defaultCenter.nowPlayingInfo![MPMediaItemPropertyArtwork] = artworkImage.image
-//        defaultCenter.nowPlayingInfo![MPMediaItemPropertyPlaybackDuration] = duration
         
+        //ディクショナリ型で定義
         defaultCenter.nowPlayingInfo = [
             MPMediaItemPropertyTitle:titleLabel.text!,
             MPMediaItemPropertyArtist:artistLabel.text!,
-            MPMediaItemPropertyArtwork:song.artwork!,
             MPMediaItemPropertyPlaybackDuration:duration!
         ]
-
+        
+        if song.artwork != nil {
+            defaultCenter.nowPlayingInfo![MPMediaItemPropertyArtwork] = song.artwork
+            //MPMediaItemPropertyArtwork:song.artwork!,
+        }
+        
     }
     
     /** プレイリストを読み込み最新化 */
