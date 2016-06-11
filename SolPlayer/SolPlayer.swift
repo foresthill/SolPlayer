@@ -16,20 +16,22 @@ import MediaPlayer
  */
 class SolPlayer {
     
-    //シングルトン
+    /**
+     シングルトン
+     */
     static let sharedManager = SolPlayer()
     
     //AVKit
     var audioEngine: AVAudioEngine!
-    var audioPlayerNode: AVAudioPlayerNode!
+    var audioPlayerNode: AVAudioPlayerNode! = AVAudioPlayerNode()
     var audioFile: AVAudioFile!
     
     //エフェクトを外出し（2016/06/03）
-    var reverbEffect: AVAudioUnitReverb!
-    var timePitch: AVAudioUnitTimePitch!
+    var reverbEffect: AVAudioUnitReverb! = AVAudioUnitReverb()
+    var timePitch: AVAudioUnitTimePitch! = AVAudioUnitTimePitch()
     
     //ソルフェジオのモード（ver1:440→444Hz、ver2:440→432Hz）
-    var solMode = 1
+    var solMode:Int! = 1
     
     //停止処理
     var pausedTime: Float!
@@ -50,45 +52,31 @@ class SolPlayer {
     var config: NSUserDefaults!
     
     //プレイリスト
-    var playlist: [Song]!
+    var playlist: [Song]! = nil
     
     //再生中の曲番号
-    var number: Int!
+    var number: Int! = 0
     
     //停止フラグ（プレイリストの再読み込みなど）
     var stopFlg = true
     
     //appDelegate外出し
-    var appDelegate: AppDelegate!
+    var appDelegate: AppDelegate! = UIApplication.sharedApplication().delegate as! AppDelegate
     
     //画面ロック時の曲情報を持つインスタンス
     //var defaultCenter: MPNowPlayingInfoCenter!
     
+    //画面ロック時にも再生を続ける
+    let session: AVAudioSession = AVAudioSession.sharedInstance()
+    
+    //曲情報外出し
+    var song: Song!
+    
     /**
-     初期処理
+     初期処理（シングルトンクラスのため外部からのアクセス禁止）
      */
-    init(){
-        //0.初期化
-        playlist = nil
-        number = 0
-        appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-        
-        //AVPlayerNodeの初期化（二度手間だがnilを防ぐ）
-        audioPlayerNode = AVAudioPlayerNode()
-        
-        //エフェクトの初期化
-        reverbEffect = AVAudioUnitReverb()
-        timePitch = AVAudioUnitTimePitch()
-        
-        //設定値を取得する
-        config = NSUserDefaults.standardUserDefaults()
-        let defaultConfig = config.objectForKey("solMode")
-        if(defaultConfig != nil){
-            solMode = defaultConfig as! Int
-        }
-        
-        //画面ロック時にも再生を続ける
-        let session: AVAudioSession = AVAudioSession.sharedInstance()
+    private init(){
+        print("Solplayer init")
         
         //画面ロック時も再生のカテゴリを指定
         do {
@@ -99,23 +87,27 @@ class SolPlayer {
         } catch {
             
         }
+        
         //画面ロック時のアクションを取得する
         UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
         
         //画面ロック時の曲情報を持つインスタンス
         //var defaultCenter = MPNowPlayingInfoCenter.defaultCenter()
         
+        //設定値を取得する
+        config = NSUserDefaults.standardUserDefaults()
+        let defaultConfig = config.objectForKey("solMode")
+        if(defaultConfig != nil){
+            solMode = defaultConfig as! Int
+        }
+
     }
     
     /**
      audioFileを読み込む
      */
+    //func readAudioFile() throws -> Song {
     func readAudioFile() throws {
-        
-        //AppDelegateのインスタンスを取得しplayListを取得
-        
-        //let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-        //playlist = appDelegate.playlist
         
         if !playable() {
             throw AppError.NoPlayListError
@@ -129,7 +121,8 @@ class SolPlayer {
             number = playlist.count - 1
         }
         
-        let song = playlist[number]
+        //let song = playlist[number]
+        song = playlist[number]
         
         audioFile = try AVAudioFile(forReading: song.assetURL!)
         
@@ -138,36 +131,26 @@ class SolPlayer {
         
         //再生時間
         duration = Double(audioFile.length) / sampleRate
-        
-        //TODO:スライダーの最大値を設定
-        //timeSlider.maximumValue = Float(duration)
-        
+
         //AudioEngineを初期化
         initAudioEngine()
-        
-        //タイマーを初期化
-        //timer = NSTimer()
-        
-        //プレイヤーラベルを設定
-//        titleLabel.text = song.title ?? "No Title"
-//        artistLabel.text = song.artist ?? "Unknown Artist"
-//        endTimeLabel.text = formatTimeString(Float(duration)) ?? "99:59:59"
-//        artworkImage.image = song.artwork?.imageWithSize(CGSize.init(width: 120, height: 120)) ?? nil
         
         //画面ロック時の情報を指定 #73
         let defaultCenter = MPNowPlayingInfoCenter.defaultCenter()
         
         //ディクショナリ型で定義
-//        defaultCenter.nowPlayingInfo = [
-//            MPMediaItemPropertyTitle:titleLabel.text!,
-//            MPMediaItemPropertyArtist:artistLabel.text!,
-//            MPMediaItemPropertyPlaybackDuration:duration!
-//        ]
+        defaultCenter.nowPlayingInfo = [
+            MPMediaItemPropertyTitle:(song.title ?? "No Title"),
+            MPMediaItemPropertyArtist:(song.artist ?? "Unknown Artist"),
+            MPMediaItemPropertyPlaybackDuration:duration!
+        ]
         
         if song.artwork != nil {
             defaultCenter.nowPlayingInfo![MPMediaItemPropertyArtwork] = song.artwork
             //MPMediaItemPropertyArtwork:song.artwork!,
         }
+        
+        //return song
         
     }
     
@@ -210,7 +193,7 @@ class SolPlayer {
     }
     
     
-    /* 現在の再生時刻を返す */
+    /** 現在の再生時刻を返す */
     func currentPlayTime() -> Float {
         
         if audioPlayerNode.playing {
@@ -218,20 +201,13 @@ class SolPlayer {
             if(sampleRate == 0){
                 return 0
             }
-            
-            //let currentRate = audioPlayerNode.playerTimeForNodeTime(audioPlayerNode.lastRenderTime!)?.sampleRate
-            
+
             //便宜上分かりやすく書いてみる
             let nodeTime = audioPlayerNode.lastRenderTime
             let playerTime = audioPlayerNode.playerTimeForNodeTime(nodeTime!)
             let currentTime = (Double(playerTime!.sampleTime) / sampleRate)
             
-            //            print(nodeTime)
-            //            print(playerTime)
-            //            print(currentTime)
-            
             return (Float)(currentTime + offset)
-            //return (Float)(currentTime)
             
         } else {
             //停止時
@@ -243,17 +219,23 @@ class SolPlayer {
     
     
     
-    /* 再生処理 */
+    /**
+     solPlayer再生処理
+     
+     - parameter:なし
+     
+     - throws: AppError.CantPlayError（音源ファイルの読み込みに失敗した時）
+     
+     - returns: なし //true（停止→再生）、false（一時停止→再生）
+
+     */
     func play() throws {
-        //停止時に変更された内容を適用
-        //apply()
+        //func play() throws -> Song {
         
-        //2度押し対策？一旦コメントアウト。
-        //        if audioPlayerNode.playing {
-        //            return
-        //        }
+    //    var song: Song
         
-        
+        //var ret = false
+
         //再読み込み（あるいは初回再生時）
         if stopFlg {
             //停止→再生
@@ -261,36 +243,36 @@ class SolPlayer {
                 //音源ファイルを読み込む
                 try readAudioFile()
                 
-                //player起動
-                startPlayer()
-                
                 //停止フラグをfalseに
                 stopFlg = false
                 
                 //画面と再生箇所を同期をとる（停止時にいじられてもOKにする）
 //                timeSlider.value = 0.0
                 
+                //return song
+                
+                //ret = true
+                
             } catch {
                 //TODO:ファイルが読み込めなかった場合のエラーハンドリング
                 throw AppError.CantPlayError
             }
             
-        } else {
-            //一時停止→再生
-            
-            //player起動
-            startPlayer()
-            
         }
+        
+        //player起動
+        startPlayer()
+        
+        //return ret
         
     }
     
     /**
-     player起動（暫定的）
+     audioPlayerNode起動（暫定的）
      */
     func startPlayer(){
         //タイマー始動
-        timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: #selector(ViewController.didEverySecondPassed), userInfo: nil, repeats: true)
+        //timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: #selector(ViewController.didEverySecondPassed), userInfo: nil, repeats: true)
         
         //再生
         audioPlayerNode.scheduleFile(audioFile, atTime: nil, completionHandler: nil)
@@ -346,25 +328,7 @@ class SolPlayer {
         
     }
     
-    
-    
-    /**
-     時間をhh:mm:ssにフォーマットする
-     
-     - parameters:
-     - time: 時刻
-     
-     - throws: なし
-     
-     - returns: 文字列（hh:mm:ss）
-     */
-    func formatTimeString(time: Float) -> String {
-        let s: Int = Int(time % 60)
-        let m: Int = Int((time - Float(s)) / 60 % 60)
-        let h: Int = Int((time - Float(m) - Float(s)) / 3600 % 3600)
-        let str = String(format: "%02d:%02d:%02d", h, m, s)
-        return str
-    }
+
     
     //func reverb() -> AVAudioUnitReverb {
     func reverb() {
@@ -389,7 +353,7 @@ class SolPlayer {
         }
         
         if(solSwitch){
-            switch solMode{
+            switch solMode {
             case 1:
                 timePitch.pitch = 17   //440Hz→444.34Hz
                 break
@@ -463,10 +427,10 @@ class SolPlayer {
     /**
      プレイリストの前の曲を読みこむ
      */
-    func prevSong(){
+    func prevSong() throws {
         
         if !playable() {
-            return
+            throw AppError.NoSongError
         }
         
         while appDelegate.number > 0 {
@@ -477,18 +441,21 @@ class SolPlayer {
                 try play()
                 return
             } catch {
-                
             }
         }
+        
+        //while文を抜けてしまった場合（プレイリストの最初まで読み込める曲がなかった場合）
+        throw AppError.NoSongError
+
     }
     
     /**
      プレイリストの次の曲を読みこむ
      */
-    func nextSong(){
+    func nextSong() throws {
         
         if !playable() {
-            return
+            throw AppError.NoSongError
         }
         
         while appDelegate.number < playlist.count-1 {
@@ -498,9 +465,12 @@ class SolPlayer {
                 try play()
                 return
             } catch {
-                //
             }
         }
+        
+        //while文を抜けてしまった場合（プレイリストの最後まで読み込める曲がなかった場合）
+        throw AppError.NoSongError
+
     }
     
     /** 再生可能かどうか判定する（シークバーや次へなどの判定用）*/
@@ -515,6 +485,39 @@ class SolPlayer {
         return false
         
     }
+    
+    
+    /**
+     ロック画面からのイベントを処理する→ViewControllerへ移動。
+     */
+    /*
+    //override func remoteControlReceivedWithEvent(event: UIEvent?) {
+    func remoteControlReceivedWithEvent(event: UIEvent?) {
+        
+        if event?.type == UIEventType.RemoteControl {
+            switch event!.subtype {
+            case UIEventSubtype.RemoteControlPlay:
+                do { try play() } catch { }
+            case UIEventSubtype.RemoteControlPause:
+                pause()
+            case UIEventSubtype.RemoteControlTogglePlayPause:
+                if
+                break
+            case UIEventSubtype.RemoteControlStop:
+                stop()
+                break
+            case UIEventSubtype.RemoteControlPreviousTrack:
+                do { try prevSong() } catch { }
+                break
+            case UIEventSubtype.RemoteControlNextTrack:
+                do { try nextSong() } catch { }
+                break
+            default:
+                break
+            }
+        }
+    }
+ */
 
     
 }
