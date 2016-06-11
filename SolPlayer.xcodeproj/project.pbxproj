@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		BB659A751D04ED3C005535FC /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB659A741D04ED3C005535FC /* AppError.swift */; };
 		BB66AF8E1D076DE9007CA80A /* PlaylistViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7855A01D03D75B00FB0914 /* PlaylistViewController.swift */; };
+		BB66AF951D0BA120007CA80A /* solplayer_bg3.png in Resources */ = {isa = PBXBuildFile; fileRef = BB66AF941D0BA120007CA80A /* solplayer_bg3.png */; };
+		BB66AF971D0BB879007CA80A /* SolPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB66AF961D0BB879007CA80A /* SolPlayer.swift */; };
 		BB7855A31D03F61200FB0914 /* Song.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7855A21D03F61200FB0914 /* Song.swift */; };
 		BB7DA6741CFD055000A5A706 /* UserConfigViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7DA6731CFD055000A5A706 /* UserConfigViewController.swift */; };
 		BB7DA6761CFE45F000A5A706 /* EmbedAVPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7DA6751CFE45F000A5A706 /* EmbedAVPlayerViewController.swift */; };
@@ -43,6 +45,8 @@
 		BB659A741D04ED3C005535FC /* AppError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
 		BB66AF8F1D087ACA007CA80A /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Main.strings; sourceTree = "<group>"; };
 		BB66AF901D087ACA007CA80A /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
+		BB66AF941D0BA120007CA80A /* solplayer_bg3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = solplayer_bg3.png; sourceTree = "<group>"; };
+		BB66AF961D0BB879007CA80A /* SolPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SolPlayer.swift; sourceTree = "<group>"; };
 		BB7855A01D03D75B00FB0914 /* PlaylistViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaylistViewController.swift; sourceTree = "<group>"; };
 		BB7855A21D03F61200FB0914 /* Song.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Song.swift; sourceTree = "<group>"; };
 		BB7DA6731CFD055000A5A706 /* UserConfigViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserConfigViewController.swift; sourceTree = "<group>"; };
@@ -88,6 +92,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		BB66AF911D0BA009007CA80A /* images */ = {
+			isa = PBXGroup;
+			children = (
+				BB66AF941D0BA120007CA80A /* solplayer_bg3.png */,
+			);
+			name = images;
+			sourceTree = "<group>";
+		};
 		BBC6328F1CFB2AD3006407C9 = {
 			isa = PBXGroup;
 			children = (
@@ -112,6 +124,8 @@
 			isa = PBXGroup;
 			children = (
 				BBC6329B1CFB2AD3006407C9 /* AppDelegate.swift */,
+				BB66AF961D0BB879007CA80A /* SolPlayer.swift */,
+				BB66AF911D0BA009007CA80A /* images */,
 				BBC6329D1CFB2AD3006407C9 /* ViewController.swift */,
 				BB7855A21D03F61200FB0914 /* Song.swift */,
 				BB659A741D04ED3C005535FC /* AppError.swift */,
@@ -261,6 +275,7 @@
 				BBC632A31CFB2AD3006407C9 /* Assets.xcassets in Resources */,
 				BBC632A11CFB2AD3006407C9 /* Main.storyboard in Resources */,
 				BBC632CA1CFB3654006407C9 /* BGM.mp3 in Resources */,
+				BB66AF951D0BA120007CA80A /* solplayer_bg3.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -290,6 +305,7 @@
 				BB66AF8E1D076DE9007CA80A /* PlaylistViewController.swift in Sources */,
 				BBC6329C1CFB2AD3006407C9 /* AppDelegate.swift in Sources */,
 				BB7DA6761CFE45F000A5A706 /* EmbedAVPlayerViewController.swift in Sources */,
+				BB66AF971D0BB879007CA80A /* SolPlayer.swift in Sources */,
 				BB7DA6741CFD055000A5A706 /* UserConfigViewController.swift in Sources */,
 				BB659A751D04ED3C005535FC /* AppError.swift in Sources */,
 			);

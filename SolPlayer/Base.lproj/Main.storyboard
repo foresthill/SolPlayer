@@ -18,6 +18,9 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <imageView userInteractionEnabled="NO" alpha="0.94999999999999996" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="solplayer_bg3.png" translatesAutoresizingMaskIntoConstraints="NO" id="LiR-Hf-Dd2">
+                                <rect key="frame" x="-169" y="-223" width="752" height="1182"/>
+                            </imageView>
                             <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minValue="0.10000000000000001" maxValue="8" translatesAutoresizingMaskIntoConstraints="NO" id="Fak-xp-40e">
                                 <rect key="frame" x="106" y="430" width="204" height="31"/>
                                 <constraints>
@@ -40,7 +43,7 @@
                                     <constraint firstAttribute="height" constant="17" id="Gad-Hx-tyu"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="再生速度" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jqk-m6-XYb">
@@ -70,7 +73,7 @@
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="再生中のプレイリスト" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="41H-OZ-4bF">
                                 <rect key="frame" x="30" y="526" width="170" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="YxJ-xI-PHh">
@@ -82,7 +85,7 @@
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="SolPlayer ver1.0" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Gtm-1I-BXc">
                                 <rect key="frame" x="146" y="30" width="121" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5a8-Zd-8Nx">
@@ -96,7 +99,7 @@
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Untitled" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eVk-O8-mRi">
-                                <rect key="frame" x="90" y="200" width="61" height="21"/>
+                                <rect key="frame" x="80" y="200" width="61" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
@@ -114,8 +117,8 @@
                                     <action selector="timeSliderAction:" destination="BYZ-38-t0r" eventType="valueChanged" id="RDr-dc-Wn2"/>
                                 </connections>
                             </slider>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="default" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eFg-Mw-MpI">
-                                <rect key="frame" x="30" y="556" width="42.5" height="16"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="default" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eFg-Mw-MpI">
+                                <rect key="frame" x="30" y="557" width="42.5" height="16"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                 <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
@@ -141,15 +144,15 @@
                                 </connections>
                             </segmentedControl>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="zgi-XZ-dO8">
-                                <rect key="frame" x="30" y="190" width="50" height="50"/>
+                                <rect key="frame" x="30" y="200" width="40" height="40"/>
                                 <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="50" id="YKf-b6-E5Q"/>
-                                    <constraint firstAttribute="height" constant="50" id="sjB-2y-0AU"/>
+                                    <constraint firstAttribute="width" constant="40" id="YKf-b6-E5Q"/>
+                                    <constraint firstAttribute="height" constant="40" id="sjB-2y-0AU"/>
                                 </constraints>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Unkwonn Artist" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QM4-Y4-3De">
-                                <rect key="frame" x="90" y="224" width="93.5" height="16"/>
+                                <rect key="frame" x="80" y="224" width="93.5" height="16"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                 <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
@@ -160,6 +163,7 @@
                             <constraint firstItem="Fak-xp-40e" firstAttribute="top" secondItem="uKK-pi-yjk" secondAttribute="bottom" constant="95" id="0S4-xn-t4B"/>
                             <constraint firstItem="5a8-Zd-8Nx" firstAttribute="top" secondItem="sdu-4d-lCR" secondAttribute="top" id="1Hu-Gn-pyi"/>
                             <constraint firstItem="Z0o-wI-htU" firstAttribute="top" secondItem="uKK-pi-yjk" secondAttribute="bottom" constant="70" id="3dE-g5-d2J"/>
+                            <constraint firstItem="LiR-Hf-Dd2" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="4pu-Qn-MKR"/>
                             <constraint firstItem="YxJ-xI-PHh" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="7U5-HL-S1h"/>
                             <constraint firstItem="uKK-pi-yjk" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="10" id="8uA-yX-V8b"/>
                             <constraint firstItem="yM9-zp-XEH" firstAttribute="top" secondItem="uKK-pi-yjk" secondAttribute="bottom" constant="15" id="9Fp-Lr-5y6"/>
@@ -174,6 +178,7 @@
                             <constraint firstItem="lL4-Vs-x9n" firstAttribute="top" secondItem="uKK-pi-yjk" secondAttribute="bottom" constant="15" id="LLU-Nz-cZx"/>
                             <constraint firstItem="eFg-Mw-MpI" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="10" id="MaT-0M-d9D"/>
                             <constraint firstItem="lL4-Vs-x9n" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="10" id="Mjl-bN-NBR"/>
+                            <constraint firstItem="LiR-Hf-Dd2" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="OlY-an-fWM"/>
                             <constraint firstItem="X4g-LQ-Ehi" firstAttribute="top" secondItem="jqk-m6-XYb" secondAttribute="top" id="PPN-3z-Kf6"/>
                             <constraint firstItem="qPF-tK-T57" firstAttribute="leading" secondItem="5a8-Zd-8Nx" secondAttribute="trailing" constant="60" id="Ppk-Ea-TXa"/>
                             <constraint firstItem="Fak-xp-40e" firstAttribute="leading" secondItem="jqk-m6-XYb" secondAttribute="trailing" constant="30" id="QcP-zc-kca"/>
@@ -235,6 +240,9 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <imageView userInteractionEnabled="NO" alpha="0.94999999999999996" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="solplayer_bg3.png" translatesAutoresizingMaskIntoConstraints="NO" id="M56-NL-Mhz">
+                                <rect key="frame" x="-76" y="-291" width="752" height="1182"/>
+                            </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="選択／新規作成" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Rqn-eL-Gok">
                                 <rect key="frame" x="240" y="74" width="119" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -267,6 +275,7 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="ipP-p0-UHz" firstAttribute="centerX" secondItem="pgO-C4-ZbK" secondAttribute="centerX" id="2T0-Uh-1Mv"/>
+                            <constraint firstItem="M56-NL-Mhz" firstAttribute="centerX" secondItem="pgO-C4-ZbK" secondAttribute="centerX" id="2hC-5D-PwG"/>
                             <constraint firstItem="2s1-zW-QL5" firstAttribute="leading" secondItem="pgO-C4-ZbK" secondAttribute="leading" id="96A-B5-0O0"/>
                             <constraint firstItem="ipP-p0-UHz" firstAttribute="top" secondItem="Rqn-eL-Gok" secondAttribute="bottom" constant="150" id="CPG-2v-KJw"/>
                             <constraint firstAttribute="trailingMargin" secondItem="cme-R5-sin" secondAttribute="trailing" constant="5" id="K26-JV-IBd"/>
@@ -276,6 +285,7 @@
                             <constraint firstAttribute="trailing" secondItem="2s1-zW-QL5" secondAttribute="trailing" id="dqf-P5-fbI"/>
                             <constraint firstItem="2s1-zW-QL5" firstAttribute="centerX" secondItem="pgO-C4-ZbK" secondAttribute="centerX" id="kOo-Rz-bOC"/>
                             <constraint firstItem="ipP-p0-UHz" firstAttribute="leading" secondItem="pgO-C4-ZbK" secondAttribute="leading" id="nfW-8H-Idu"/>
+                            <constraint firstItem="M56-NL-Mhz" firstAttribute="centerY" secondItem="pgO-C4-ZbK" secondAttribute="centerY" id="q3F-yZ-9AU"/>
                             <constraint firstItem="Rqn-eL-Gok" firstAttribute="top" secondItem="J7Y-ls-EbL" secondAttribute="bottom" constant="10" id="sS0-We-f8c"/>
                             <constraint firstItem="MRE-CA-wKa" firstAttribute="top" secondItem="ipP-p0-UHz" secondAttribute="bottom" id="tiY-Nb-FQS"/>
                             <constraint firstItem="Rqn-eL-Gok" firstAttribute="centerX" secondItem="pgO-C4-ZbK" secondAttribute="centerX" id="ufn-z2-Qhv"/>
@@ -289,9 +299,9 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="LRQ-Ee-5Mh" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2685" y="938"/>
+            <point key="canvasLocation" x="3497" y="938"/>
         </scene>
-        <!--設定-->
+        <!--User Config View Controller-->
         <scene sceneID="dMe-Ui-niw">
             <objects>
                 <viewController id="5M1-io-k7w" customClass="UserConfigViewController" customModule="SolPlayer" customModuleProvider="target" sceneMemberID="viewController">
@@ -303,8 +313,11 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="q95-Tm-LMA">
-                                <rect key="frame" x="433" y="80" width="137" height="29"/>
+                            <imageView userInteractionEnabled="NO" alpha="0.94999999999999996" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="solplayer_bg3.png" translatesAutoresizingMaskIntoConstraints="NO" id="CfI-Yc-5OG">
+                                <rect key="frame" x="-76" y="-291" width="752" height="1182"/>
+                            </imageView>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="q95-Tm-LMA">
+                                <rect key="frame" x="479" y="124" width="91" height="29"/>
                                 <segments>
                                     <segment title="Ver.1"/>
                                     <segment title="Ver.2"/>
@@ -314,20 +327,12 @@
                                 </connections>
                             </segmentedControl>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="ソルフェジオのモード" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZeR-Rc-hcS">
-                                <rect key="frame" x="30" y="80" width="170" height="21"/>
+                                <rect key="frame" x="30" y="124" width="170" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="設定" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Wbi-Tc-nhF">
-                                <rect key="frame" x="283" y="30" width="34" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" misplaced="YES" editable="NO" textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BBh-Li-tB5">
-                                <rect key="frame" x="30" y="116" width="540" height="100"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BBh-Li-tB5">
+                                <rect key="frame" x="30" y="167" width="540" height="100"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="100" id="NLh-dM-eMi"/>
                                 </constraints>
@@ -342,17 +347,16 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="trailingMargin" secondItem="BBh-Li-tB5" secondAttribute="trailing" constant="10" id="00q-2E-ITh"/>
-                            <constraint firstItem="Wbi-Tc-nhF" firstAttribute="top" secondItem="9uy-Lk-Dgz" secondAttribute="bottom" constant="10" id="3Ee-LM-FTl"/>
                             <constraint firstItem="BBh-Li-tB5" firstAttribute="leading" secondItem="ZeR-Rc-hcS" secondAttribute="leading" id="3rc-G1-3ex"/>
                             <constraint firstItem="ZeR-Rc-hcS" firstAttribute="leading" secondItem="spU-xl-JAU" secondAttribute="leadingMargin" constant="10" id="LaA-1w-pm7"/>
                             <constraint firstItem="ZeR-Rc-hcS" firstAttribute="top" secondItem="9uy-Lk-Dgz" secondAttribute="bottom" constant="60" id="QXm-DL-OCT"/>
-                            <constraint firstItem="Wbi-Tc-nhF" firstAttribute="centerX" secondItem="spU-xl-JAU" secondAttribute="centerX" id="cMR-mu-L3C"/>
+                            <constraint firstItem="CfI-Yc-5OG" firstAttribute="centerY" secondItem="spU-xl-JAU" secondAttribute="centerY" id="Yw1-L3-9hE"/>
+                            <constraint firstItem="CfI-Yc-5OG" firstAttribute="centerX" secondItem="spU-xl-JAU" secondAttribute="centerX" id="c19-h6-w9n"/>
                             <constraint firstAttribute="trailingMargin" secondItem="q95-Tm-LMA" secondAttribute="trailing" constant="10" id="pbP-dW-1mr"/>
                             <constraint firstItem="BBh-Li-tB5" firstAttribute="top" secondItem="q95-Tm-LMA" secondAttribute="bottom" constant="15" id="x8M-bV-BFW"/>
                             <constraint firstItem="q95-Tm-LMA" firstAttribute="top" secondItem="9uy-Lk-Dgz" secondAttribute="bottom" constant="60" id="xeO-hx-SX5"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" tag="2" title="設定" id="QVf-OH-A6W"/>
                     <navigationItem key="navigationItem" id="amW-Ny-ozT"/>
                     <connections>
                         <outlet property="solModeSegment" destination="q95-Tm-LMA" id="7bR-UO-S8z"/>
@@ -360,7 +364,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="R56-Xu-nkU" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1257" y="1582"/>
+            <point key="canvasLocation" x="2069" y="1582"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="PZX-Pb-aGd">
@@ -374,7 +378,7 @@
                     <connections>
                         <segue destination="BYZ-38-t0r" kind="relationship" relationship="viewControllers" id="jFU-wz-j82"/>
                         <segue destination="FwV-Xa-sIN" kind="relationship" relationship="viewControllers" id="QG4-ue-OsH"/>
-                        <segue destination="5M1-io-k7w" kind="relationship" relationship="viewControllers" id="g16-ty-4rL"/>
+                        <segue destination="DaT-Wr-TdB" kind="relationship" relationship="viewControllers" id="g16-ty-4rL"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Zpe-ll-R8h" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -398,7 +402,29 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="oYC-cJ-J5z" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1873" y="938"/>
+            <point key="canvasLocation" x="2685" y="938"/>
+        </scene>
+        <!--設定-->
+        <scene sceneID="mNX-CA-Snp">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="DaT-Wr-TdB" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" tag="2" title="設定" id="QVf-OH-A6W"/>
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="1yn-Ez-K4x">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="5M1-io-k7w" kind="relationship" relationship="rootViewController" id="BoB-bV-qC9"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="32p-cZ-vQ1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1257" y="1582"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="solplayer_bg3.png" width="752" height="1182"/>
+    </resources>
 </document>

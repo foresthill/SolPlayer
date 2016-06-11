@@ -1,8 +1,8 @@
 //
-//  ViewController.swift
+//  SolPlayer.swift
 //  SolPlayer
 //
-//  Created by Morioka Naoya on H28/05/29.
+//  Created by Morioka Naoya on H28/06/11.
 //  Copyright © 平成28年 Morioka Naoya. All rights reserved.
 //
 
@@ -11,26 +11,14 @@ import AVKit
 import AVFoundation
 import MediaPlayer
 
-class ViewController: UIViewController {
-
-    @IBOutlet weak var playButton: UIButton!
-    @IBOutlet weak var stopButton: UIButton!
+/** 
+ SolffegioPlayer本体（音源再生を管理する）
+ */
+class SolPlayer {
     
-    @IBOutlet weak var solSwitch: UISwitch!
+    //シングルトン
+    static let sharedManager = SolPlayer()
     
-    @IBOutlet weak var titleLabel: UILabel!
-    @IBOutlet weak var artistLabel: UILabel!
-    @IBOutlet weak var artworkImage: UIImageView!
-    
-    @IBOutlet weak var timeSlider: UISlider!
-    @IBOutlet weak var nowTimeLabel: UILabel!
-    @IBOutlet weak var endTimeLabel: UILabel!
-
-    @IBOutlet weak var speedSlider: UISlider!
-    @IBOutlet weak var speedLabel: UILabel!
-    @IBOutlet weak var speedSegment: UISegmentedControl!
-    
-
     //AVKit
     var audioEngine: AVAudioEngine!
     var audioPlayerNode: AVAudioPlayerNode!
@@ -42,9 +30,6 @@ class ViewController: UIViewController {
     
     //ソルフェジオのモード（ver1:440→444Hz、ver2:440→432Hz）
     var solMode = 1
-    
-    //プレイヤー（使う？）
-    //var player: AVPlayer!
     
     //停止処理
     var pausedTime: Float!
@@ -79,13 +64,10 @@ class ViewController: UIViewController {
     //画面ロック時の曲情報を持つインスタンス
     //var defaultCenter: MPNowPlayingInfoCenter!
     
-    /** 
+    /**
      初期処理
      */
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-        
+    init(){
         //0.初期化
         playlist = nil
         number = 0
@@ -97,12 +79,6 @@ class ViewController: UIViewController {
         //エフェクトの初期化
         reverbEffect = AVAudioUnitReverb()
         timePitch = AVAudioUnitTimePitch()
-        
-        //スライダーを操作不能に #72
-        timeSlider.enabled = false
-
-        //2.AVAudioUnitの準備/再生
-        //initAudioEngine()
         
         //設定値を取得する
         config = NSUserDefaults.standardUserDefaults()
@@ -121,7 +97,7 @@ class ViewController: UIViewController {
             //オーディオセッションを有効化
             try session.setActive(true)
         } catch {
-        
+            
         }
         //画面ロック時のアクションを取得する
         UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
@@ -163,8 +139,8 @@ class ViewController: UIViewController {
         //再生時間
         duration = Double(audioFile.length) / sampleRate
         
-        //スライダーの最大値を設定
-        timeSlider.maximumValue = Float(duration)
+        //TODO:スライダーの最大値を設定
+        //timeSlider.maximumValue = Float(duration)
         
         //AudioEngineを初期化
         initAudioEngine()
@@ -173,20 +149,20 @@ class ViewController: UIViewController {
         //timer = NSTimer()
         
         //プレイヤーラベルを設定
-        titleLabel.text = song.title ?? "No Title"
-        artistLabel.text = song.artist ?? "Unknown Artist"
-        endTimeLabel.text = formatTimeString(Float(duration)) ?? "99:59:59"
-        artworkImage.image = song.artwork?.imageWithSize(CGSize.init(width: 120, height: 120)) ?? nil
+//        titleLabel.text = song.title ?? "No Title"
+//        artistLabel.text = song.artist ?? "Unknown Artist"
+//        endTimeLabel.text = formatTimeString(Float(duration)) ?? "99:59:59"
+//        artworkImage.image = song.artwork?.imageWithSize(CGSize.init(width: 120, height: 120)) ?? nil
         
         //画面ロック時の情報を指定 #73
         let defaultCenter = MPNowPlayingInfoCenter.defaultCenter()
         
         //ディクショナリ型で定義
-        defaultCenter.nowPlayingInfo = [
-            MPMediaItemPropertyTitle:titleLabel.text!,
-            MPMediaItemPropertyArtist:artistLabel.text!,
-            MPMediaItemPropertyPlaybackDuration:duration!
-        ]
+//        defaultCenter.nowPlayingInfo = [
+//            MPMediaItemPropertyTitle:titleLabel.text!,
+//            MPMediaItemPropertyArtist:artistLabel.text!,
+//            MPMediaItemPropertyPlaybackDuration:duration!
+//        ]
         
         if song.artwork != nil {
             defaultCenter.nowPlayingInfo![MPMediaItemPropertyArtwork] = song.artwork
@@ -198,20 +174,20 @@ class ViewController: UIViewController {
     /** プレイリストを読み込み最新化 */
     
     
-    /** 
+    /**
      AudioEngineを初期化
      */
     func initAudioEngine(){
         
         //AVAudioEngineの生成
         audioEngine = AVAudioEngine()
-
+        
         //AVPlayerNodeの生成
         audioPlayerNode = AVAudioPlayerNode()
         
         //アタッチリスト
         var attachList:Array<AVAudioNode> = [audioPlayerNode, reverbEffect, timePitch]
-
+        
         //AVAudioEngineにアタッチ
         /*TODO:なんか綺麗にかけないのかなぁ forEachとかで。。*/
         for i in 0 ... attachList.count-1 {
@@ -232,7 +208,7 @@ class ViewController: UIViewController {
         }
         
     }
-
+    
     
     /* 現在の再生時刻を返す */
     func currentPlayTime() -> Float {
@@ -250,9 +226,9 @@ class ViewController: UIViewController {
             let playerTime = audioPlayerNode.playerTimeForNodeTime(nodeTime!)
             let currentTime = (Double(playerTime!.sampleTime) / sampleRate)
             
-//            print(nodeTime)
-//            print(playerTime)
-//            print(currentTime)
+            //            print(nodeTime)
+            //            print(playerTime)
+            //            print(currentTime)
             
             return (Float)(currentTime + offset)
             //return (Float)(currentTime)
@@ -260,12 +236,12 @@ class ViewController: UIViewController {
         } else {
             //停止時
             return pausedTime
-        
+            
         }
-    
+        
     }
     
-
+    
     
     /* 再生処理 */
     func play() throws {
@@ -273,9 +249,9 @@ class ViewController: UIViewController {
         //apply()
         
         //2度押し対策？一旦コメントアウト。
-//        if audioPlayerNode.playing {
-//            return
-//        }
+        //        if audioPlayerNode.playing {
+        //            return
+        //        }
         
         
         //再読み込み（あるいは初回再生時）
@@ -292,8 +268,8 @@ class ViewController: UIViewController {
                 stopFlg = false
                 
                 //画面と再生箇所を同期をとる（停止時にいじられてもOKにする）
-                timeSlider.value = 0.0
-
+//                timeSlider.value = 0.0
+                
             } catch {
                 //TODO:ファイルが読み込めなかった場合のエラーハンドリング
                 throw AppError.CantPlayError
@@ -301,15 +277,15 @@ class ViewController: UIViewController {
             
         } else {
             //一時停止→再生
-
+            
             //player起動
             startPlayer()
-
+            
         }
         
     }
     
-    /** 
+    /**
      player起動（暫定的）
      */
     func startPlayer(){
@@ -319,10 +295,10 @@ class ViewController: UIViewController {
         //再生
         audioPlayerNode.scheduleFile(audioFile, atTime: nil, completionHandler: nil)
         audioPlayerNode.play()
-        playButton.setTitle("PAUSE", forState: .Normal)
+//        playButton.setTitle("PAUSE", forState: .Normal)
         
         //スライダーを操作可能に #72
-        timeSlider.enabled = true
+//        timeSlider.enabled = true
     }
     
     /**
@@ -338,7 +314,7 @@ class ViewController: UIViewController {
         pausedTime = currentPlayTime()
         
         audioPlayerNode.pause()
-        playButton.setTitle("PLAY", forState: .Normal)
+//        playButton.setTitle("PLAY", forState: .Normal)
         
     }
     
@@ -353,13 +329,13 @@ class ViewController: UIViewController {
             //
             audioPlayerNode.stop()
             //画面表示を初期化
-            nowTimeLabel.text = "00:00:00"
-            endTimeLabel.text = "00:00:00"
-            playButton.setTitle("PLAY", forState: .Normal)
+//            nowTimeLabel.text = "00:00:00"
+//            endTimeLabel.text = "00:00:00"
+//            playButton.setTitle("PLAY", forState: .Normal)
             
             //timeSliderを0に固定していじらせない #72
-            timeSlider.value = 0
-            timeSlider.enabled = false
+//            timeSlider.value = 0
+//            timeSlider.enabled = false
             
             //その他必要なパラメータを初期化
             offset = 0.0
@@ -370,13 +346,13 @@ class ViewController: UIViewController {
         
     }
     
-
+    
     
     /**
      時間をhh:mm:ssにフォーマットする
      
      - parameters:
-        - time: 時刻
+     - time: 時刻
      
      - throws: なし
      
@@ -390,15 +366,6 @@ class ViewController: UIViewController {
         return str
     }
     
-    
-    /* 適用処理（必要？） */
-    func apply(){
-        speedChange()
-        pitchChange()
-        
-    }
-    
-    
     //func reverb() -> AVAudioUnitReverb {
     func reverb() {
         //リバーブを準備する
@@ -407,23 +374,13 @@ class ViewController: UIViewController {
         reverbEffect.wetDryMix = 50
         
         //return reverbEffect
-    
+        
     }
     
-    // 設定ボタンをタップした時の処理
-    func toUserConfig(){
-        performSegueWithIdentifier("toUserConfig", sender: self)
-    }
-    
-    // プレイリストの「編集」ボタンをタップした時の処理
-    func toPlaylist(){
-        performSegueWithIdentifier("toPlaylist", sender: self)
-    }
-    
-    /** 
+    /**
      ソルフェジオモードon/off（ピッチ変更）処理
      */
-    func pitchChange(){
+    func pitchChange(solSwitch: Bool){
         
         //設定値を取得する
         let result = config.objectForKey("solMode")
@@ -431,7 +388,7 @@ class ViewController: UIViewController {
             solMode = result as! Int
         }
         
-        if(solSwitch.on){
+        if(solSwitch){
             switch solMode{
             case 1:
                 timePitch.pitch = 17   //440Hz→444.34Hz
@@ -451,15 +408,15 @@ class ViewController: UIViewController {
     /**
      再生スピード変更処理
      */
-    func speedChange(){
-        timePitch.rate = speedSlider.value
-        speedLabel.text = "x \((round(speedSlider.value*10)/10))"
+    func speedChange(speedSliderValue: Float){
+        timePitch.rate = speedSliderValue
+//        speedLabel.text = "x \((round(speedSlider.value*10)/10))"
     }
     
     /**
      シークバーを動かした時の処理
      */
-    func timeShift(){
+    func timeShift(current: Float){
         
         //プレイリストが読み込まれていない時にシークバーの処理を動作しないようにする #72
         if !playable() || audioFile == nil {
@@ -467,7 +424,7 @@ class ViewController: UIViewController {
         }
         
         //let current = currentPlayTime()
-        let current = timeSlider.value
+//       let current = timeSlider.value
         
         //退避
         offset = Double(current)
@@ -480,7 +437,7 @@ class ViewController: UIViewController {
         
         //残りフレーム数（AVAudioFrameCount）取得
         let remainFrames = AVAudioFrameCount(Float(sampleRate) * remainSeconds)
-
+        
         //pause状態でseekbarを動かした場合→動かした後もpause状態を維持する（最後につじつま合わせる）
         let playing = audioPlayerNode.playing
         
@@ -494,7 +451,7 @@ class ViewController: UIViewController {
         audioPlayerNode.play()
         
         //画面を値に合わせる
-        didEverySecondPassed()
+//        didEverySecondPassed()
         
         //一度playしてからpauseしないと画面に反映されないため
         if !playing {
@@ -558,160 +515,6 @@ class ViewController: UIViewController {
         return false
         
     }
-    
-    /**
-     再生できる曲が無い場合にアラートを表示する
-     */
-    func alert(){
-        let alertController = UIAlertController(title: "info", message: "再生できる曲がありません", preferredStyle: .Alert)
-        
-        let defaultAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
-        alertController.addAction(defaultAction)
-        
-        presentViewController(alertController, animated: true, completion: nil)
-    }
 
-    /**
-     毎秒ごとに行われる処理（timerで管理）
-     */
-    func didEverySecondPassed(){
-        
-        let current = currentPlayTime()
-        
-        nowTimeLabel.text = formatTimeString(current)
-        endTimeLabel.text = "-" + formatTimeString(Float(duration) - current)
-        
-        //timeSlider.value = current / Float(duration)
-        timeSlider.value = current
-        
-        //曲の最後に到達したら次の曲へ
-        if current >= Float(duration) {
-            stop()
-            nextSong()
-        }
-        
-    }
     
-    /**
-     ロック画面からのイベントを処理する
-     */
-    override func remoteControlReceivedWithEvent(event: UIEvent?) {
-        if event?.type == UIEventType.RemoteControl {
-            switch event!.subtype {
-            case UIEventSubtype.RemoteControlPlay:
-                do { try play() } catch { }
-            case UIEventSubtype.RemoteControlPause:
-                pause()
-            case UIEventSubtype.RemoteControlTogglePlayPause:
-                break
-            case UIEventSubtype.RemoteControlStop:
-                stop()
-                break
-            case UIEventSubtype.RemoteControlPreviousTrack:
-                prevSong()
-                break
-            case UIEventSubtype.RemoteControlNextTrack:
-                nextSong()
-                break
-            default:
-                break
-            }
-        }
-    }
-    
-    /**
-     ViewControllerでこの処理を実装する場合はファーストレスポンダになる必要がある #73
-     */
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(animated)
-        self.becomeFirstResponder()
-    }
-    
-    /** 
-     電話などの割り込みから復帰 #76
-     */
-    //#pragma mark -
-    //#pragma mark Interruption event handling
-    func beginInterrupting() {
-      //
-    }
-    
-    
-    
-    
-    /**
-     solfeggioスイッチが押された時（Action→ValueChanged）
-     
-     - parameter sender: UISwitch
-     */
-    @IBAction func solSwitchAction(sender: UISwitch) {
-        pitchChange()
-    }
-    
-    /* 再生ボタンが押された時 */
-    @IBAction func playButtonPressed(sender: UIButton) {
-        if audioPlayerNode.playing {
-            pause() //再生時→停止処理
-        } else {
-            do{
-                try play()  //停止時→再生処理
-            } catch {
-                //エラーハンドリング
-                alert()
-            }
-        }
-    }
-    
-    /**
-     停止ボタンが押された時
-     */
-    @IBAction func stopButtonAction(sender: UIButton) {
-        stop()
-    }
-    
-    /**
-     再生時間のスライダーが変更された時（Action→ValueChanged）
-     - parameter sender: UISlider
-     */
-    @IBAction func timeSliderAction(sender: UISlider) {
-        timeShift()
-    }
-    
-    /**
-     再生速度のスライダーが変更された時（Action→ValueChanged）
-     - parameter sender: UISlider
-     */
-    @IBAction func speedSliderAction(sender: UISlider) {
-        speedChange()
-    }
-    
-    
-    @IBAction func prevButtonAction(sender: AnyObject) {
-        prevSong()
-    }
-    
-    /**
-     次の曲ボタン（「＞」）が押された時
-     */
-    @IBAction func nextButtonAction(sender: UIButton) {
-        nextSong()
-    }
-    
-    @IBAction func speedSegmentAction(sender: UISegmentedControl) {
-        var speed = 0.25
-        for _ in 0 ... speedSegment.selectedSegmentIndex {
-            speed = speed * 2
-        }
-        speedSlider.value = Float(speed)
-        
-        speedChange()
-    }
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
-
 }
-
