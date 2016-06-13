@@ -58,7 +58,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        /* シングルトンのインスタンス生成 */
+        /* SolPlayer（シングルトンクラス）呼び出し */
         solPlayer = SolPlayer.sharedManager
         
         /* 初期化処理 */
@@ -68,6 +68,9 @@ class ViewController: UIViewController {
         
         //画面ロック時のアクションを取得する
         UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
+        
+        //ファーストレスポンダになる
+        self.becomeFirstResponder()
         
         //画面ロック時の曲情報を持つインスタンス
         //var defaultCenter = MPNowPlayingInfoCenter.defaultCenter()
@@ -88,7 +91,7 @@ class ViewController: UIViewController {
         do {
             //再生処理
             try solPlayer.play()
-            playButton.setTitle("PAUSE", forState: .Normal)
+            setPlayLabel(solPlayer.audioPlayerNode.playing)
             
             if stopFlg {  //停止→再生（あるいは初回再生時）
                 //タイマーを新規で設定
@@ -123,8 +126,8 @@ class ViewController: UIViewController {
             let song = solPlayer.song
             titleLabel.text = song.title ?? "No Title"
             artistLabel.text = song.artist ?? "Unknown Artist"
-            endTimeLabel.text = formatTimeString(Float(solPlayer.duration)) ?? "99:59:59"
-            artworkImage.image = song.artwork?.imageWithSize(CGSize.init(width: 150, height: 150)) ?? nil
+            endTimeLabel.text = formatTimeString(Float(solPlayer.duration)) ?? "-99:99:99"
+            artworkImage.image = song.artwork?.imageWithSize(CGSize.init(width: 50, height: 50)) ?? nil
             
             //スライダーを操作可能に #72
             timeSlider.enabled = true
@@ -134,14 +137,17 @@ class ViewController: UIViewController {
             
             //画面表示を初期化
             nowTimeLabel.text = "00:00:00"
-            endTimeLabel.text = "00:00:00"
-            playButton.setTitle("PLAY", forState: .Normal)
+            endTimeLabel.text = "-99:99:99"
+            //playButton.setTitle("PLAY", forState: .Normal)
             
             //timeSliderを0に固定していじらせない #72
             timeSlider.value = 0
             timeSlider.enabled = false
             
         }
+        
+        //再生・一時再生ボタンをセット
+        setPlayLabel(solPlayer.audioPlayerNode.playing)
         
     }
     
@@ -168,8 +174,9 @@ class ViewController: UIViewController {
      */
     func pause(){
         solPlayer.pause()
+        timer = nil //意外と壊れてない？だがロック画面の変化はなし
         //timer.invalidate()    //ここでinvalidateするとTimerが壊れてしまう。ロック画面の変化もなし。
-        playButton.setTitle("PLAY", forState: .Normal)
+        setPlayLabel(solPlayer.audioPlayerNode.playing)
     }
     
     /**
@@ -192,12 +199,15 @@ class ViewController: UIViewController {
      停止処理
      */
     func stop(){
+        //タイマーを破棄
         timer = nil
+        //SolPlayer停止処理
         solPlayer.stop()
         //スライダーを使用不可に（暫定対応）
         timeSlider.enabled = false
-        
-        playButton.setTitle("PLAY", forState: .Normal)
+        //ラベル更新
+        setPlayLabel(solPlayer.audioPlayerNode.playing)
+        //playButton.setTitle("PLAY", forState: .Normal)
     }
     
     /** 
@@ -207,6 +217,7 @@ class ViewController: UIViewController {
         do {
             try solPlayer.prevSong()
             setScreen(true)
+
         } catch {
             //setScreen(false)
         }
@@ -255,6 +266,16 @@ class ViewController: UIViewController {
             do {
                 try solPlayer.nextSong()
                 setScreen(true)
+                
+                //PlaylistViewControllerのテーブルも更新する（もっと効率よいやりかたあればおしえて。）※navigationControllerやめようかな
+                //self.tabBarController?.targetViewControllerForAction(<#T##action: Selector##Selector#>, sender: <#T##AnyObject?#>)
+                print(self.tabBarController?.viewControllers)
+                print(self.tabBarController?.viewControllers![1])
+                let navigationController:UINavigationController = self.tabBarController?.viewControllers![1] as! UINavigationController
+                print(navigationController.viewControllers[0])
+                
+                let playlistViewController = navigationController.viewControllers[0] as! PlaylistViewController
+                playlistViewController.tableView.reloadData()
             } catch {
                 //setScreen(false)
             }
@@ -262,6 +283,20 @@ class ViewController: UIViewController {
         
     }
     
+    /**
+     再生ボタン/一時停止ボタンをセット
+     
+     - parameter: true（再生）、false（一時停止）
+     
+     - returns: なし
+     */
+    func setPlayLabel(playing: Bool){
+        if playing {
+            playButton.setTitle("PAUSE", forState: .Normal)
+        } else {
+            playButton.setTitle("PLAY", forState: .Normal)
+        }
+    }
     
     /**
      solfeggioスイッチが押された時（Action→ValueChanged）
@@ -302,7 +337,6 @@ class ViewController: UIViewController {
     @IBAction func speedSliderAction(sender: UISlider) {
         solPlayer.speedChange(speedSlider.value)
         speedLabel.text = "x \((round(speedSlider.value*10)/10))"
-
     }
     
     /**
@@ -330,6 +364,8 @@ class ViewController: UIViewController {
         }
         //スライダーと同期する
         speedSlider.value = Float(speed)
+        //ラベルを書き換える
+        speedLabel.text = "x \((round(speedSlider.value*10)/10))"
         //プレイヤーに速度処理変更
         solPlayer.speedChange(speedSlider.value)
     }

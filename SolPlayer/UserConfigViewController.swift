@@ -30,8 +30,8 @@ class UserConfigViewController: UIViewController {
         
         // タイトルの設定
         self.navigationItem.title = "設定"
-        self.navigationController!.navigationBar.barTintColor = UIColor.init(colorLiteralRed: 1.0, green: 1.0, blue: 1.0, alpha: 0.2)
-
+        //self.navigationController!.navigationBar.barTintColor = UIColor.init(colorLiteralRed: 1.0, green: 0.0, blue: 0.0, alpha: 0.6)
+        self.navigationController!.navigationBar.barTintColor = UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.1)
         
         //self.navigationItem.prompt = ""
         

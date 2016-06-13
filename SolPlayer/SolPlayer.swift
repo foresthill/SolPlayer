@@ -33,8 +33,8 @@ class SolPlayer {
     //ソルフェジオのモード（ver1:440→444Hz、ver2:440→432Hz）
     var solMode:Int! = 1
     
-    //停止処理
-    var pausedTime: Float!
+    //停止時間（初期化してないと（nilだと）最初のcurrentTimePlay()で落ちる） #74
+    var pausedTime: Float! = 0.0
     
     //タイマー
     var timer:NSTimer!
@@ -88,8 +88,8 @@ class SolPlayer {
             
         }
         
-        //画面ロック時のアクションを取得する
-        UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
+        //画面ロック時のアクションを取得する（取得できなかったため暫定的にViewControllerで行う）
+        //UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
         
         //画面ロック時の曲情報を持つインスタンス
         //var defaultCenter = MPNowPlayingInfoCenter.defaultCenter()
@@ -114,7 +114,7 @@ class SolPlayer {
         }
         
         //AVAudioFileの読み込み処理（errorが発生した場合はメソッドの外へthrowされる）
-        number = appDelegate.number
+        //number = appDelegate.number
         
         //プレイリストが変更されている場合
         if(number >= playlist.count){
@@ -138,11 +138,16 @@ class SolPlayer {
         //画面ロック時の情報を指定 #73
         let defaultCenter = MPNowPlayingInfoCenter.defaultCenter()
         
+        let playbackTime:NSTimeInterval = Double(currentPlayTime())
+        //print(playbackTime)
+        
         //ディクショナリ型で定義
         defaultCenter.nowPlayingInfo = [
             MPMediaItemPropertyTitle:(song.title ?? "No Title"),
             MPMediaItemPropertyArtist:(song.artist ?? "Unknown Artist"),
-            MPMediaItemPropertyPlaybackDuration:duration!
+            MPMediaItemPropertyPlaybackDuration:duration!,
+            MPNowPlayingInfoPropertyPlaybackRate:1.0,
+            MPNowPlayingInfoPropertyElapsedPlaybackTime: playbackTime   //ここがダメポ
         ]
         
         if song.artwork != nil {
@@ -150,6 +155,8 @@ class SolPlayer {
             //MPMediaItemPropertyArtwork:song.artwork!,
         }
         
+        //defaultCenter.nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = song.albumArtist
+    
         //return song
         
     }
@@ -433,8 +440,8 @@ class SolPlayer {
             throw AppError.NoSongError
         }
         
-        while appDelegate.number > 0 {
-            appDelegate.number = appDelegate.number - 1
+        while number > 0 {
+            number = number - 1
             
             do {
                 stop()
@@ -458,8 +465,8 @@ class SolPlayer {
             throw AppError.NoSongError
         }
         
-        while appDelegate.number < playlist.count-1 {
-            appDelegate.number = appDelegate.number + 1
+        while number < playlist.count-1 {
+            number = number + 1
             do {
                 stop()
                 try play()
@@ -476,7 +483,7 @@ class SolPlayer {
     /** 再生可能かどうか判定する（シークバーや次へなどの判定用）*/
     func playable() -> Bool{
         
-        playlist = appDelegate.playlist
+        //playlist = appDelegate.playlist
         
         if(playlist != nil && playlist.count > 0){
             return true
