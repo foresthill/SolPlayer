@@ -11,7 +11,7 @@ import AVKit
 import AVFoundation
 import MediaPlayer
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, AVAudioSessionDelegate {
 
     @IBOutlet weak var playButton: UIButton!
     @IBOutlet weak var stopButton: UIButton!
@@ -36,20 +36,11 @@ class ViewController: UIViewController {
     //タイマー
     var timer:NSTimer!
     
-    //プレイリスト
-    //var playlist: [Song]!
-    
-    //再生中の曲番号
-    //var number: Int!
-    
-    //停止フラグ（プレイリストの再読み込みなど）
-    //var stopFlg = true
-    
-    //画面ロック時の曲情報を持つインスタンス
-    //var defaultCenter: MPNowPlayingInfoCenter!
-    
     //SolPlayerのインスタンス（シングルトン）
     var solPlayer: SolPlayer!
+    
+    //中断される前の状態（再生中：true、停止中：false）
+    var status = false
     
     /** 
      初期処理
@@ -72,10 +63,14 @@ class ViewController: UIViewController {
         //ファーストレスポンダになる
         self.becomeFirstResponder()
         
+        //ヘッドフォンの状態を取得するためにAVAudioSessionを用いる（意味ない？）
+        do { try AVAudioSession.sharedInstance().setActive(true) } catch { }
+        
+        //Notificationの設定（意味ない？）
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.didChangeAudioSessionRoute), name: "SolNotification", object: nil)
+        
         //画面ロック時の曲情報を持つインスタンス
         //var defaultCenter = MPNowPlayingInfoCenter.defaultCenter()
-        
-        
         
     }
     
@@ -83,8 +78,7 @@ class ViewController: UIViewController {
      再生処理
      */
     func play() throws {
-        
-        
+
         let stopFlg = solPlayer.stopFlg
         
         /*TimerをSolPlayerに含められなかったので処理追加*/
@@ -260,6 +254,12 @@ class ViewController: UIViewController {
         //timeSlider.value = current / Float(duration)
         timeSlider.value = current
         
+        //0の時は再生ボタンマークに（ヘッドフォンが抜けた時の対策）#75　※いつかちゃんとやります
+        if(current == 0 && solPlayer.stopFlg){
+            setPlayLabel(solPlayer.audioPlayerNode.playing)
+            timeSlider.enabled = false
+        }
+        
         //曲の最後に到達したら次の曲へ
         if current >= Float(solPlayer.duration) {
             stop()
@@ -268,12 +268,7 @@ class ViewController: UIViewController {
                 setScreen(true)
                 
                 //PlaylistViewControllerのテーブルも更新する（もっと効率よいやりかたあればおしえて。）※navigationControllerやめようかな
-                //self.tabBarController?.targetViewControllerForAction(<#T##action: Selector##Selector#>, sender: <#T##AnyObject?#>)
-                print(self.tabBarController?.viewControllers)
-                print(self.tabBarController?.viewControllers![1])
                 let navigationController:UINavigationController = self.tabBarController?.viewControllers![1] as! UINavigationController
-                print(navigationController.viewControllers[0])
-                
                 let playlistViewController = navigationController.viewControllers[0] as! PlaylistViewController
                 playlistViewController.tableView.reloadData()
             } catch {
@@ -292,9 +287,9 @@ class ViewController: UIViewController {
      */
     func setPlayLabel(playing: Bool){
         if playing {
-            playButton.setTitle("PAUSE", forState: .Normal)
+            playButton.setImage(UIImage(named: "pause64.png"), forState: .Normal)
         } else {
-            playButton.setTitle("PLAY", forState: .Normal)
+            playButton.setImage(UIImage(named: "play64.png"), forState: .Normal)
         }
     }
     
@@ -399,6 +394,49 @@ class ViewController: UIViewController {
                 break
             }
         }
+    }
+    
+    /** 他のアプリから割り込みがあった場合 */
+    func beginInterruption() {
+        status = solPlayer.audioPlayerNode.playing
+        if status {
+            pause()
+        }
+    }
+
+    /** 他のアプリからの割り込みが終了した */
+    func endInterruption() {
+        if status {
+            do {
+                try play()
+            } catch {
+                
+            }
+        }
+    }
+    
+    /** ヘッドフォンを挿入された場合
+    func inputIsAvailableChanged(isInputAvailable: Bool) {
+        //if isInputAvailable {
+            //たぶんinputが使える（＝ヘッドフォンなどが刺さった）場合
+        //}
+        
+        //どちらにせよPauseで良いのでは？
+        print(inputIsAvailableChanged)
+        pause()
+    }
+ */
+    /** ヘッドフォンが挿入された時2（機能してない）*/
+    func didChangeAudioSessionRoute() {
+        //var desc = AVAudioSessionPortDescription()
+        for desc in AVAudioSession.sharedInstance().currentRoute.outputs {
+            if(desc.portType == AVAudioSessionPortHeadphones){
+                print("ヘッドフォン刺さった")
+            } else {
+                print("ヘッドフォン抜けた")
+            }
+        }
+        
     }
 
     override func didReceiveMemoryWarning() {

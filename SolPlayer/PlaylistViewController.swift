@@ -10,11 +10,6 @@ import UIKit
 import MediaPlayer
 
 class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate, UITableViewDataSource, UITableViewDelegate, UIPickerViewDataSource, UIPickerViewDelegate {
-
-    //var player: MPMusicPlayerController!
-    
-    //private var playlist: [MPMediaItem]?
-    //private var playlist: [Song]?
     
     @IBOutlet weak var tableView: UITableView!
     
@@ -22,8 +17,6 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
 
     @IBOutlet weak var editButton: UIButton!
 
-    //@IBOutlet weak var testText: UITextView!
-    
     //appDelegate外出し
     var appDelegate: AppDelegate!
     
@@ -35,14 +28,6 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     var solPlayer: SolPlayer!
     
     override func viewDidLoad() {
-        //背景色
-        //self.view.backgroundColor = UIColor.cyanColor()   //下の色も変わってしまうのでコメントアウト
-        
-        //player = MPMusicPlayerController.applicationMusicPlayer()
-        //player = MPMusicPlayerController.systemMusicPlayer()  //「ミュージック」アプリの再生状況を反映したものになる
-        
-        //appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-        //playlist = appDelegate.playlist
         
         /* SolPlayer（シングルトンクラス）呼び出し */
         solPlayer = SolPlayer.sharedManager
@@ -112,17 +97,10 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     //メディアアイテムピッカーでアイテムを選択完了した時に呼び出される（必須）
     func mediaPicker(mediaPicker: MPMediaPickerController, didPickMediaItems mediaItemCollection: MPMediaItemCollection) {
         
-        //AppDelegateのインスタンスを取得しplayListを格納
-        //let appDelegate:AppDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-        
         //playlistにmediaItemを追加
         mediaItemCollection.items.forEach { (mediaItem) in
             solPlayer.playlist?.append(Song(mediaItem: mediaItem))
         }
-        
-        //appDelegate.playlist = playlist
-        
-        //print("playlist=\(playlist)")
         
         //ピッカーを閉じ、破棄する
         self.dismissViewControllerAnimated(true, completion: nil)
@@ -172,7 +150,6 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         
         //表示内容
         cell.textLabel?.text = solPlayer.playlist![indexPath.row].title ?? "Untitled"
-        //cell.textLabel?.text = "\(indexPath.row).\(playlist[indexPath.row].title)"
         cell.detailTextLabel?.text = solPlayer.playlist![indexPath.row].artist ?? "Unknown Artist"
         
         //画像を表示
@@ -230,8 +207,6 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         //先に大本のデータを更新する
         solPlayer.playlist?.removeAtIndex(indexPath.row)   //これがないと、絶対にエラーが出る
-        //大本のデータ更新
-        //appDelegate.playlist = playlist
         //それからテーブルの更新
         tableView.deleteRowsAtIndexPaths([NSIndexPath(forRow: indexPath.row, inSection: 0)], withRowAnimation: UITableViewRowAnimation.Fade)
     }
@@ -248,12 +223,8 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
      */
     func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
         let targetSong = solPlayer.playlist![sourceIndexPath.row]
-        //if let index = playlist?.indexOf(targetSong) {
         solPlayer.playlist?.removeAtIndex(sourceIndexPath.row)
         solPlayer.playlist?.insert(targetSong, atIndex: destinationIndexPath.row)
-        //}
-        //大本のデータ更新
-        //appDelegate.playlist = solPlayer.playlist
         
     }
     

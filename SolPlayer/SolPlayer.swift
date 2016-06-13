@@ -147,18 +147,13 @@ class SolPlayer {
             MPMediaItemPropertyArtist:(song.artist ?? "Unknown Artist"),
             MPMediaItemPropertyPlaybackDuration:duration!,
             MPNowPlayingInfoPropertyPlaybackRate:1.0,
-            MPNowPlayingInfoPropertyElapsedPlaybackTime: playbackTime   //ここがダメポ
+            MPNowPlayingInfoPropertyElapsedPlaybackTime: playbackTime
         ]
         
         if song.artwork != nil {
             defaultCenter.nowPlayingInfo![MPMediaItemPropertyArtwork] = song.artwork
-            //MPMediaItemPropertyArtwork:song.artwork!,
         }
-        
-        //defaultCenter.nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = song.albumArtist
-    
-        //return song
-        
+
     }
     
     /** プレイリストを読み込み最新化 */
@@ -211,6 +206,14 @@ class SolPlayer {
 
             //便宜上分かりやすく書いてみる
             let nodeTime = audioPlayerNode.lastRenderTime
+            
+            //ヘッドフォンを抜き差しした（なぜかnodeTimeがnilになる）時のエラーハンドリング #75
+            if(nodeTime == nil){
+                stop()
+                return 0
+            }
+            
+            //便宜上分かりやすく書いてみる
             let playerTime = audioPlayerNode.playerTimeForNodeTime(nodeTime!)
             let currentTime = (Double(playerTime!.sampleTime) / sampleRate)
             
@@ -237,28 +240,16 @@ class SolPlayer {
 
      */
     func play() throws {
-        //func play() throws -> Song {
-        
-    //    var song: Song
-        
-        //var ret = false
-
-        //再読み込み（あるいは初回再生時）
+ 
+        //初回再生時あるいは再読込時
         if stopFlg {
-            //停止→再生
+ 
             do {
                 //音源ファイルを読み込む
                 try readAudioFile()
                 
                 //停止フラグをfalseに
                 stopFlg = false
-                
-                //画面と再生箇所を同期をとる（停止時にいじられてもOKにする）
-//                timeSlider.value = 0.0
-                
-                //return song
-                
-                //ret = true
                 
             } catch {
                 //TODO:ファイルが読み込めなかった場合のエラーハンドリング
@@ -270,24 +261,17 @@ class SolPlayer {
         //player起動
         startPlayer()
         
-        //return ret
-        
     }
     
     /**
      audioPlayerNode起動（暫定的）
      */
     func startPlayer(){
-        //タイマー始動
-        //timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: #selector(ViewController.didEverySecondPassed), userInfo: nil, repeats: true)
         
         //再生
         audioPlayerNode.scheduleFile(audioFile, atTime: nil, completionHandler: nil)
         audioPlayerNode.play()
-//        playButton.setTitle("PAUSE", forState: .Normal)
         
-        //スライダーを操作可能に #72
-//        timeSlider.enabled = true
     }
     
     /**
@@ -303,7 +287,6 @@ class SolPlayer {
         pausedTime = currentPlayTime()
         
         audioPlayerNode.pause()
-//        playButton.setTitle("PLAY", forState: .Normal)
         
     }
     
@@ -315,29 +298,23 @@ class SolPlayer {
         if !stopFlg {
             //タイマーを初期化
             timer = nil
-            //
-            audioPlayerNode.stop()
-            //画面表示を初期化
-//            nowTimeLabel.text = "00:00:00"
-//            endTimeLabel.text = "00:00:00"
-//            playButton.setTitle("PLAY", forState: .Normal)
             
-            //timeSliderを0に固定していじらせない #72
-//            timeSlider.value = 0
-//            timeSlider.enabled = false
+            //プレイヤーを停止
+            audioPlayerNode.stop()
             
             //その他必要なパラメータを初期化
             offset = 0.0
             pausedTime = 0.0
+
             //停止フラグをtrueに
             stopFlg = true
         }
         
     }
     
-
-    
-    //func reverb() -> AVAudioUnitReverb {
+    /**
+     リバーブを設定する（現在未使用）
+     */
     func reverb() {
         //リバーブを準備する
         //let reverbEffect = AVAudioUnitReverb()
@@ -378,10 +355,11 @@ class SolPlayer {
     
     /**
      再生スピード変更処理
+     
+     -parameter: speedSliderValue（画面の再生速度スライダーから）
      */
     func speedChange(speedSliderValue: Float){
         timePitch.rate = speedSliderValue
-//        speedLabel.text = "x \((round(speedSlider.value*10)/10))"
     }
     
     /**
