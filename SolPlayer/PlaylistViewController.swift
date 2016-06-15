@@ -46,12 +46,18 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         //Delegateを設定する
         tableView.delegate = self
         
+        //tableViewの背景色を変更する
+        tableView.backgroundColor?.colorWithAlphaComponent(0.5)
+        
+        tableView.backgroundView?.alpha = 0.5
+        
         //表示
         
         // タイトルの設定（変わってない）
         self.navigationItem.title = "プレイリスト"
         self.navigationItem.titleView?.tintColor = UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.0)
         self.navigationController!.navigationBar.tintColor = UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.2)
+        self.navigationController!.navigationBar.tintColor.colorWithAlphaComponent(0.2)
         
         //編集ボタンの配置
         //navigationItem.leftBarButtonItem = editButtonItem()
@@ -94,6 +100,59 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         }
     }
     
+    /** 「プレイリストを保存」をクリックした時の処理 */
+    @IBAction func savePlaylist(sender: UIButton) {
+        //アラートを作成
+        var alert = UIAlertController(title: "プレイリストを保存", message: "保存するプレイリスト名を入力してください", preferredStyle: UIAlertControllerStyle.Alert)
+        
+        //保存時のアクション
+        let saveAction = UIAlertAction(title: "保存", style: .Default){(action: UIAlertAction!) -> Void in
+            //入力したテキストをコンソールに表示
+            let textField = alert.textFields![0] as UITextField
+            print(textField)
+            
+            if(textField.text?.lengthOfBytesUsingEncoding(NSUTF8StringEncoding) > 0){
+                print("OKです。")
+                alert = UIAlertController(title: "保存完了", message: "プレイリストを保存しました。", preferredStyle: UIAlertControllerStyle.Alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
+                    (action: UIAlertAction!) -> Void in
+                    //
+                }))
+                self.presentViewController(alert, animated: true, completion: nil)
+                
+            } else {
+                print("未入力です")
+                alert = UIAlertController(title: "保存失敗", message: "プレイリスト名を入力してください。", preferredStyle: UIAlertControllerStyle.Alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
+                    (action: UIAlertAction!) -> Void in
+                    //
+                }))
+                self.presentViewController(alert, animated: true, completion: nil)
+            }
+        }
+        
+        //キャンセル時のアクション
+        let cancelAction = UIAlertAction(title: "キャンセル", style: .Default){(action: UIAlertAction!) -> Void in
+            //
+        }
+        
+        //UIAlertControllerにtextFieldを追加
+        alert.addTextFieldWithConfigurationHandler{(textField:UITextField) -> Void in
+            //NotificationCenterを生成
+            //let notificationCenter = NSNotificationCenter.defaultCenter()
+            //notificationCenter.addObserver(self, selector: #selector(PlaylistViewController.playlistNameValidate), name: UITextFieldTextDidChangeNotification, object: nil)
+        }
+        
+        //アクションを追加
+        alert.addAction(saveAction)
+        alert.addAction(cancelAction)
+        
+        //表示
+        presentViewController(alert, animated: true, completion: nil)
+        
+    }
+
+    
     //メディアアイテムピッカーでアイテムを選択完了した時に呼び出される（必須）
     func mediaPicker(mediaPicker: MPMediaPickerController, didPickMediaItems mediaItemCollection: MPMediaItemCollection) {
         
@@ -132,6 +191,7 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         
     }
     
+    
     /** 
      tableView用メソッド（1.セルの行数）
      */
@@ -143,10 +203,12 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
      tableView用メソッド（2.セルの内容）
      */
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
         //表示設定
         let cell: UITableViewCell = UITableViewCell(style: UITableViewCellStyle.Subtitle, reuseIdentifier: "Cell")
         cell.textLabel?.numberOfLines = 2
         cell.detailTextLabel?.numberOfLines = 0 //0にすると制限なし（「…」とならない）
+        cell.backgroundColor = UIColor.clearColor() //背景色を透明に
         
         //表示内容
         cell.textLabel?.text = solPlayer.playlist![indexPath.row].title ?? "Untitled"

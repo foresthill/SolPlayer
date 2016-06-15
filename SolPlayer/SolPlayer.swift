@@ -339,10 +339,10 @@ class SolPlayer {
         if(solSwitch){
             switch solMode {
             case 1:
-                timePitch.pitch = 17   //440Hz→444.34Hz
+                timePitch.pitch = 15.66738339053706   //17:440Hz→444.34Hz 16:440Hz→444.09Hz
                 break
             case 2:
-                timePitch.pitch = -31   //440Hz→432.xxHz
+                timePitch.pitch = -31.76665363343202   //-32:440Hz→431.941776Hz
                 break
             default:
                 timePitch.pitch = 0

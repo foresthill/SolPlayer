@@ -16,7 +16,68 @@
                     <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="SolPlayer_bg4-3.png" translatesAutoresizingMaskIntoConstraints="NO" id="mYg-E0-9Qx">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pyB-7f-0EN">
+                                <rect key="frame" x="176" y="236" width="247.5" height="49"/>
+                                <attributedString key="attributedText">
+                                    <fragment content="SolPlayer">
+                                        <attributes>
+                                            <color key="NSColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                            <font key="NSFont" size="42" name="HelveticaNeue"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment content=" ">
+                                        <attributes>
+                                            <color key="NSColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                            <font key="NSFont" size="23" name="HelveticaNeue"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                        </attributes>
+                                    </fragment>
+                                    <fragment content="ver 1.0">
+                                        <attributes>
+                                            <color key="NSColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                            <font key="NSFont" size="21" name="HelveticaNeue"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                        </attributes>
+                                    </fragment>
+                                </attributedString>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" usesAttributedText="YES" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="R1S-QE-5h5">
+                                <rect key="frame" x="127" y="286" width="347" height="41"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="347" id="DBE-yr-YFa"/>
+                                    <constraint firstAttribute="height" constant="41" id="HZM-og-i1k"/>
+                                </constraints>
+                                <attributedString key="attributedText">
+                                    <fragment content="Solfeggio Music for Normal Life.">
+                                        <attributes>
+                                            <color key="NSColor" red="0.70202323717948723" green="0.62825926532400578" blue="0.57696740463245189" alpha="1" colorSpace="calibratedRGB"/>
+                                            <font key="NSFont" size="17" name="Helvetica-Light"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                        </attributes>
+                                    </fragment>
+                                </attributedString>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="pyB-7f-0EN" firstAttribute="top" secondItem="Llm-lL-Icb" secondAttribute="bottom" constant="216" id="7DS-yW-a2F"/>
+                            <constraint firstAttribute="trailing" secondItem="mYg-E0-9Qx" secondAttribute="trailing" id="Bnq-Cr-2ug"/>
+                            <constraint firstItem="R1S-QE-5h5" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="ERd-jC-QxF"/>
+                            <constraint firstItem="mYg-E0-9Qx" firstAttribute="top" secondItem="Llm-lL-Icb" secondAttribute="bottom" constant="-20" id="GnT-wh-fMo"/>
+                            <constraint firstItem="pyB-7f-0EN" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="Ltt-xN-W2Q"/>
+                            <constraint firstItem="mYg-E0-9Qx" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="NpL-Bu-CPl"/>
+                            <constraint firstItem="mYg-E0-9Qx" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="UVY-b6-R9l"/>
+                            <constraint firstItem="R1S-QE-5h5" firstAttribute="top" secondItem="pyB-7f-0EN" secondAttribute="bottom" constant="1" id="b7R-62-zSw"/>
+                            <constraint firstItem="xb3-aO-Qok" firstAttribute="top" secondItem="mYg-E0-9Qx" secondAttribute="bottom" id="dm1-Dz-2JT"/>
+                            <constraint firstItem="mYg-E0-9Qx" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="m2o-b5-6he"/>
+                        </constraints>
                     </view>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -24,4 +85,7 @@
             <point key="canvasLocation" x="53" y="375"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="SolPlayer_bg4-3.png" width="752" height="1182"/>
+    </resources>
 </document>
