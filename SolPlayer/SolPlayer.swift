@@ -96,9 +96,20 @@ class SolPlayer {
         
         //設定値を取得する
         config = NSUserDefaults.standardUserDefaults()
-        let defaultConfig = config.objectForKey("solMode")
+        
+        //ソルフェジオモード
+        var defaultConfig = config.objectForKey("solMode")
         if(defaultConfig != nil){
             solMode = defaultConfig as! Int
+        }
+        
+        //プレイリストを初期化
+        defaultConfig = config.objectForKey("playlist")
+        if(defaultConfig != nil){
+            //NSData形式のデータを回答
+            playlist = defaultConfig as! [Song]
+        } else {
+            playlist = Array<Song>()
         }
 
     }

@@ -32,11 +32,6 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         /* SolPlayer（シングルトンクラス）呼び出し */
         solPlayer = SolPlayer.sharedManager
         
-        //nil対策？→せいかい！
-        if(solPlayer.playlist == nil){
-            solPlayer.playlist = Array<Song>()
-        }
-        
         //Cell名の登録を行う
         tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         
@@ -100,7 +95,7 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         }
     }
     
-    /** 「プレイリストを保存」をクリックした時の処理 */
+    /** 「プレイリストを保存」をクリックした時の処理（永続化） */
     @IBAction func savePlaylist(sender: UIButton) {
         //アラートを作成
         var alert = UIAlertController(title: "プレイリストを保存", message: "保存するプレイリスト名を入力してください", preferredStyle: UIAlertControllerStyle.Alert)
@@ -112,7 +107,13 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
             print(textField)
             
             if(textField.text?.lengthOfBytesUsingEncoding(NSUTF8StringEncoding) > 0){
-                print("OKです。")
+                //永続化処理
+                let defaults = NSUserDefaults.standardUserDefaults()
+                
+                //Array<Song>では保存できないのでデータをアーカイブする（NSData）
+                let playlistData: NSData = NSKeyedArchiver.archivedDataWithRootObject(self.solPlayer.playlist)
+                //defaults.set
+                
                 alert = UIAlertController(title: "保存完了", message: "プレイリストを保存しました。", preferredStyle: UIAlertControllerStyle.Alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
                     (action: UIAlertAction!) -> Void in
