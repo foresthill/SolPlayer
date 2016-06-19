@@ -9,7 +9,7 @@
 import Foundation
 import MediaPlayer
 
-class Song {
+class Song1 {
     
     /*あれ？独自クラス作らんでもMPMediaItemそのまま使えばよくね？？→軽量化の要件が出たら。→結局中身がよく分からんので作ることに。*/
     
@@ -52,6 +52,7 @@ class Song {
         self.artwork = mediaItem.artwork
         //self.releaseDate = mediaItem.releaseDate
         //self.totalTime = mediaItem.?
+        //MPMediaItem.en
     }
     
 }

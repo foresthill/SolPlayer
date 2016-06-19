@@ -10,6 +10,7 @@ import UIKit
 import AVKit
 import AVFoundation
 import MediaPlayer
+import CoreData
 
 /** 
  SolffegioPlayer本体（音源再生を管理する）
@@ -52,7 +53,9 @@ class SolPlayer {
     var config: NSUserDefaults!
     
     //プレイリスト
-    var playlist: [Song]! = nil
+    //var playlist: [Song]! = nil
+    var playlist:[MPMediaItem]!
+    //var playlist = [NSManagedObject]()
     
     //再生中の曲番号
     var number: Int! = 0
@@ -70,7 +73,8 @@ class SolPlayer {
     let session: AVAudioSession = AVAudioSession.sharedInstance()
     
     //曲情報外出し
-    var song: Song!
+    //var song: Song!
+    var song: MPMediaItem!
     
     /**
      初期処理（シングルトンクラスのため外部からのアクセス禁止）
@@ -98,19 +102,13 @@ class SolPlayer {
         config = NSUserDefaults.standardUserDefaults()
         
         //ソルフェジオモード
-        var defaultConfig = config.objectForKey("solMode")
+        let defaultConfig = config.objectForKey("solMode")
         if(defaultConfig != nil){
             solMode = defaultConfig as! Int
         }
         
-        //プレイリストを初期化
-        defaultConfig = config.objectForKey("playlist")
-        if(defaultConfig != nil){
-            //NSData形式のデータを回答
-            playlist = defaultConfig as! [Song]
-        } else {
-            playlist = Array<Song>()
-        }
+        //TODO:プレイリストを読み込み
+        playlist = Array<MPMediaItem>()
 
     }
     
@@ -135,7 +133,9 @@ class SolPlayer {
         //let song = playlist[number]
         song = playlist[number]
         
-        audioFile = try AVAudioFile(forReading: song.assetURL!)
+        //audioFile = try AVAudioFile(forReading: song.assetURL!)
+        let assetURL = song.valueForProperty(MPMediaItemPropertyAssetURL) as! NSURL
+        audioFile = try AVAudioFile(forReading: assetURL)
         
         //サンプルレートの取得
         sampleRate = audioFile.fileFormat.sampleRate

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10174" systemVersion="15E65" minimumToolsVersion="Xcode 7.0">
+    <entity name="SongEntity" representedClassName=".Song" syncable="YES">
+        <attribute name="albumArtist" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="albumTitle" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="artist" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="artwork" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="assetURL" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="diskNumber" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="mediaType" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="rating" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="releaseDate" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="SongEntity" positionX="-63" positionY="-18" width="128" height="195"/>
+    </elements>
+</model>

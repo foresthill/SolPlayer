@@ -108,11 +108,6 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
             
             if(textField.text?.lengthOfBytesUsingEncoding(NSUTF8StringEncoding) > 0){
                 //永続化処理
-                let defaults = NSUserDefaults.standardUserDefaults()
-                
-                //Array<Song>では保存できないのでデータをアーカイブする（NSData）
-                let playlistData: NSData = NSKeyedArchiver.archivedDataWithRootObject(self.solPlayer.playlist)
-                //defaults.set
                 
                 alert = UIAlertController(title: "保存完了", message: "プレイリストを保存しました。", preferredStyle: UIAlertControllerStyle.Alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
@@ -159,7 +154,8 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         
         //playlistにmediaItemを追加
         mediaItemCollection.items.forEach { (mediaItem) in
-            solPlayer.playlist?.append(Song(mediaItem: mediaItem))
+            //solPlayer.playlist?.append(Song(mediaItem: mediaItem))
+            solPlayer.playlist?.append(mediaItem)
         }
         
         //ピッカーを閉じ、破棄する
