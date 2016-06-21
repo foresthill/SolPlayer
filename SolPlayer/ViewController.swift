@@ -16,7 +16,8 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
     @IBOutlet weak var playButton: UIButton!
     @IBOutlet weak var stopButton: UIButton!
     
-    @IBOutlet weak var solSwitch: UISwitch!
+    //@IBOutlet weak var solSwitch: UISwitch!
+    @IBOutlet weak var solButton: UIButton!
     
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var artistLabel: UILabel!
@@ -71,6 +72,13 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         
         //画面ロック時の曲情報を持つインスタンス
         //var defaultCenter = MPNowPlayingInfoCenter.defaultCenter()
+        
+        //プレイリストを読み込み
+//        do {
+//            try solPlayer.loadPlayList()
+//        } catch {
+//            //
+//        }
         
     }
     
@@ -295,11 +303,29 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
     
     /**
      solfeggioスイッチが押された時（Action→ValueChanged）
+     →Switchに画像を指定できないという驚愕の事実が発覚したので修正
+     - parameter sender: UISwitch
+    @IBAction func solSwitchAction(sender: UISwitch) {
+        //音源処理
+        solPlayer.pitchChange(solSwitch.on)
+        //画像を差し替え
+        solSwitch.onImage = UIImage(named: "solSwitch1_on\(solPlayer.solMode).png")
+    }
+     */
+    
+    /**
+     solfeggioスイッチが押された時（Action→ValueChanged）
+     ※UISwitchに画像がセットできないためUIButtonで同様の機能を実装
      
      - parameter sender: UISwitch
      */
-    @IBAction func solSwitchAction(sender: UISwitch) {
-        solPlayer.pitchChange(solSwitch.on)
+    @IBAction func solButtonAction(sender: UIButton) {
+        //ON/OFF切り替え
+        solButton.selected = !solButton.selected
+        //音源処理
+        solPlayer.pitchChange(solButton.selected)
+        //画像を差し替え
+        solButton.setImage(UIImage(named: "solSwitch1_on\(solPlayer.solMode).png"), forState: UIControlState.Selected)
     }
     
     /*

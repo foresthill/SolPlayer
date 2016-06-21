@@ -108,12 +108,19 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
             
             if(textField.text?.lengthOfBytesUsingEncoding(NSUTF8StringEncoding) > 0){
                 //永続化処理
+                do {
+                    try self.solPlayer.savePlayList()
+                    
+                    alert = UIAlertController(title: "保存完了", message: "プレイリストを保存しました。", preferredStyle: UIAlertControllerStyle.Alert)
+                } catch {
+                    alert = UIAlertController(title: "保存失敗", message: "プレイリストの保存に失敗しました。", preferredStyle: UIAlertControllerStyle.Alert)
+                }
                 
-                alert = UIAlertController(title: "保存完了", message: "プレイリストを保存しました。", preferredStyle: UIAlertControllerStyle.Alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
                     (action: UIAlertAction!) -> Void in
                     //
                 }))
+                
                 self.presentViewController(alert, animated: true, completion: nil)
                 
             } else {
@@ -221,9 +228,9 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
             break
             
         default:
-            if(solPlayer.playlist![indexPath.row].artwork != nil){
+            if let artwork = solPlayer.playlist![indexPath.row].artwork {
                 //アートワークを表示
-                cell.imageView?.image = solPlayer.playlist![indexPath.row].artwork!.imageWithSize(CGSize.init(width: 50, height: 50))
+                cell.imageView?.image = artwork.imageWithSize(CGSize.init(width: 50, height: 50))
             } else {
                 //ダミー画像を表示
                 cell.imageView?.image = makeBoxWithColor(UIColor.init(colorLiteralRed: 0.67, green: 0.67, blue: 0.67, alpha: 1.0))

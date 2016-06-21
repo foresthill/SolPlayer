@@ -34,6 +34,9 @@ class SolPlayer {
     //ソルフェジオのモード（ver1:440→444Hz、ver2:440→432Hz）
     var solMode:Int! = 1
     
+    //ソルフェジオSwitchの画像
+    var solSwitchImage: UIImage!
+    
     //停止時間（初期化してないと（nilだと）最初のcurrentTimePlay()で落ちる） #74
     var pausedTime: Float! = 0.0
     
@@ -50,7 +53,7 @@ class SolPlayer {
     var offset = 0.0
     
     //ユーザ設定値
-    var config: NSUserDefaults!
+    var config = NSUserDefaults.standardUserDefaults()
     
     //プレイリスト
     //var playlist: [Song]! = nil
@@ -75,6 +78,9 @@ class SolPlayer {
     //曲情報外出し
     //var song: Song!
     var song: MPMediaItem!
+    
+    //Coder（2016/06/19Test）
+    let coder = NSCoder()
     
     /**
      初期処理（シングルトンクラスのため外部からのアクセス禁止）
@@ -105,15 +111,136 @@ class SolPlayer {
         let defaultConfig = config.objectForKey("solMode")
         if(defaultConfig != nil){
             solMode = defaultConfig as! Int
+            //solSwitchImage =
         }
         
-        //TODO:プレイリストを読み込み
         playlist = Array<MPMediaItem>()
+        do {
+            try loadPlayList()
+        } catch {
+            
+        }
 
     }
     
+    /** MediaQueryで曲を読込み #81 */
+    func loadSong( songId: NSNumber ) -> MPMediaItem {
+        
+        var mediaItem = MPMediaItem()
+        
+        let property: MPMediaPropertyPredicate = MPMediaPropertyPredicate(value: songId, forProperty: MPMediaItemPropertyPersistentID)
+        
+        let query: MPMediaQuery = MPMediaQuery()
+        query.addFilterPredicate(property)
+        
+        let items: [MPMediaItem] = query.items! as [MPMediaItem]
+        if(items.count > 0){
+            mediaItem = items[items.count - 1]
+        }
+        
+        return mediaItem
+    }
+    
+    /** プレイリスト読込 #81 */
+    func loadPlayList() throws {
+        
+        do {
+            //ここにすることで何か変わる？何も変わらない？
+            //appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+
+            let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
+            
+            let fetchRequest = NSFetchRequest(entityName:"Song")
+
+            let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
+            
+            if let results: Array = fetchResults {
+                
+                for songObject:AnyObject in results {
+                    
+                    let mediaItem:MPMediaItem = loadSong(songObject.valueForKey("persistentID") as! NSNumber)
+                    
+//                    mediaItem.setValue(songObject.valueForKey("title"), forKey: "title")
+//                    mediaItem.setValue(NSURL.fileURLWithPath(songObject.valueForKey("assetURL") as! String), forKey: "assetURL")
+//                    mediaItem.setValue(songObject.valueForKey("artist"), forKey: "artist")
+//                    mediaItem.setValue(songObject.valueForKey("albumArtist"), forKey: "albumArtist")
+//                    mediaItem.setValue(songObject.valueForKey("albumTitle"), forKey: "albumTitle")
+//                    mediaItem.setValue(songObject.valueForKey("artwork"), forKey: "artwork")
+                    
+                    //読み込んだMPMediaItemをプレイリストに追加
+                    if(mediaItem.valueForKey("assetURL") != nil){
+                        playlist.append(mediaItem)
+                    }
+                }
+            }
+            
+            
+            
+        } catch {
+            throw AppError.CantLoadError
+            
+        }
+        
+        //どうする？
+//        if let playlistArachiveData = config.objectForKey("playlist") {
+//            //NSData形式のデータを解凍
+//            let playlistData = NSKeyedUnarchiver.unarchiveObjectWithData(playlistArachiveData as! NSData)
+//            playlist = playlistData as! [MPMediaItem]
+//        }
+
+        //TODO:DBに保存されたバイナリを復元するorインスタンス化して必要な情報を修得
+//        var mediaItem = MPMediaItem()
+//        mediaItem.title
+//        //mediaItem.assetURL
+//        mediaItem.setValue(<#T##value: AnyObject?##AnyObject?#>, forKey: MPMediaItemPropertyAssetURL)
+//        mediaItem.artist
+//        mediaItem.artwork
+//        MPMediaItem.init(coder: coder)
+
+    }
+    
+    /** プレイリスト保存（永続化処理） #81 */
+    func savePlayList() throws {
+        //TODO:バイナリ化して保存or必要な情報だけ保存
+        
+        let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
+
+        do {
+            try playlist.forEach { (song) in
+                let entity = NSEntityDescription.entityForName("Song", inManagedObjectContext: managedContext)
+                let songObject = NSManagedObject(entity: entity!, insertIntoManagedObjectContext: managedContext)
+                
+//                songObject.setValue(song.title, forKey: "title")
+//                songObject.setValue(song.artist, forKey: "artist")
+//                songObject.setValue(song.assetURL?.absoluteString, forKey: "assetURL")
+//                songObject.setValue(song.albumArtist, forKey: "albumArtist")
+//                songObject.setValue(song.albumTitle, forKey: "albumTitle")
+//                songObject.setValue(song.artwork, forKey: "artwork")
+                
+                //AVAsset(URL: <#T##NSURL#>)
+                
+                //PersistentID
+                let songId = song.persistentID as UInt64
+                songObject.setValue(NSNumber(unsignedLongLong: songId), forKey: "persistentID")
+
+                //プレイリストの値を代入
+                songObject.setValue(0, forKey: "playlist")
+                
+                try managedContext.save()
+            }
+        } catch {
+            throw AppError.CantSaveError
+        }
+        
+        //let mediaItem = MPMediaItem()
+        //mediaItem.encodeWithCoder(coder)
+        //let playlistData: NSData = NSKeyedArchiver.archivedDataWithRootObject(self.playlist)
+        //config.setObject(playlistData, forKey: "playlist")
+        //mediaItem
+    }
+    
     /**
-     audioFileを読み込む
+     audioFileをプレイヤーに読み込む
      */
     //func readAudioFile() throws -> Song {
     func readAudioFile() throws {
@@ -161,14 +288,11 @@ class SolPlayer {
             MPNowPlayingInfoPropertyElapsedPlaybackTime: playbackTime
         ]
         
-        if song.artwork != nil {
-            defaultCenter.nowPlayingInfo![MPMediaItemPropertyArtwork] = song.artwork
+        if let artwork = song.artwork {
+            defaultCenter.nowPlayingInfo![MPMediaItemPropertyArtwork] = artwork
         }
 
     }
-    
-    /** プレイリストを読み込み最新化 */
-    
     
     /**
      AudioEngineを初期化

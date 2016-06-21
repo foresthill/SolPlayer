@@ -37,8 +37,8 @@
                                     <action selector="nextButtonAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="hwl-FT-M3J"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Option" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Z0o-wI-htU">
-                                <rect key="frame" x="30" y="407" width="52" height="17"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Option" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Z0o-wI-htU">
+                                <rect key="frame" x="30" y="407" width="51" height="17"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="17" id="Gad-Hx-tyu"/>
                                 </constraints>
@@ -53,19 +53,19 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="x 1.0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="X4g-LQ-Ehi">
-                                <rect key="frame" x="317" y="439" width="27.5" height="16"/>
+                                <rect key="frame" x="317" y="439" width="27" height="16"/>
                                 <fontDescription key="fontDescription" type="system" weight="light" pointSize="13"/>
                                 <color key="textColor" red="0.29709535256410258" green="0.29709535256410258" blue="0.29709535256410258" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="00:00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lL4-Vs-x9n">
-                                <rect key="frame" x="30" y="352" width="49" height="13.5"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lL4-Vs-x9n">
+                                <rect key="frame" x="30" y="352" width="43" height="13"/>
                                 <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="11"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="-99:99:99" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yM9-zp-XEH">
-                                <rect key="frame" x="329.5" y="352" width="54.5" height="13.5"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="-99:99:99" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yM9-zp-XEH">
+                                <rect key="frame" x="337" y="352" width="47" height="13"/>
                                 <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="11"/>
                                 <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
@@ -76,14 +76,8 @@
                                 <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="YxJ-xI-PHh">
-                                <rect key="frame" x="183" y="101" width="51" height="31"/>
-                                <connections>
-                                    <action selector="solSwitchAction:" destination="BYZ-38-t0r" eventType="valueChanged" id="2hd-qW-F3q"/>
-                                </connections>
-                            </switch>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="SolPlayer ver1.0" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Gtm-1I-BXc">
-                                <rect key="frame" x="146" y="30" width="121" height="21"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="SolPlayer ver1.0" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Gtm-1I-BXc">
+                                <rect key="frame" x="147.5" y="30" width="118.5" height="21"/>
                                 <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="17"/>
                                 <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
@@ -99,8 +93,8 @@
                                     <action selector="playButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="uGR-Gy-8bV"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Untitled" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eVk-O8-mRi">
-                                <rect key="frame" x="80" y="200" width="61" height="21"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Untitled" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eVk-O8-mRi">
+                                <rect key="frame" x="80" y="200" width="56" height="21"/>
                                 <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="17"/>
                                 <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
@@ -119,7 +113,7 @@
                                 </connections>
                             </slider>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="default" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eFg-Mw-MpI">
-                                <rect key="frame" x="30" y="559" width="42.5" height="16"/>
+                                <rect key="frame" x="30" y="559" width="42" height="16"/>
                                 <fontDescription key="fontDescription" type="system" weight="light" pointSize="13"/>
                                 <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
@@ -152,19 +146,27 @@
                                     <constraint firstAttribute="height" constant="40" id="sjB-2y-0AU"/>
                                 </constraints>
                             </imageView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Unknown Artist" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QM4-Y4-3De">
-                                <rect key="frame" x="79.5" y="224" width="94" height="16"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Unknown Artist" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QM4-Y4-3De">
+                                <rect key="frame" x="79.5" y="224" width="85.5" height="16"/>
                                 <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="13"/>
                                 <color key="textColor" red="0.43177083333333321" green="0.43177083333333321" blue="0.43177083333333321" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" alpha="0.84999999999999998" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SF4-90-oyI">
+                                <rect key="frame" x="148" y="61" width="117" height="114"/>
+                                <state key="normal" image="solSwitch1.png"/>
+                                <state key="selected" image="solSwitch1_on1.png"/>
+                                <state key="highlighted" image="solSwitch1_on1.png"/>
+                                <connections>
+                                    <action selector="solButtonAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="X8d-Yu-90l"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="Fak-xp-40e" firstAttribute="top" secondItem="uKK-pi-yjk" secondAttribute="bottom" constant="95" id="0S4-xn-t4B"/>
                             <constraint firstItem="Z0o-wI-htU" firstAttribute="top" secondItem="uKK-pi-yjk" secondAttribute="bottom" constant="70" id="3dE-g5-d2J"/>
                             <constraint firstItem="LiR-Hf-Dd2" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="4pu-Qn-MKR"/>
-                            <constraint firstItem="YxJ-xI-PHh" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="7U5-HL-S1h"/>
                             <constraint firstItem="uKK-pi-yjk" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="10" id="8uA-yX-V8b"/>
                             <constraint firstItem="yM9-zp-XEH" firstAttribute="top" secondItem="uKK-pi-yjk" secondAttribute="bottom" constant="15" id="9Fp-Lr-5y6"/>
                             <constraint firstItem="jqk-m6-XYb" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="10" id="Abq-j6-wAE"/>
@@ -185,17 +187,18 @@
                             <constraint firstItem="Fak-xp-40e" firstAttribute="leading" secondItem="jqk-m6-XYb" secondAttribute="trailing" constant="30" id="QcP-zc-kca"/>
                             <constraint firstItem="Qu3-AK-yLB" firstAttribute="leading" secondItem="sdu-4d-lCR" secondAttribute="trailing" constant="60" id="R24-3j-OF4"/>
                             <constraint firstItem="QM4-Y4-3De" firstAttribute="leading" secondItem="eVk-O8-mRi" secondAttribute="leading" id="SVs-9C-bqO"/>
-                            <constraint firstItem="YxJ-xI-PHh" firstAttribute="top" secondItem="Gtm-1I-BXc" secondAttribute="bottom" constant="50" id="Spn-ZN-wYE"/>
                             <constraint firstItem="41H-OZ-4bF" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="10" id="WHm-Rb-395"/>
                             <constraint firstItem="eVk-O8-mRi" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="180" id="WUX-TX-adb"/>
                             <constraint firstItem="41H-OZ-4bF" firstAttribute="top" secondItem="jqk-m6-XYb" secondAttribute="bottom" constant="74.5" id="YJn-2j-X1O"/>
                             <constraint firstItem="Qu3-AK-yLB" firstAttribute="centerY" secondItem="5a8-Zd-8Nx" secondAttribute="centerY" id="bgM-p5-b2q"/>
                             <constraint firstAttribute="trailingMargin" secondItem="uKK-pi-yjk" secondAttribute="trailing" constant="10" id="cFq-qX-aLX"/>
+                            <constraint firstItem="SF4-90-oyI" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="ejr-Di-865"/>
                             <constraint firstItem="5a8-Zd-8Nx" firstAttribute="leading" secondItem="sdu-4d-lCR" secondAttribute="trailing" constant="80" id="f7e-XH-znt"/>
                             <constraint firstItem="5a8-Zd-8Nx" firstAttribute="top" secondItem="QM4-Y4-3De" secondAttribute="bottom" constant="15" id="fDV-9q-DF6"/>
                             <constraint firstItem="Gtm-1I-BXc" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="10" id="fiN-rC-8zS"/>
                             <constraint firstItem="QM4-Y4-3De" firstAttribute="top" secondItem="eVk-O8-mRi" secondAttribute="bottom" constant="3" id="gci-ub-sIj"/>
                             <constraint firstItem="D3Y-v3-jLs" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="h8B-7l-x7J"/>
+                            <constraint firstItem="SF4-90-oyI" firstAttribute="top" secondItem="Gtm-1I-BXc" secondAttribute="bottom" constant="10" id="iBX-MP-m8V"/>
                             <constraint firstItem="QM4-Y4-3De" firstAttribute="bottom" secondItem="zgi-XZ-dO8" secondAttribute="bottom" id="iab-vW-8pm"/>
                             <constraint firstItem="jqk-m6-XYb" firstAttribute="top" secondItem="Z0o-wI-htU" secondAttribute="bottom" constant="15" id="jtT-VI-r44"/>
                             <constraint firstItem="Z0o-wI-htU" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="10" id="me2-2r-fWt"/>
@@ -216,7 +219,7 @@
                         <outlet property="endTimeLabel" destination="yM9-zp-XEH" id="QII-ri-BiU"/>
                         <outlet property="nowTimeLabel" destination="lL4-Vs-x9n" id="21z-8R-3M0"/>
                         <outlet property="playButton" destination="5a8-Zd-8Nx" id="G5d-ru-qXT"/>
-                        <outlet property="solSwitch" destination="YxJ-xI-PHh" id="PTg-56-x3z"/>
+                        <outlet property="solButton" destination="SF4-90-oyI" id="XIe-jR-8kz"/>
                         <outlet property="speedLabel" destination="X4g-LQ-Ehi" id="Lb9-pK-YhU"/>
                         <outlet property="speedSegment" destination="D3Y-v3-jLs" id="pqt-gZ-f6l"/>
                         <outlet property="speedSlider" destination="Fak-xp-40e" id="DRF-YO-HF1"/>
@@ -690,6 +693,8 @@ Cg
         <image name="playlist_white.png" width="30" height="30"/>
         <image name="prevsong.png" width="30" height="30"/>
         <image name="setting_white.png" width="30" height="30"/>
+        <image name="solSwitch1.png" width="117" height="114"/>
+        <image name="solSwitch1_on1.png" width="117" height="114"/>
         <image name="stop2.png" width="30" height="30"/>
     </resources>
 </document>

@@ -7,13 +7,17 @@
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
 //  to delete and recreate this implementation file for your updated model.
+//  ※persistentID、playlist以外は未使用
 //
 
 import Foundation
 import CoreData
 
-extension SongEntity {
-
+extension Song {
+    
+    @NSManaged var persistentID: NSNumber?
+    @NSManaged var playlist: NSNumber?
+    @NSManaged var trackNumber: NSNumber?
     @NSManaged var title: String?
     @NSManaged var mediaType: String?
     @NSManaged var diskNumber: NSNumber?

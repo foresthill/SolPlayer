@@ -27,6 +27,14 @@
 		BB66AFA01D0C8E7C007CA80A /* play60@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BB66AF9E1D0C8E7C007CA80A /* play60@2x.png */; };
 		BB66AFA11D0C8E7C007CA80A /* play60@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = BB66AF9F1D0C8E7C007CA80A /* play60@3x.png */; };
 		BB66AFA31D0C8E87007CA80A /* play60.png in Resources */ = {isa = PBXBuildFile; fileRef = BB66AFA21D0C8E87007CA80A /* play60.png */; };
+		BB69F6311D16DC6800B717F4 /* solSwitch1.png in Resources */ = {isa = PBXBuildFile; fileRef = BB69F6301D16DC6800B717F4 /* solSwitch1.png */; };
+		BB69F6371D16DC7200B717F4 /* solSwitch1_on1.png in Resources */ = {isa = PBXBuildFile; fileRef = BB69F6321D16DC7200B717F4 /* solSwitch1_on1.png */; };
+		BB69F6381D16DC7200B717F4 /* solSwitch1_on1@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BB69F6331D16DC7200B717F4 /* solSwitch1_on1@2x.png */; };
+		BB69F6391D16DC7200B717F4 /* solSwitch1_on2.png in Resources */ = {isa = PBXBuildFile; fileRef = BB69F6341D16DC7200B717F4 /* solSwitch1_on2.png */; };
+		BB69F63A1D16DC7200B717F4 /* solSwitch1_on2@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BB69F6351D16DC7200B717F4 /* solSwitch1_on2@2x.png */; };
+		BB69F63B1D16DC7200B717F4 /* solSwitch1@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BB69F6361D16DC7200B717F4 /* solSwitch1@2x.png */; };
+		BB6B85401D18A66B00816498 /* Playlist+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB6B853E1D18A66B00816498 /* Playlist+CoreDataProperties.swift */; };
+		BB6B85411D18A66B00816498 /* Playlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB6B853F1D18A66B00816498 /* Playlist.swift */; };
 		BB7855A31D03F61200FB0914 /* Song1.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7855A21D03F61200FB0914 /* Song1.swift */; };
 		BB7DA6741CFD055000A5A706 /* UserConfigViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7DA6731CFD055000A5A706 /* UserConfigViewController.swift */; };
 		BBACEA141D0CEA4600CC07C4 /* play40.png in Resources */ = {isa = PBXBuildFile; fileRef = BBACEA131D0CEA4600CC07C4 /* play40.png */; };
@@ -55,8 +63,8 @@
 		BBC632BC1CFB2AD3006407C9 /* SolPlayerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC632BB1CFB2AD3006407C9 /* SolPlayerUITests.swift */; };
 		BBC632CA1CFB3654006407C9 /* BGM.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BBC632C91CFB3654006407C9 /* BGM.mp3 */; };
 		BBF5C2B21D164C2F00DE7CBA /* SongModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BBF5C2B01D164C2F00DE7CBA /* SongModel.xcdatamodeld */; };
-		BBF5C2B51D164D9F00DE7CBA /* SongEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBF5C2B31D164D9F00DE7CBA /* SongEntity+CoreDataProperties.swift */; };
-		BBF5C2B61D164D9F00DE7CBA /* SongEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBF5C2B41D164D9F00DE7CBA /* SongEntity.swift */; };
+		BBF5C2B51D164D9F00DE7CBA /* Song+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBF5C2B31D164D9F00DE7CBA /* Song+CoreDataProperties.swift */; };
+		BBF5C2B61D164D9F00DE7CBA /* Song.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBF5C2B41D164D9F00DE7CBA /* Song.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -98,6 +106,15 @@
 		BB66AF9E1D0C8E7C007CA80A /* play60@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "play60@2x.png"; sourceTree = "<group>"; };
 		BB66AF9F1D0C8E7C007CA80A /* play60@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "play60@3x.png"; sourceTree = "<group>"; };
 		BB66AFA21D0C8E87007CA80A /* play60.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play60.png; sourceTree = "<group>"; };
+		BB69F6301D16DC6800B717F4 /* solSwitch1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = solSwitch1.png; sourceTree = "<group>"; };
+		BB69F6321D16DC7200B717F4 /* solSwitch1_on1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = solSwitch1_on1.png; sourceTree = "<group>"; };
+		BB69F6331D16DC7200B717F4 /* solSwitch1_on1@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "solSwitch1_on1@2x.png"; sourceTree = "<group>"; };
+		BB69F6341D16DC7200B717F4 /* solSwitch1_on2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = solSwitch1_on2.png; sourceTree = "<group>"; };
+		BB69F6351D16DC7200B717F4 /* solSwitch1_on2@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "solSwitch1_on2@2x.png"; sourceTree = "<group>"; };
+		BB69F6361D16DC7200B717F4 /* solSwitch1@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "solSwitch1@2x.png"; sourceTree = "<group>"; };
+		BB6B853E1D18A66B00816498 /* Playlist+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Playlist+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		BB6B853F1D18A66B00816498 /* Playlist.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Playlist.swift; sourceTree = "<group>"; };
+		BB6B85421D1971B500816498 /* SongModel 2.xcdatamodel */ = {isa = PBXFileReference; explicitFileType = wrapper.xcdatamodel; path = "SongModel 2.xcdatamodel"; sourceTree = "<group>"; };
 		BB7855A01D03D75B00FB0914 /* PlaylistViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaylistViewController.swift; sourceTree = "<group>"; };
 		BB7855A21D03F61200FB0914 /* Song1.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Song1.swift; sourceTree = "<group>"; };
 		BB7DA6731CFD055000A5A706 /* UserConfigViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserConfigViewController.swift; sourceTree = "<group>"; };
@@ -132,9 +149,9 @@
 		BBC632BB1CFB2AD3006407C9 /* SolPlayerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolPlayerUITests.swift; sourceTree = "<group>"; };
 		BBC632BD1CFB2AD3006407C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BBC632C91CFB3654006407C9 /* BGM.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = BGM.mp3; sourceTree = "<group>"; };
-		BBF5C2B11D164C2F00DE7CBA /* SongModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SongModel.xcdatamodel; sourceTree = "<group>"; };
-		BBF5C2B31D164D9F00DE7CBA /* SongEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SongEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
-		BBF5C2B41D164D9F00DE7CBA /* SongEntity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SongEntity.swift; sourceTree = "<group>"; };
+		BBF5C2B11D164C2F00DE7CBA /* SongModel.xcdatamodel */ = {isa = PBXFileReference; explicitFileType = wrapper.xcdatamodel; path = SongModel.xcdatamodel; sourceTree = "<group>"; };
+		BBF5C2B31D164D9F00DE7CBA /* Song+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Song+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		BBF5C2B41D164D9F00DE7CBA /* Song.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Song.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -165,6 +182,12 @@
 		BB66AF911D0BA009007CA80A /* images */ = {
 			isa = PBXGroup;
 			children = (
+				BB69F6301D16DC6800B717F4 /* solSwitch1.png */,
+				BB69F6321D16DC7200B717F4 /* solSwitch1_on1.png */,
+				BB69F6331D16DC7200B717F4 /* solSwitch1_on1@2x.png */,
+				BB69F6341D16DC7200B717F4 /* solSwitch1_on2.png */,
+				BB69F6351D16DC7200B717F4 /* solSwitch1_on2@2x.png */,
+				BB69F6361D16DC7200B717F4 /* solSwitch1@2x.png */,
 				BB2C636C1D0F151F002CCFB2 /* pause64.png */,
 				BB2C636D1D0F151F002CCFB2 /* pause64@2x.png */,
 				BB2C63681D0F1247002CCFB2 /* play64@2x.png */,
@@ -206,8 +229,10 @@
 		BBC6328F1CFB2AD3006407C9 = {
 			isa = PBXGroup;
 			children = (
-				BBF5C2B31D164D9F00DE7CBA /* SongEntity+CoreDataProperties.swift */,
-				BBF5C2B41D164D9F00DE7CBA /* SongEntity.swift */,
+				BB6B853E1D18A66B00816498 /* Playlist+CoreDataProperties.swift */,
+				BB6B853F1D18A66B00816498 /* Playlist.swift */,
+				BBF5C2B31D164D9F00DE7CBA /* Song+CoreDataProperties.swift */,
+				BBF5C2B41D164D9F00DE7CBA /* Song.swift */,
 				BBF5C2B01D164C2F00DE7CBA /* SongModel.xcdatamodeld */,
 				BBC6329A1CFB2AD3006407C9 /* SolPlayer */,
 				BBC632AF1CFB2AD3006407C9 /* SolPlayerTests */,
@@ -377,12 +402,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				BB2C636B1D0F1247002CCFB2 /* play64.png in Resources */,
+				BB69F6371D16DC7200B717F4 /* solSwitch1_on1.png in Resources */,
 				BB2C63641D0F10E0002CCFB2 /* stop2.png in Resources */,
 				BB2C635F1D0F0ED8002CCFB2 /* pause_white@2x.png in Resources */,
 				BBBA1C7F1D0D352B00AF09DD /* nextsong.png in Resources */,
 				BBBA1C821D0D352B00AF09DD /* prevsong_white.png in Resources */,
 				BBBA1C771D0D308800AF09DD /* setting_white@2x.png in Resources */,
 				BBC632A61CFB2AD3006407C9 /* LaunchScreen.storyboard in Resources */,
+				BB69F6391D16DC7200B717F4 /* solSwitch1_on2.png in Resources */,
 				BB2C636F1D0F151F002CCFB2 /* pause64@2x.png in Resources */,
 				BBBA1C781D0D308800AF09DD /* playlist_white@2x.png in Resources */,
 				BBC632A31CFB2AD3006407C9 /* Assets.xcassets in Resources */,
@@ -394,8 +421,10 @@
 				BBACEA1A1D0CEE4500CC07C4 /* SolPlayer_bg4-3.png in Resources */,
 				BBACEA141D0CEA4600CC07C4 /* play40.png in Resources */,
 				BBBA1C811D0D352B00AF09DD /* playlist_white.png in Resources */,
+				BB69F63A1D16DC7200B717F4 /* solSwitch1_on2@2x.png in Resources */,
 				BBBA1C761D0D308800AF09DD /* prevsong@2x.png in Resources */,
 				BB66AFA11D0C8E7C007CA80A /* play60@3x.png in Resources */,
+				BB69F6381D16DC7200B717F4 /* solSwitch1_on1@2x.png in Resources */,
 				BBC632A11CFB2AD3006407C9 /* Main.storyboard in Resources */,
 				BBBA1C831D0D352B00AF09DD /* setting_white.png in Resources */,
 				BB2C63651D0F10E0002CCFB2 /* stop1.png in Resources */,
@@ -403,6 +432,7 @@
 				BBBA1C861D0D382700AF09DD /* speeker.png in Resources */,
 				BBACEA181D0CEA5700CC07C4 /* play40@3x.png in Resources */,
 				BBC632CA1CFB3654006407C9 /* BGM.mp3 in Resources */,
+				BB69F63B1D16DC7200B717F4 /* solSwitch1@2x.png in Resources */,
 				BBBA1C751D0D308800AF09DD /* nextsong@2x.png in Resources */,
 				BBBA1C871D0D382700AF09DD /* speeker@2x.png in Resources */,
 				BB66AFA31D0C8E87007CA80A /* play60.png in Resources */,
@@ -410,6 +440,7 @@
 				BB2C636A1D0F1247002CCFB2 /* play64@2x.png in Resources */,
 				BB66AFA01D0C8E7C007CA80A /* play60@2x.png in Resources */,
 				BBBA1C891D0D3C3C00AF09DD /* prevsong.png in Resources */,
+				BB69F6311D16DC6800B717F4 /* solSwitch1.png in Resources */,
 				BB66AF951D0BA120007CA80A /* solplayer_bg3.png in Resources */,
 				BB2C63661D0F10E0002CCFB2 /* stop2@2x.png in Resources */,
 				BBBA1C791D0D308800AF09DD /* play_white@2x.png in Resources */,
@@ -442,12 +473,14 @@
 				BBC6329E1CFB2AD3006407C9 /* ViewController.swift in Sources */,
 				BB66AF8E1D076DE9007CA80A /* PlaylistViewController.swift in Sources */,
 				BBC6329C1CFB2AD3006407C9 /* AppDelegate.swift in Sources */,
-				BBF5C2B61D164D9F00DE7CBA /* SongEntity.swift in Sources */,
+				BBF5C2B61D164D9F00DE7CBA /* Song.swift in Sources */,
 				BB66AF971D0BB879007CA80A /* SolPlayer.swift in Sources */,
 				BB7DA6741CFD055000A5A706 /* UserConfigViewController.swift in Sources */,
-				BBF5C2B51D164D9F00DE7CBA /* SongEntity+CoreDataProperties.swift in Sources */,
+				BBF5C2B51D164D9F00DE7CBA /* Song+CoreDataProperties.swift in Sources */,
+				BB6B85401D18A66B00816498 /* Playlist+CoreDataProperties.swift in Sources */,
 				BBF5C2B21D164C2F00DE7CBA /* SongModel.xcdatamodeld in Sources */,
 				BB659A751D04ED3C005535FC /* AppError.swift in Sources */,
+				BB6B85411D18A66B00816498 /* Playlist.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -700,9 +733,10 @@
 		BBF5C2B01D164C2F00DE7CBA /* SongModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				BB6B85421D1971B500816498 /* SongModel 2.xcdatamodel */,
 				BBF5C2B11D164C2F00DE7CBA /* SongModel.xcdatamodel */,
 			);
-			currentVersion = BBF5C2B11D164C2F00DE7CBA /* SongModel.xcdatamodel */;
+			currentVersion = BB6B85421D1971B500816498 /* SongModel 2.xcdatamodel */;
 			path = SongModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
