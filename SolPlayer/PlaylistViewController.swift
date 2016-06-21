@@ -22,7 +22,7 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     
     //ダミーのplaylist
     //let playlistDummy = ["default", "Rock", "20160609", "プレイリストを新規作成"]
-    let playlistDummy = ["default"]
+    let selectPlaylist = [0:"default"]
     
     //SolPlayer本体
     var solPlayer: SolPlayer!
@@ -109,7 +109,9 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
             if(textField.text?.lengthOfBytesUsingEncoding(NSUTF8StringEncoding) > 0){
                 //永続化処理
                 do {
-                    try self.solPlayer.savePlayList()
+                    //選択されたプレイリストに保存
+                    try self.solPlayer.savePlayList(self.playListPicker.selectedRowInComponent(0))
+                    print(self.playListPicker.selectedRowInComponent(0))
                     
                     alert = UIAlertController(title: "保存完了", message: "プレイリストを保存しました。", preferredStyle: UIAlertControllerStyle.Alert)
                 } catch {
@@ -289,9 +291,15 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
      */
     func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
         let targetSong = solPlayer.playlist![sourceIndexPath.row]
+        
+        //並び替え処理（削除→更新）
         solPlayer.playlist?.removeAtIndex(sourceIndexPath.row)
         solPlayer.playlist?.insert(targetSong, atIndex: destinationIndexPath.row)
         
+        //曲順も変更する（2016/06/22）
+        if(solPlayer.number == sourceIndexPath.row){
+            solPlayer.number = destinationIndexPath.row
+        }
     }
     
     /**
@@ -305,14 +313,15 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
      UIPicker用メソッド（2.表示個数）
      */
     func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return playlistDummy.count
+        return selectPlaylist.count
     }
     
     /**
      UIPicker用メソッド（3.表示内容）
      */
     func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return playlistDummy[row] as String
+        //TODO:これでいいんだっけ？列順とIDが異なる可能性もあるが。。
+        return selectPlaylist[row]! as String
     }
     
     /**

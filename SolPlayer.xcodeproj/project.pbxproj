@@ -115,6 +115,7 @@
 		BB6B853E1D18A66B00816498 /* Playlist+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Playlist+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		BB6B853F1D18A66B00816498 /* Playlist.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Playlist.swift; sourceTree = "<group>"; };
 		BB6B85421D1971B500816498 /* SongModel 2.xcdatamodel */ = {isa = PBXFileReference; explicitFileType = wrapper.xcdatamodel; path = "SongModel 2.xcdatamodel"; sourceTree = "<group>"; };
+		BB6B85431D19F5A200816498 /* SongModel 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "SongModel 3.xcdatamodel"; sourceTree = "<group>"; };
 		BB7855A01D03D75B00FB0914 /* PlaylistViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaylistViewController.swift; sourceTree = "<group>"; };
 		BB7855A21D03F61200FB0914 /* Song1.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Song1.swift; sourceTree = "<group>"; };
 		BB7DA6731CFD055000A5A706 /* UserConfigViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserConfigViewController.swift; sourceTree = "<group>"; };
@@ -733,10 +734,11 @@
 		BBF5C2B01D164C2F00DE7CBA /* SongModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				BB6B85431D19F5A200816498 /* SongModel 3.xcdatamodel */,
 				BB6B85421D1971B500816498 /* SongModel 2.xcdatamodel */,
 				BBF5C2B11D164C2F00DE7CBA /* SongModel.xcdatamodel */,
 			);
-			currentVersion = BB6B85421D1971B500816498 /* SongModel 2.xcdatamodel */;
+			currentVersion = BB6B85431D19F5A200816498 /* SongModel 3.xcdatamodel */;
 			path = SongModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

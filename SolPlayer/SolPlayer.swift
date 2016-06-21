@@ -114,9 +114,10 @@ class SolPlayer {
             //solSwitchImage =
         }
         
+        //defaultのプレイリストを読み込み
         playlist = Array<MPMediaItem>()
         do {
-            try loadPlayList()
+            try loadPlayList(0)
         } catch {
             
         }
@@ -124,7 +125,7 @@ class SolPlayer {
     }
     
     /** MediaQueryで曲を読込み #81 */
-    func loadSong( songId: NSNumber ) -> MPMediaItem {
+    func loadSong(songId: NSNumber) -> MPMediaItem {
         
         var mediaItem = MPMediaItem()
         
@@ -142,101 +143,65 @@ class SolPlayer {
     }
     
     /** プレイリスト読込 #81 */
-    func loadPlayList() throws {
+    func loadPlayList(playlistId: Int) throws {
         
         do {
-            //ここにすることで何か変わる？何も変わらない？
-            //appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-
             let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
-            
             let fetchRequest = NSFetchRequest(entityName:"Song")
-
+            fetchRequest.predicate = NSPredicate(format: "playlist = %d", playlistId)
             let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
             
+            //TODO:ソート
+            //let sort_descriptor: NSSortDescriptor = NSSortDescriptor(key:"trackNumber", ascending: true)
+            //fetchResults.sort
+
             if let results: Array = fetchResults {
                 
                 for songObject:AnyObject in results {
-                    
+                    //persistentIDを頼りに検索
                     let mediaItem:MPMediaItem = loadSong(songObject.valueForKey("persistentID") as! NSNumber)
-                    
-//                    mediaItem.setValue(songObject.valueForKey("title"), forKey: "title")
-//                    mediaItem.setValue(NSURL.fileURLWithPath(songObject.valueForKey("assetURL") as! String), forKey: "assetURL")
-//                    mediaItem.setValue(songObject.valueForKey("artist"), forKey: "artist")
-//                    mediaItem.setValue(songObject.valueForKey("albumArtist"), forKey: "albumArtist")
-//                    mediaItem.setValue(songObject.valueForKey("albumTitle"), forKey: "albumTitle")
-//                    mediaItem.setValue(songObject.valueForKey("artwork"), forKey: "artwork")
-                    
                     //読み込んだMPMediaItemをプレイリストに追加
                     if(mediaItem.valueForKey("assetURL") != nil){
                         playlist.append(mediaItem)
                     }
                 }
+                
             }
-            
-            
-            
+
         } catch {
             throw AppError.CantLoadError
             
         }
-        
-        //どうする？
-//        if let playlistArachiveData = config.objectForKey("playlist") {
-//            //NSData形式のデータを解凍
-//            let playlistData = NSKeyedUnarchiver.unarchiveObjectWithData(playlistArachiveData as! NSData)
-//            playlist = playlistData as! [MPMediaItem]
-//        }
-
-        //TODO:DBに保存されたバイナリを復元するorインスタンス化して必要な情報を修得
-//        var mediaItem = MPMediaItem()
-//        mediaItem.title
-//        //mediaItem.assetURL
-//        mediaItem.setValue(<#T##value: AnyObject?##AnyObject?#>, forKey: MPMediaItemPropertyAssetURL)
-//        mediaItem.artist
-//        mediaItem.artwork
-//        MPMediaItem.init(coder: coder)
 
     }
     
     /** プレイリスト保存（永続化処理） #81 */
-    func savePlayList() throws {
-        //TODO:バイナリ化して保存or必要な情報だけ保存
+    func savePlayList(playlistId: Int) throws {
         
         let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
 
         do {
-            try playlist.forEach { (song) in
+//            try playlist.forEach { (song) in
+            for (index, song) in playlist.enumerate() {
                 let entity = NSEntityDescription.entityForName("Song", inManagedObjectContext: managedContext)
                 let songObject = NSManagedObject(entity: entity!, insertIntoManagedObjectContext: managedContext)
-                
-//                songObject.setValue(song.title, forKey: "title")
-//                songObject.setValue(song.artist, forKey: "artist")
-//                songObject.setValue(song.assetURL?.absoluteString, forKey: "assetURL")
-//                songObject.setValue(song.albumArtist, forKey: "albumArtist")
-//                songObject.setValue(song.albumTitle, forKey: "albumTitle")
-//                songObject.setValue(song.artwork, forKey: "artwork")
-                
-                //AVAsset(URL: <#T##NSURL#>)
-                
-                //PersistentID
+
+                //PersistentID（曲を一意に特定するID）を代入
                 let songId = song.persistentID as UInt64
                 songObject.setValue(NSNumber(unsignedLongLong: songId), forKey: "persistentID")
 
-                //プレイリストの値を代入
-                songObject.setValue(0, forKey: "playlist")
+                //プレイリストのIDを代入
+                songObject.setValue(playlistId, forKey: "playlist")
+                
+                //曲順を代入
+                songObject.setValue(index, forKey: "trackNumber")
                 
                 try managedContext.save()
             }
         } catch {
             throw AppError.CantSaveError
         }
-        
-        //let mediaItem = MPMediaItem()
-        //mediaItem.encodeWithCoder(coder)
-        //let playlistData: NSData = NSKeyedArchiver.archivedDataWithRootObject(self.playlist)
-        //config.setObject(playlistData, forKey: "playlist")
-        //mediaItem
+
     }
     
     /**
