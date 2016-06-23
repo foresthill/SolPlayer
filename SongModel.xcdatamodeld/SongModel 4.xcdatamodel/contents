@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10174" systemVersion="15E65" minimumToolsVersion="Xcode 7.0">
+    <entity name="Playlist" representedClassName=".Playlist" syncable="YES">
+        <attribute name="id" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="relationship" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Song" inverseName="relationship" inverseEntity="Song" syncable="YES"/>
+    </entity>
+    <entity name="Song" representedClassName=".Song" syncable="YES">
+        <attribute name="isLocal" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="persistentID" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="playlist" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="trackNumber" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <relationship name="relationship" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Playlist" inverseName="relationship" inverseEntity="Playlist" syncable="YES"/>
+    </entity>
+    <fetchRequest name="loadSongs" entity="Song" predicateString="playlist == 0"/>
+    <elements>
+        <element name="Playlist" positionX="-63" positionY="72" width="128" height="90"/>
+        <element name="Song" positionX="-63" positionY="-18" width="128" height="120"/>
+    </elements>
+</model>

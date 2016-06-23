@@ -82,6 +82,9 @@ class SolPlayer {
     //Coder（2016/06/19Test）
     let coder = NSCoder()
     
+    //全曲リピート（１曲リピートはViewControllerで）
+    var repeatAll = false
+    
     /**
      初期処理（シングルトンクラスのため外部からのアクセス禁止）
      */
@@ -553,7 +556,20 @@ class SolPlayer {
             }
         }
         
-        //while文を抜けてしまった場合（プレイリストの最後まで読み込める曲がなかった場合）
+        /* 以下、while文を抜けてしまった場合 */
+        
+        //全曲リピートの場合、最初に戻る
+        if(repeatAll){
+            number = 0
+            do {
+                stop()
+                try play()
+                return
+            } catch {
+            }
+        }
+        
+        //プレイリストの最後まで読み込める曲がなかった場合
         throw AppError.NoSongError
 
     }

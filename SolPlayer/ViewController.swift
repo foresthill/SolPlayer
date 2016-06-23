@@ -15,6 +15,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
 
     @IBOutlet weak var playButton: UIButton!
     @IBOutlet weak var stopButton: UIButton!
+    @IBOutlet weak var repeatButton: UIButton!
     
     //@IBOutlet weak var solSwitch: UISwitch!
     @IBOutlet weak var solButton: UIButton!
@@ -30,6 +31,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
     @IBOutlet weak var speedSlider: UISlider!
     @IBOutlet weak var speedLabel: UILabel!
     @IBOutlet weak var speedSegment: UISegmentedControl!
+    
     
     //ユーザ設定値
     var config: NSUserDefaults!
@@ -271,6 +273,14 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         //曲の最後に到達したら次の曲へ
         if current >= Float(solPlayer.duration) {
             stop()
+            
+            //リピート処理
+            if(repeatButton.selected){
+                do { try play() } catch { }
+                return
+            }
+            
+            //通常時処理
             do {
                 try solPlayer.nextSong()
                 setScreen(true)
@@ -391,6 +401,11 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         solPlayer.speedChange(speedSlider.value)
     }
     
+    @IBAction func repeatButtonAction(sender: UIButton) {
+        //ON/OFF切り替え
+        repeatButton.selected = !repeatButton.selected
+        
+    }
     /**
      ロック画面から呼び出されるメソッド（本来はSolPlayer内に置きたい）
      */

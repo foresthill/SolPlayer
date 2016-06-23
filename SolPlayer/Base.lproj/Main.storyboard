@@ -77,7 +77,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="SolPlayer ver1.0" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Gtm-1I-BXc">
-                                <rect key="frame" x="147.5" y="30" width="118.5" height="21"/>
+                                <rect key="frame" x="147" y="30" width="118.5" height="21"/>
                                 <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="17"/>
                                 <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
@@ -146,8 +146,8 @@
                                     <constraint firstAttribute="height" constant="40" id="sjB-2y-0AU"/>
                                 </constraints>
                             </imageView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Unknown Artist" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QM4-Y4-3De">
-                                <rect key="frame" x="79.5" y="224" width="85.5" height="16"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Unknown Artist" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QM4-Y4-3De">
+                                <rect key="frame" x="79" y="224" width="85.5" height="16"/>
                                 <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="13"/>
                                 <color key="textColor" red="0.43177083333333321" green="0.43177083333333321" blue="0.43177083333333321" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
@@ -159,6 +159,18 @@
                                 <state key="highlighted" image="solSwitch1_on1.png"/>
                                 <connections>
                                     <action selector="solButtonAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="X8d-Yu-90l"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JbX-fK-92H">
+                                <rect key="frame" x="244" y="274" width="36" height="26"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="36" id="Pr8-3J-kRL"/>
+                                </constraints>
+                                <state key="normal" image="repeat.png"/>
+                                <state key="selected" image="repeat_blue.png"/>
+                                <state key="highlighted" image="repeat_blue.png"/>
+                                <connections>
+                                    <action selector="repeatButtonAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="FAq-VW-s2A"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -177,6 +189,8 @@
                             <constraint firstAttribute="trailingMargin" secondItem="uKK-pi-yjk" secondAttribute="trailing" constant="10" id="Eb5-DL-lqn"/>
                             <constraint firstItem="Gtm-1I-BXc" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="HRB-ac-r7L"/>
                             <constraint firstAttribute="trailingMargin" secondItem="yM9-zp-XEH" secondAttribute="trailing" constant="10" id="Hqg-JM-WQ5"/>
+                            <constraint firstItem="JbX-fK-92H" firstAttribute="leading" secondItem="5a8-Zd-8Nx" secondAttribute="trailing" constant="5" id="JWY-6t-8j5"/>
+                            <constraint firstItem="JbX-fK-92H" firstAttribute="centerY" secondItem="5a8-Zd-8Nx" secondAttribute="centerY" id="JWY-MO-Bhd"/>
                             <constraint firstItem="lL4-Vs-x9n" firstAttribute="top" secondItem="uKK-pi-yjk" secondAttribute="bottom" constant="15" id="LLU-Nz-cZx"/>
                             <constraint firstItem="eFg-Mw-MpI" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="10" id="MaT-0M-d9D"/>
                             <constraint firstItem="lL4-Vs-x9n" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="10" id="Mjl-bN-NBR"/>
@@ -219,6 +233,7 @@
                         <outlet property="endTimeLabel" destination="yM9-zp-XEH" id="QII-ri-BiU"/>
                         <outlet property="nowTimeLabel" destination="lL4-Vs-x9n" id="21z-8R-3M0"/>
                         <outlet property="playButton" destination="5a8-Zd-8Nx" id="G5d-ru-qXT"/>
+                        <outlet property="repeatButton" destination="JbX-fK-92H" id="fn7-I9-Ag7"/>
                         <outlet property="solButton" destination="SF4-90-oyI" id="XIe-jR-8kz"/>
                         <outlet property="speedLabel" destination="X4g-LQ-Ehi" id="Lb9-pK-YhU"/>
                         <outlet property="speedSegment" destination="D3Y-v3-jLs" id="pqt-gZ-f6l"/>
@@ -253,12 +268,6 @@
                                 <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="ipP-p0-UHz">
-                                <rect key="frame" x="0.0" y="245" width="600" height="306"/>
-                                <color key="backgroundColor" white="1" alpha="0.095797413793103442" colorSpace="calibratedWhite"/>
-                                <color key="separatorColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
-                                <color key="sectionIndexBackgroundColor" red="1" green="1" blue="1" alpha="0.10153556034482758" colorSpace="calibratedRGB"/>
-                            </tableView>
                             <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2s1-zW-QL5">
                                 <rect key="frame" x="0.0" y="100" width="600" height="100"/>
                                 <color key="tintColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
@@ -288,17 +297,40 @@
                                     <action selector="editPlaylist:" destination="abt-em-hzf" eventType="touchUpInside" id="Er8-Dq-piT"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ckb-Gw-IT8">
-                                <rect key="frame" x="431" y="205" width="149" height="28"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ckb-Gw-IT8">
+                                <rect key="frame" x="545" y="201.5" width="35" height="35"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.0" colorSpace="calibratedRGB"/>
-                                <fontDescription key="fontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="15"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="35" id="h73-ts-h8n"/>
+                                </constraints>
                                 <color key="tintColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <inset key="contentEdgeInsets" minX="7" minY="5" maxX="7" maxY="5"/>
-                                <state key="normal" title="プレイリストを保存"/>
+                                <state key="normal" image="download.png"/>
                                 <connections>
                                     <action selector="savePlaylist:" destination="abt-em-hzf" eventType="touchUpInside" id="SGo-r6-dve"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="bottom" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="W2Q-JX-fCI">
+                                <rect key="frame" x="510" y="204" width="25" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="25" id="XUH-dz-oaa"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="8"/>
+                                <inset key="contentEdgeInsets" minX="2" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                <state key="normal" image="repeat2.png"/>
+                                <state key="selected" image="repeat2_blue.png"/>
+                                <state key="highlighted" image="repeat2_blue.png"/>
+                                <connections>
+                                    <action selector="repeatAllButtonAction:" destination="abt-em-hzf" eventType="touchUpInside" id="d9H-gz-f0N"/>
+                                    <action selector="savePlaylist:" destination="abt-em-hzf" eventType="touchUpInside" id="oYN-gM-Bo8"/>
+                                </connections>
+                            </button>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="ipP-p0-UHz">
+                                <rect key="frame" x="0.0" y="245" width="600" height="306"/>
+                                <color key="backgroundColor" white="1" alpha="0.095797413793103442" colorSpace="calibratedWhite"/>
+                                <color key="separatorColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="sectionIndexBackgroundColor" red="1" green="1" blue="1" alpha="0.10153556034482758" colorSpace="calibratedRGB"/>
+                            </tableView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
@@ -307,14 +339,16 @@
                             <constraint firstItem="cme-R5-sin" firstAttribute="leading" secondItem="pgO-C4-ZbK" secondAttribute="leadingMargin" id="2kx-JO-xAn"/>
                             <constraint firstItem="2s1-zW-QL5" firstAttribute="leading" secondItem="pgO-C4-ZbK" secondAttribute="leading" id="96A-B5-0O0"/>
                             <constraint firstItem="ipP-p0-UHz" firstAttribute="top" secondItem="Rqn-eL-Gok" secondAttribute="bottom" constant="150" id="CPG-2v-KJw"/>
+                            <constraint firstItem="W2Q-JX-fCI" firstAttribute="centerY" secondItem="gcq-W1-rrL" secondAttribute="centerY" id="FGO-dK-RJc"/>
                             <constraint firstAttribute="trailing" secondItem="ipP-p0-UHz" secondAttribute="trailing" id="LUG-hD-D9r"/>
+                            <constraint firstItem="ckb-Gw-IT8" firstAttribute="leading" secondItem="W2Q-JX-fCI" secondAttribute="trailing" constant="10" id="QJB-fU-r1T"/>
                             <constraint firstItem="cme-R5-sin" firstAttribute="top" secondItem="2s1-zW-QL5" secondAttribute="bottom" constant="5" id="RNt-f9-cf1"/>
                             <constraint firstItem="gcq-W1-rrL" firstAttribute="leading" secondItem="cme-R5-sin" secondAttribute="trailing" constant="10" id="U4K-zt-idy"/>
                             <constraint firstItem="gcq-W1-rrL" firstAttribute="top" secondItem="cme-R5-sin" secondAttribute="top" id="Uge-9K-Nco"/>
+                            <constraint firstItem="ckb-Gw-IT8" firstAttribute="centerY" secondItem="W2Q-JX-fCI" secondAttribute="centerY" id="YLz-88-xwR"/>
                             <constraint firstItem="ckb-Gw-IT8" firstAttribute="trailing" secondItem="pgO-C4-ZbK" secondAttribute="trailingMargin" id="ZuB-6y-HSZ"/>
                             <constraint firstItem="2s1-zW-QL5" firstAttribute="top" secondItem="Rqn-eL-Gok" secondAttribute="bottom" constant="5" id="anH-30-BhF"/>
                             <constraint firstAttribute="trailing" secondItem="2s1-zW-QL5" secondAttribute="trailing" id="dqf-P5-fbI"/>
-                            <constraint firstItem="ckb-Gw-IT8" firstAttribute="top" secondItem="gcq-W1-rrL" secondAttribute="top" id="fog-cI-ycZ"/>
                             <constraint firstItem="2s1-zW-QL5" firstAttribute="centerX" secondItem="pgO-C4-ZbK" secondAttribute="centerX" id="kOo-Rz-bOC"/>
                             <constraint firstItem="ipP-p0-UHz" firstAttribute="leading" secondItem="pgO-C4-ZbK" secondAttribute="leading" id="nfW-8H-Idu"/>
                             <constraint firstItem="M56-NL-Mhz" firstAttribute="centerY" secondItem="pgO-C4-ZbK" secondAttribute="centerY" id="q3F-yZ-9AU"/>
@@ -327,6 +361,7 @@
                     <connections>
                         <outlet property="editButton" destination="gcq-W1-rrL" id="lSE-s9-y8I"/>
                         <outlet property="playListPicker" destination="2s1-zW-QL5" id="2v4-7r-wcr"/>
+                        <outlet property="repeatAllButton" destination="W2Q-JX-fCI" id="9RI-da-tNx"/>
                         <outlet property="tableView" destination="ipP-p0-UHz" id="Apy-1H-xzz"/>
                     </connections>
                 </viewController>
@@ -687,11 +722,16 @@ Cg
     </scenes>
     <resources>
         <image name="SolPlayer_bg4-3.png" width="752" height="1182"/>
+        <image name="download.png" width="21" height="25"/>
         <image name="nextsong.png" width="30" height="30"/>
         <image name="play64.png" width="64" height="64"/>
         <image name="play_white.png" width="30" height="30"/>
         <image name="playlist_white.png" width="30" height="30"/>
         <image name="prevsong.png" width="30" height="30"/>
+        <image name="repeat.png" width="26" height="26"/>
+        <image name="repeat2.png" width="25" height="30"/>
+        <image name="repeat2_blue.png" width="25" height="30"/>
+        <image name="repeat_blue.png" width="26" height="26"/>
         <image name="setting_white.png" width="30" height="30"/>
         <image name="solSwitch1.png" width="117" height="114"/>
         <image name="solSwitch1_on1.png" width="117" height="114"/>

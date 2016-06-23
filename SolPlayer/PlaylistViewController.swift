@@ -17,6 +17,8 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
 
     @IBOutlet weak var editButton: UIButton!
 
+    @IBOutlet weak var repeatAllButton: UIButton!
+    
     //appDelegate外出し
     var appDelegate: AppDelegate!
     
@@ -57,14 +59,78 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         //編集ボタンの配置
         //navigationItem.leftBarButtonItem = editButtonItem()
         
-        //「曲を追加」ボタンの配置→「プレイリスト追加」へ
-//        let addSongButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Add, target: self, action: #selector(PlaylistViewController.addSong))
-//        navigationItem.setRightBarButtonItem(addSongButton, animated: true)
+        //プレイリスト追加ボタン
+        let addSongButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Add, target: self, action: #selector(PlaylistViewController.addPlaylist))
+        navigationItem.setRightBarButtonItem(addSongButton, animated: true)
 
         //playList
         playListPicker.delegate = self
         playListPicker.dataSource = self
         
+    }
+    
+    /** 「新規プレイリスト追加」（＋マーク）をクリックした時の処理 */
+    func addPlaylist() {
+        //アラートを作成
+        var alert = UIAlertController(title: "プレイリストを作成", message: "新規作成するプレイリスト名を入力してください", preferredStyle: UIAlertControllerStyle.Alert)
+        
+        //新規作成時のアクション
+        let addAction = UIAlertAction(title: "作成", style: .Default){(action: UIAlertAction!) -> Void in
+            //入力したテキストをコンソールに表示
+            let textField = alert.textFields![0] as UITextField
+            //print(textField)
+            
+            if(textField.text?.lengthOfBytesUsingEncoding(NSUTF8StringEncoding) > 0){
+                //永続化処理
+                do {
+                    //選択されたプレイリストに保存
+                    try self.solPlayer.savePlayList(self.playListPicker.selectedRowInComponent(0))
+                    print(self.playListPicker.selectedRowInComponent(0))
+                    
+                    alert = UIAlertController(title: "作成完了", message: "プレイリストを作成しました。", preferredStyle: UIAlertControllerStyle.Alert)
+                } catch {
+                    alert = UIAlertController(title: "作成失敗", message: "プレイリストの作成に失敗しました。", preferredStyle: UIAlertControllerStyle.Alert)
+                }
+                
+                alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
+                    (action: UIAlertAction!) -> Void in
+                    //
+                }))
+                
+                self.presentViewController(alert, animated: true, completion: nil)
+                
+            } else {
+                //print("未入力です")
+                alert = UIAlertController(title: "作成失敗", message: "プレイリスト名を入力してください。", preferredStyle: UIAlertControllerStyle.Alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
+                    (action: UIAlertAction!) -> Void in
+                    //
+                }))
+                self.presentViewController(alert, animated: true, completion: nil)
+            }
+            
+        }
+        
+        //キャンセル時のアクション
+        let cancelAction = UIAlertAction(title: "キャンセル", style: .Default){(action: UIAlertAction!) -> Void in
+            //
+        }
+        
+        //UIAlertControllerにtextFieldを追加
+        alert.addTextFieldWithConfigurationHandler{(textField:UITextField) -> Void in
+            //NotificationCenterを生成
+            //let notificationCenter = NSNotificationCenter.defaultCenter()
+            //notificationCenter.addObserver(self, selector: #selector(PlaylistViewController.playlistNameValidate), name: UITextFieldTextDidChangeNotification, object: nil)
+        }
+        
+        //アクションを追加
+        alert.addAction(addAction)
+        alert.addAction(cancelAction)
+        
+        //表示
+        presentViewController(alert, animated: true, completion: nil)
+
+
     }
     
     /** 「新規追加」ボタンをクリックした時の処理 */
@@ -104,7 +170,7 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         let saveAction = UIAlertAction(title: "保存", style: .Default){(action: UIAlertAction!) -> Void in
             //入力したテキストをコンソールに表示
             let textField = alert.textFields![0] as UITextField
-            print(textField)
+            //print(textField)
             
             if(textField.text?.lengthOfBytesUsingEncoding(NSUTF8StringEncoding) > 0){
                 //永続化処理
@@ -157,6 +223,13 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         
     }
 
+    /** 全曲リピートボタンを推した時の処理 */
+    @IBAction func repeatAllButtonAction(sender: UIButton) {
+        //画面上でのON/OFF切り替え
+        repeatAllButton.selected = !repeatAllButton.selected
+        //SolPlayer上でのフラグ管理
+        solPlayer.repeatAll = repeatAllButton.selected
+    }
     
     //メディアアイテムピッカーでアイテムを選択完了した時に呼び出される（必須）
     func mediaPicker(mediaPicker: MPMediaPickerController, didPickMediaItems mediaItemCollection: MPMediaItemCollection) {
