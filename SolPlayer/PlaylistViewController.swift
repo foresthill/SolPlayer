@@ -24,7 +24,7 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     
     //ダミーのplaylist
     //let playlistDummy = ["default", "Rock", "20160609", "プレイリストを新規作成"]
-    let selectPlaylist = [0:"default"]
+    let selectPlaylist:NSMutableDictionary = [("default","default")] //["201606240212":"PlaylistName"]
     
     //SolPlayer本体
     var solPlayer: SolPlayer!
@@ -84,8 +84,11 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
                 //永続化処理
                 do {
                     //選択されたプレイリストに保存
-                    try self.solPlayer.savePlayList(self.playListPicker.selectedRowInComponent(0))
-                    print(self.playListPicker.selectedRowInComponent(0))
+                    let name = textField.text
+                    let id = try self.solPlayer.newPlayList(name!)
+                    print(id)
+                    
+                    self.selectPlaylist.setValue(name, forKey: id)
                     
                     alert = UIAlertController(title: "作成完了", message: "プレイリストを作成しました。", preferredStyle: UIAlertControllerStyle.Alert)
                 } catch {
@@ -176,7 +179,8 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
                 //永続化処理
                 do {
                     //選択されたプレイリストに保存
-                    try self.solPlayer.savePlayList(self.playListPicker.selectedRowInComponent(0))
+                    let selectPlaylistName: String = self.selectPlaylist[self.playListPicker.selectedRowInComponent(0)] as! String
+                    try self.solPlayer.savePlayList(selectPlaylistName)
                     print(self.playListPicker.selectedRowInComponent(0))
                     
                     alert = UIAlertController(title: "保存完了", message: "プレイリストを保存しました。", preferredStyle: UIAlertControllerStyle.Alert)
@@ -394,7 +398,7 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
      */
     func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         //TODO:これでいいんだっけ？列順とIDが異なる可能性もあるが。。
-        return selectPlaylist[row]! as String
+        return selectPlaylist[row]! as? String
     }
     
     /**

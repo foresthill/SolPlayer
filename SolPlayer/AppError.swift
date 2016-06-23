@@ -15,4 +15,5 @@ enum AppError: ErrorType {
     case NoSongError
     case CantLoadError
     case CantSaveError
+    case CantMakePlaylistError
 }

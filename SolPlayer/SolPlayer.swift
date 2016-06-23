@@ -89,7 +89,7 @@ class SolPlayer {
      初期処理（シングルトンクラスのため外部からのアクセス禁止）
      */
     private init(){
-        print("Solplayer init")
+        //print("Solplayer init")
         
         //画面ロック時も再生のカテゴリを指定
         do {
@@ -120,38 +120,58 @@ class SolPlayer {
         //defaultのプレイリストを読み込み
         playlist = Array<MPMediaItem>()
         do {
-            try loadPlayList(0)
+            try loadPlayList("default")
         } catch {
             
         }
 
     }
     
-    /** MediaQueryで曲を読込み #81 */
-    func loadSong(songId: NSNumber) -> MPMediaItem {
+    /** プレイリスト作成 */
+    func newPlayList(name: String) throws -> String {
         
-        var mediaItem = MPMediaItem()
+        let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
         
-        let property: MPMediaPropertyPredicate = MPMediaPropertyPredicate(value: songId, forProperty: MPMediaItemPropertyPersistentID)
-        
-        let query: MPMediaQuery = MPMediaQuery()
-        query.addFilterPredicate(property)
-        
-        let items: [MPMediaItem] = query.items! as [MPMediaItem]
-        if(items.count > 0){
-            mediaItem = items[items.count - 1]
+        do {
+            let entity = NSEntityDescription.entityForName("Playlist", inManagedObjectContext: managedContext)
+            let songObject = NSManagedObject(entity: entity!, insertIntoManagedObjectContext: managedContext)
+            
+            //PersistentID（曲を一意に特定するID）を代入
+            //let id = songObject.objectID as NSNumber
+            let id = generateID()
+            songObject.setValue(id, forKey: "id")
+            
+            //プレイリストのIDを代入
+            songObject.setValue(name, forKey: "name")
+            
+            try managedContext.save()
+            
+            return id
+            
+        } catch {
+            throw AppError.CantMakePlaylistError
         }
-        
-        return mediaItem
     }
     
-    /** プレイリスト読込 #81 */
-    func loadPlayList(playlistId: Int) throws {
+    /** ID生成（プレイリスト作成時に使う：NSManagedObjectIDの使い方がわかるまで）*/
+    func generateID() -> String {
+        let now = NSDate()
+        
+        let formatter = NSDateFormatter()
+        formatter.dateFormat = "yyyyMMddHHmmss"
+        
+        return formatter.stringFromDate(now)
+        
+        //return Int(string)!
+    }
+    
+    /** プレイリストを読込 #81 */
+    func loadPlayList(playlistId: String) throws {
         
         do {
             let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
             let fetchRequest = NSFetchRequest(entityName:"Song")
-            fetchRequest.predicate = NSPredicate(format: "playlist = %d", playlistId)
+            fetchRequest.predicate = NSPredicate(format: "playlist = %s", playlistId)
             let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
             
             //TODO:ソート
@@ -178,8 +198,26 @@ class SolPlayer {
 
     }
     
-    /** プレイリスト保存（永続化処理） #81 */
-    func savePlayList(playlistId: Int) throws {
+    /** MediaQueryで曲を読込み #81 */
+    func loadSong(songId: NSNumber) -> MPMediaItem {
+        
+        var mediaItem = MPMediaItem()
+        
+        let property: MPMediaPropertyPredicate = MPMediaPropertyPredicate(value: songId, forProperty: MPMediaItemPropertyPersistentID)
+        
+        let query: MPMediaQuery = MPMediaQuery()
+        query.addFilterPredicate(property)
+        
+        let items: [MPMediaItem] = query.items! as [MPMediaItem]
+        if(items.count > 0){
+            mediaItem = items[items.count - 1]
+        }
+        
+        return mediaItem
+    }
+    
+    /** プレイリストの曲を保存（永続化処理） #81 */
+    func savePlayList(playlistId: String) throws {
         
         let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
 

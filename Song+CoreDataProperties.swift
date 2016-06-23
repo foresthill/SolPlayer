@@ -2,7 +2,7 @@
 //  Song+CoreDataProperties.swift
 //  SolPlayer
 //
-//  Created by Morioka Naoya on H28/06/23.
+//  Created by Morioka Naoya on H28/06/24.
 //  Copyright © 平成28年 Morioka Naoya. All rights reserved.
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
@@ -14,10 +14,10 @@ import CoreData
 
 extension Song {
 
-    @NSManaged var persistentID: NSNumber?
-    @NSManaged var playlist: NSNumber?
-    @NSManaged var trackNumber: NSNumber?
     @NSManaged var isLocal: NSNumber?
+    @NSManaged var persistentID: NSNumber?
+    @NSManaged var playlist: String?
+    @NSManaged var trackNumber: NSNumber?
     @NSManaged var relationship: Playlist?
 
 }
