@@ -16,7 +16,7 @@ extension Song {
 
     @NSManaged var isLocal: NSNumber?
     @NSManaged var persistentID: NSNumber?
-    @NSManaged var playlist: String?
+    @NSManaged var playlist: NSNumber?
     @NSManaged var trackNumber: NSNumber?
     @NSManaged var relationship: Playlist?
 

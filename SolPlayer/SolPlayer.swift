@@ -52,16 +52,29 @@ class SolPlayer {
     //時間をずらした時の辻褄あわせ
     var offset = 0.0
     
+    //リモートで操作された時
+    var remoteOffset = 0.0
+    
     //ユーザ設定値
     var config = NSUserDefaults.standardUserDefaults()
     
-    //プレイリスト
+    //プレイリスト（曲一覧）
     //var playlist: [Song]! = nil
     var playlist:[MPMediaItem]!
     //var playlist = [NSManagedObject]()
     
     //再生中の曲番号
     var number: Int! = 0
+    
+    //プレイリストのリスト。#64
+    //var allPlaylists:[(id: NSNumber, name: String)]!
+    var allPlaylists:[(id: Int, name: String)]!
+    
+    //メイン（再生中）のプレイリスト名
+    var mainPlaylist: (id: Int, name: String) = (0, "default")
+    
+    //サブ（待機中）のプレイリスト名
+    var subPlaylist: (id: Int, name: String) = (0, "default")
     
     //停止フラグ（プレイリストの再読み込みなど）
     var stopFlg = true
@@ -118,31 +131,40 @@ class SolPlayer {
         }
         
         //defaultのプレイリストを読み込み
-        playlist = Array<MPMediaItem>()
         do {
-            try loadPlayList("default")
+            playlist = try loadPlayList(0)
+        } catch {
+            
+        }
+        
+        //プレイリストのリストを読み込み
+        do {
+            try loadAllPlayLists()
         } catch {
             
         }
 
     }
     
-    /** プレイリスト作成 */
-    func newPlayList(name: String) throws -> String {
-        
+    /** プレイリスト作成 #64 */
+//    func newPlayList(name: String) throws -> NSNumber {
+    func newPlayList(name: String) throws -> Int {
+  
         let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
         
         do {
             let entity = NSEntityDescription.entityForName("Playlist", inManagedObjectContext: managedContext)
-            let songObject = NSManagedObject(entity: entity!, insertIntoManagedObjectContext: managedContext)
+            let playlistObject = NSManagedObject(entity: entity!, insertIntoManagedObjectContext: managedContext)
             
             //PersistentID（曲を一意に特定するID）を代入
             //let id = songObject.objectID as NSNumber
             let id = generateID()
-            songObject.setValue(id, forKey: "id")
+            playlistObject.setValue(id, forKey: "id")
             
             //プレイリストのIDを代入
-            songObject.setValue(name, forKey: "name")
+            playlistObject.setValue(name, forKey: "name")
+            
+            print("\(id)と\(name)でプレイリスト作ります")
             
             try managedContext.save()
             
@@ -154,24 +176,62 @@ class SolPlayer {
     }
     
     /** ID生成（プレイリスト作成時に使う：NSManagedObjectIDの使い方がわかるまで）*/
-    func generateID() -> String {
+    //func generateID() -> NSNumber {
+    func generateID() -> Int {
+        
         let now = NSDate()
         
         let formatter = NSDateFormatter()
         formatter.dateFormat = "yyyyMMddHHmmss"
         
-        return formatter.stringFromDate(now)
+        let string: String = formatter.stringFromDate(now)
         
-        //return Int(string)!
+        return Int(string)!
     }
     
-    /** プレイリストを読込 #81 */
-    func loadPlayList(playlistId: String) throws {
+    /** プレイリストのリストを読込 #64 */
+    func loadAllPlayLists() throws {
+        
+        //defaultを設定
+        allPlaylists = [(0,"default")]
+        
+        do {
+            let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
+            let fetchRequest = NSFetchRequest(entityName:"Playlist")
+            let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
+        
+            if let results: Array = fetchResults {
+                
+                for playlistObject:AnyObject in results {
+                    //persistentIDを頼りに検索
+//                    let id: NSNumber = playlistObject.valueForKey("id") as! NSNumber
+                    let id: Int = playlistObject.valueForKey("id") as! Int
+                    let name: String = playlistObject.valueForKey("name") as! String
+                    //読み込んだMPMediaItemをプレイリストに追加
+                    if(id != 0){
+                        allPlaylists.append((id, name))
+                    }
+                }
+                
+            }
+            
+        } catch {
+            throw AppError.CantLoadError
+            
+        }
+        
+    }
+    
+    /** プレイリストの曲を読込 #81 */
+    func loadPlayList(playlistId: Int) throws -> Array<MPMediaItem> {
+        
+        //プレイリストを初期化
+        var retPlaylist = Array<MPMediaItem>()
         
         do {
             let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
             let fetchRequest = NSFetchRequest(entityName:"Song")
-            fetchRequest.predicate = NSPredicate(format: "playlist = %s", playlistId)
+            fetchRequest.predicate = NSPredicate(format: "playlist = %d", playlistId)
             let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
             
             //TODO:ソート
@@ -185,11 +245,13 @@ class SolPlayer {
                     let mediaItem:MPMediaItem = loadSong(songObject.valueForKey("persistentID") as! NSNumber)
                     //読み込んだMPMediaItemをプレイリストに追加
                     if(mediaItem.valueForKey("assetURL") != nil){
-                        playlist.append(mediaItem)
+                        retPlaylist.append(mediaItem)
                     }
                 }
                 
             }
+            
+            return retPlaylist
 
         } catch {
             throw AppError.CantLoadError
@@ -217,7 +279,7 @@ class SolPlayer {
     }
     
     /** プレイリストの曲を保存（永続化処理） #81 */
-    func savePlayList(playlistId: String) throws {
+    func savePlayList(playlistId: NSNumber) throws {
         
         let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
 
@@ -236,6 +298,8 @@ class SolPlayer {
                 
                 //曲順を代入
                 songObject.setValue(index, forKey: "trackNumber")
+                
+                print("songID:\(songId) playlistID:\(playlistId) index:\(index) に保存")
                 
                 try managedContext.save()
             }
@@ -386,6 +450,13 @@ class SolPlayer {
         if stopFlg {
  
             do {
+                //再生するプレイリストを更新 #64,#81
+                if(mainPlaylist != subPlaylist){
+                    //選択されたプレイリストを読込
+                    playlist = try loadPlayList(self.subPlaylist.id)
+                    mainPlaylist = subPlaylist
+                }
+                
                 //音源ファイルを読み込む
                 try readAudioFile()
                 
@@ -411,6 +482,28 @@ class SolPlayer {
         
         //再生
         audioPlayerNode.scheduleFile(audioFile, atTime: nil, completionHandler: nil)
+        
+        //リモート操作されるとpauseがうまく動かないため暫定対応 #74
+        if(remoteOffset != 0.0){
+            
+            //シーク位置（AVAudioFramePosition）取得
+            let restartPosition = AVAudioFramePosition(Float(sampleRate) * Float(remoteOffset))
+            
+            //残り時間取得(sec)
+            let remainSeconds = Float(self.duration) - Float(remoteOffset)
+            
+            //残りフレーム数（AVAudioFrameCount）取得
+            let remainFrames = AVAudioFrameCount(Float(sampleRate) * remainSeconds)
+            
+            if remainFrames > 100 {
+                //指定の位置から再生するようスケジューリング
+                audioPlayerNode.scheduleSegment(audioFile, startingFrame: restartPosition, frameCount: remainFrames, atTime: nil, completionHandler: nil)
+            }
+            
+            //remoteOffsetを初期化
+            remoteOffset = 0.0
+        }
+        
         audioPlayerNode.play()
         
     }
@@ -449,6 +542,7 @@ class SolPlayer {
 
             //停止フラグをtrueに
             stopFlg = true
+            
         }
         
     }

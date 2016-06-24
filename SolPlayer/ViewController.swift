@@ -32,6 +32,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
     @IBOutlet weak var speedLabel: UILabel!
     @IBOutlet weak var speedSegment: UISegmentedControl!
     
+    @IBOutlet weak var playlistLabel: UILabel!
     
     //ユーザ設定値
     var config: NSUserDefaults!
@@ -417,11 +418,15 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
                 playOrPause()
                 break
             case UIEventSubtype.RemoteControlPause:
-                playOrPause()
+                //playOrPause()
+                
+                //リモート操作されるとpauseがうまく動かないため暫定対応 #74
+                stop()
+                solPlayer.remoteOffset = Double(timeSlider.value)
                 break
-            case UIEventSubtype.RemoteControlTogglePlayPause:
-                playOrPause()
-                break
+//            case UIEventSubtype.RemoteControlTogglePlayPause:
+//                playOrPause()
+//                break
             case UIEventSubtype.RemoteControlStop:
                 stop()
                 break
@@ -478,6 +483,11 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
             }
         }
         
+    }
+    
+    /** この画面が表示された時に更新する*/
+    override func viewDidAppear(animated: Bool) {
+        playlistLabel.text = solPlayer.mainPlaylist.name
     }
 
     override func didReceiveMemoryWarning() {
