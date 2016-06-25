@@ -58,10 +58,13 @@ class SolPlayer {
     //ユーザ設定値
     var config = NSUserDefaults.standardUserDefaults()
     
-    //プレイリスト（曲一覧）
+    //再生中のプレイリスト（ViewController）
     //var playlist: [Song]! = nil
     var playlist:[MPMediaItem]!
     //var playlist = [NSManagedObject]()
+    
+    //編集中のプレイリスト（PlaylistViewController） #64, #81
+    var editPlaylist:[MPMediaItem]!
     
     //再生中の曲番号
     var number: Int! = 0
@@ -70,10 +73,10 @@ class SolPlayer {
     //var allPlaylists:[(id: NSNumber, name: String)]!
     var allPlaylists:[(id: Int, name: String)]!
     
-    //メイン（再生中）のプレイリスト名
+    //メイン（再生中）のプレイリスト名 #64, #81
     var mainPlaylist: (id: Int, name: String) = (0, "default")
     
-    //サブ（待機中）のプレイリスト名
+    //サブ（待機中）のプレイリスト名 #64, #81
     var subPlaylist: (id: Int, name: String) = (0, "default")
     
     //停止フラグ（プレイリストの再読み込みなど）
@@ -97,6 +100,10 @@ class SolPlayer {
     
     //全曲リピート（１曲リピートはViewControllerで）
     var repeatAll = false
+    
+    //エンティティの変数名
+    let SONG = "Song"
+    let PLAYLIST = "Playlist"
     
     /**
      初期処理（シングルトンクラスのため外部からのアクセス禁止）
@@ -146,14 +153,14 @@ class SolPlayer {
 
     }
     
-    /** プレイリスト作成 #64 */
+    /** "C"RUD:プレイリスト新規作成 #64 */
 //    func newPlayList(name: String) throws -> NSNumber {
     func newPlayList(name: String) throws -> Int {
   
         let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
         
         do {
-            let entity = NSEntityDescription.entityForName("Playlist", inManagedObjectContext: managedContext)
+            let entity = NSEntityDescription.entityForName(PLAYLIST, inManagedObjectContext: managedContext)
             let playlistObject = NSManagedObject(entity: entity!, insertIntoManagedObjectContext: managedContext)
             
             //PersistentID（曲を一意に特定するID）を代入
@@ -189,7 +196,7 @@ class SolPlayer {
         return Int(string)!
     }
     
-    /** プレイリストのリストを読込 #64 */
+    /** C"R"UD:プレイリストのリストを読込 #64 */
     func loadAllPlayLists() throws {
         
         //defaultを設定
@@ -197,7 +204,7 @@ class SolPlayer {
         
         do {
             let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
-            let fetchRequest = NSFetchRequest(entityName:"Playlist")
+            let fetchRequest = NSFetchRequest(entityName:PLAYLIST)
             let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
         
             if let results: Array = fetchResults {
@@ -222,7 +229,7 @@ class SolPlayer {
         
     }
     
-    /** プレイリストの曲を読込 #81 */
+    /** C"R"UD:プレイリストの曲を読込 #81 */
     func loadPlayList(playlistId: Int) throws -> Array<MPMediaItem> {
         
         //プレイリストを初期化
@@ -230,7 +237,7 @@ class SolPlayer {
         
         do {
             let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
-            let fetchRequest = NSFetchRequest(entityName:"Song")
+            let fetchRequest = NSFetchRequest(entityName:SONG)
             fetchRequest.predicate = NSPredicate(format: "playlist = %d", playlistId)
             let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
             
@@ -260,7 +267,7 @@ class SolPlayer {
 
     }
     
-    /** MediaQueryで曲を読込み #81 */
+    /** C"R"UD:MediaQueryで曲を読込み #81 */
     func loadSong(songId: NSNumber) -> MPMediaItem {
         
         var mediaItem = MPMediaItem()
@@ -278,15 +285,15 @@ class SolPlayer {
         return mediaItem
     }
     
-    /** プレイリストの曲を保存（永続化処理） #81 */
+    /** "C"RUD:プレイリストの曲を保存（永続化処理） #81 */
     func savePlayList(playlistId: NSNumber) throws {
         
         let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
 
         do {
 //            try playlist.forEach { (song) in
-            for (index, song) in playlist.enumerate() {
-                let entity = NSEntityDescription.entityForName("Song", inManagedObjectContext: managedContext)
+            for (index, song) in editPlaylist.enumerate() {
+                let entity = NSEntityDescription.entityForName(SONG, inManagedObjectContext: managedContext)
                 let songObject = NSManagedObject(entity: entity!, insertIntoManagedObjectContext: managedContext)
 
                 //PersistentID（曲を一意に特定するID）を代入
@@ -307,6 +314,107 @@ class SolPlayer {
             throw AppError.CantSaveError
         }
 
+    }
+    
+    /** CRU"D":プレイリストの曲を削除（１曲削除） */
+    func removeSong(persistentId: UInt64) throws {
+        
+        do {
+            let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
+
+            let fetchRequest = NSFetchRequest(entityName:SONG)
+            fetchRequest.predicate = NSPredicate(format: "persistentID = %d", persistentId)
+
+            let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
+
+            if let results: Array = fetchResults {
+                
+                for songObject:AnyObject in results {
+                    //削除
+                    managedContext.deleteObject(songObject as! NSManagedObject)
+                    
+                    print("songID:\(persistentId)の\(songObject) を削除")
+                }
+                
+            }
+
+        } catch {
+            throw AppError.CantRemoveError
+        }
+        
+    }
+    
+    /** CRU"D":プレイリストの曲を削除（全曲削除） */
+    func removeAllSongs(playlistId: Int) throws {
+        do {
+            let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
+            
+            let fetchRequest = NSFetchRequest(entityName:SONG)
+            fetchRequest.predicate = NSPredicate(format: "playlist = %d", playlistId)
+            
+            let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
+            
+            
+            if let results: Array = fetchResults {
+                
+                for songObject:AnyObject in results {
+                    //削除
+                    managedContext.deleteObject(songObject as! NSManagedObject)
+                    
+                    print("\(songObject) を削除")
+                }
+                
+            }
+            
+        } catch {
+            throw AppError.CantRemoveError
+        }
+        
+    }
+    
+    /** CRU"D":プレイリスト自体を削除 */
+    func removePlaylist(playlistId: Int) throws {
+        
+        do {
+            //最初にプレイリストに入っている曲を削除
+            try removeAllSongs(playlistId)
+            //それからプレイリストを削除
+            let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
+            
+            let fetchRequest = NSFetchRequest(entityName:PLAYLIST)
+            fetchRequest.predicate = NSPredicate(format: "id = %d", playlistId)
+            
+            let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
+            
+            
+            if let results: Array = fetchResults {
+                
+                for songObject:AnyObject in results {
+                    //削除
+                    managedContext.deleteObject(songObject as! NSManagedObject)
+                }
+                
+            }
+            
+        } catch {
+            throw AppError.CantRemoveError
+        }
+    }
+    
+    /** CR"U"D:プレイリストの曲を更新（実際はは削除→追加） */
+    func updatePlayList(playlistId: Int) throws {
+        
+        do {
+            //全曲削除
+            try removeAllSongs(playlistId)
+            //全曲追加
+            try savePlayList(playlistId)
+        } catch AppError.CantRemoveError {
+            //
+        } catch AppError.CantSaveError {
+            //
+        }
+        
     }
     
     /**
@@ -451,11 +559,12 @@ class SolPlayer {
  
             do {
                 //再生するプレイリストを更新 #64,#81
-                if(mainPlaylist != subPlaylist){
+                //if(mainPlaylist != subPlaylist){
                     //選択されたプレイリストを読込
+                    print("読みなおす")
                     playlist = try loadPlayList(self.subPlaylist.id)
                     mainPlaylist = subPlaylist
-                }
+                //}
                 
                 //音源ファイルを読み込む
                 try readAudioFile()

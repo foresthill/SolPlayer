@@ -53,6 +53,7 @@
 		BB6B85661D1B5B8500816498 /* download.png in Resources */ = {isa = PBXBuildFile; fileRef = BB6B85651D1B5B8500816498 /* download.png */; };
 		BB7855A31D03F61200FB0914 /* Song1.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7855A21D03F61200FB0914 /* Song1.swift */; };
 		BB7DA6741CFD055000A5A706 /* UserConfigViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7DA6731CFD055000A5A706 /* UserConfigViewController.swift */; };
+		BB9FC60F1D1E28C6004CB9F4 /* ImageUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9FC60E1D1E28C6004CB9F4 /* ImageUtil.swift */; };
 		BBACEA141D0CEA4600CC07C4 /* play40.png in Resources */ = {isa = PBXBuildFile; fileRef = BBACEA131D0CEA4600CC07C4 /* play40.png */; };
 		BBACEA161D0CEA4F00CC07C4 /* play40@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BBACEA151D0CEA4F00CC07C4 /* play40@2x.png */; };
 		BBACEA181D0CEA5700CC07C4 /* play40@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = BBACEA171D0CEA5700CC07C4 /* play40@3x.png */; };
@@ -151,6 +152,7 @@
 		BB7855A01D03D75B00FB0914 /* PlaylistViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaylistViewController.swift; sourceTree = "<group>"; };
 		BB7855A21D03F61200FB0914 /* Song1.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Song1.swift; sourceTree = "<group>"; };
 		BB7DA6731CFD055000A5A706 /* UserConfigViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserConfigViewController.swift; sourceTree = "<group>"; };
+		BB9FC60E1D1E28C6004CB9F4 /* ImageUtil.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageUtil.swift; sourceTree = "<group>"; };
 		BBACEA131D0CEA4600CC07C4 /* play40.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play40.png; sourceTree = "<group>"; };
 		BBACEA151D0CEA4F00CC07C4 /* play40@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "play40@2x.png"; sourceTree = "<group>"; };
 		BBACEA171D0CEA5700CC07C4 /* play40@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "play40@3x.png"; sourceTree = "<group>"; };
@@ -303,6 +305,7 @@
 				BB66AF961D0BB879007CA80A /* SolPlayer.swift */,
 				BB66AF911D0BA009007CA80A /* images */,
 				BBC6329D1CFB2AD3006407C9 /* ViewController.swift */,
+				BB9FC60E1D1E28C6004CB9F4 /* ImageUtil.swift */,
 				BB7855A21D03F61200FB0914 /* Song1.swift */,
 				BB659A741D04ED3C005535FC /* AppError.swift */,
 				BBC6329F1CFB2AD3006407C9 /* Main.storyboard */,
@@ -533,6 +536,7 @@
 				BB66AF8E1D076DE9007CA80A /* PlaylistViewController.swift in Sources */,
 				BBC6329C1CFB2AD3006407C9 /* AppDelegate.swift in Sources */,
 				BBF5C2B61D164D9F00DE7CBA /* Song.swift in Sources */,
+				BB9FC60F1D1E28C6004CB9F4 /* ImageUtil.swift in Sources */,
 				BB66AF971D0BB879007CA80A /* SolPlayer.swift in Sources */,
 				BB7DA6741CFD055000A5A706 /* UserConfigViewController.swift in Sources */,
 				BBF5C2B51D164D9F00DE7CBA /* Song+CoreDataProperties.swift in Sources */,

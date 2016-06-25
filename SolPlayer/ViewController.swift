@@ -129,7 +129,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         if values {
             //プレイヤーラベルを設定
             let song = solPlayer.song
-            titleLabel.text = song.title ?? "No Title"
+            titleLabel.text = song.title ?? "Untitled"
             artistLabel.text = song.artist ?? "Unknown Artist"
             endTimeLabel.text = formatTimeString(Float(solPlayer.duration)) ?? "-99:99:99"
             artworkImage.image = song.artwork?.imageWithSize(CGSize.init(width: 50, height: 50)) ?? nil
@@ -137,17 +137,26 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
             //スライダーを操作可能に #72
             timeSlider.enabled = true
             timeSlider.maximumValue = Float(solPlayer.duration)
+            
+            //プレイリスト情報を更新
+            playlistLabel.text = solPlayer.subPlaylist.name
 
         } else {
             
             //画面表示を初期化
+            titleLabel.text = "Untitled"
+            artistLabel.text = "Unknown Artist"
             nowTimeLabel.text = "00:00:00"
             endTimeLabel.text = "-99:99:99"
+            artworkImage.image = ImageUtil.makeBoxWithColor(UIColor.init(colorLiteralRed: 0.67, green: 0.67, blue: 0.67, alpha: 1.0), width: 40.0, height: 40.0)
             //playButton.setTitle("PLAY", forState: .Normal)
             
             //timeSliderを0に固定していじらせない #72
             timeSlider.value = 0
             timeSlider.enabled = false
+            
+            //プレイリスト情報を更新
+            playlistLabel.text = ""
             
         }
         
@@ -418,11 +427,10 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
                 playOrPause()
                 break
             case UIEventSubtype.RemoteControlPause:
-                //playOrPause()
-                
-                //リモート操作されるとpauseがうまく動かないため暫定対応 #74
-                stop()
-                solPlayer.remoteOffset = Double(timeSlider.value)
+                playOrPause()
+                //リモート操作されるとpauseがうまく動かないため暫定対応 #74 →結局うまくいかないため戻し
+                //stop()
+                //solPlayer.remoteOffset = Double(timeSlider.value)
                 break
 //            case UIEventSubtype.RemoteControlTogglePlayPause:
 //                playOrPause()
