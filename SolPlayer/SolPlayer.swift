@@ -409,6 +409,12 @@ class SolPlayer {
             try removeAllSongs(playlistId)
             //全曲追加
             try savePlayList(playlistId)
+            
+            //プレイリストも更新
+            if(mainPlaylist == subPlaylist){
+                playlist = editPlaylist
+            }
+            
         } catch AppError.CantRemoveError {
             //
         } catch AppError.CantSaveError {
