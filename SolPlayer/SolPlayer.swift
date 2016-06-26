@@ -109,8 +109,6 @@ class SolPlayer {
      初期処理（シングルトンクラスのため外部からのアクセス禁止）
      */
     private init(){
-        //print("Solplayer init")
-        
         //画面ロック時も再生のカテゴリを指定
         do {
             //try session.setCategory(AVAudioSessionCategoryPlayback)

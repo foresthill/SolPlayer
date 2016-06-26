@@ -76,16 +76,6 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         //Notificationの設定（意味ない？）
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.didChangeAudioSessionRoute), name: "SolNotification", object: nil)
         
-        //画面ロック時の曲情報を持つインスタンス
-        //var defaultCenter = MPNowPlayingInfoCenter.defaultCenter()
-        
-        //プレイリストを読み込み
-//        do {
-//            try solPlayer.loadPlayList()
-//        } catch {
-//            //
-//        }
-        
     }
     
     /**
@@ -323,19 +313,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
             playButton.setImage(UIImage(named: "play64.png"), forState: .Normal)
         }
     }
-    
-    /**
-     solfeggioスイッチが押された時（Action→ValueChanged）
-     →Switchに画像を指定できないという驚愕の事実が発覚したので修正
-     - parameter sender: UISwitch
-    @IBAction func solSwitchAction(sender: UISwitch) {
-        //音源処理
-        solPlayer.pitchChange(solSwitch.on)
-        //画像を差し替え
-        solSwitch.onImage = UIImage(named: "solSwitch1_on\(solPlayer.solMode).png")
-    }
-     */
-    
+
     /**
      solfeggioスイッチが押された時（Action→ValueChanged）
      ※UISwitchに画像がセットできないためUIButtonで同様の機能を実装
@@ -419,41 +397,6 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         repeatButton.selected = !repeatButton.selected
         
     }
-    /**
-     ロック画面から呼び出されるメソッド（本来はSolPlayer内に置きたい→と思ったが画面も更新しなきゃなのでここでいいのでわ？）
-     */
-    /*
-    override func remoteControlReceivedWithEvent(event: UIEvent?) {
-        
-        if event?.type == UIEventType.RemoteControl {
-            switch event!.subtype {
-            case UIEventSubtype.RemoteControlPlay:
-                playOrPause()
-                break
-            case UIEventSubtype.RemoteControlPause:
-                playOrPause()
-                //リモート操作されるとpauseがうまく動かないため暫定対応 #74 →結局うまくいかないため戻し
-                //stop()
-                //solPlayer.remoteOffset = Double(timeSlider.value)
-                break
-//            case UIEventSubtype.RemoteControlTogglePlayPause:
-//                playOrPause()
-//                break
-            case UIEventSubtype.RemoteControlStop:
-                stop()
-                break
-            case UIEventSubtype.RemoteControlPreviousTrack:
-                prevSongPlay()
-                break
-            case UIEventSubtype.RemoteControlNextTrack:
-                nextSongPlay()
-                break
-            default:
-                break
-            }
-        }
-    }
-      */
     
     /**
      リモートイベント（ロック画面、AirPlay、コントローラ等）を処理する。
@@ -502,17 +445,6 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         }
     }
     
-    /** ヘッドフォンを挿入された場合
-    func inputIsAvailableChanged(isInputAvailable: Bool) {
-        //if isInputAvailable {
-            //たぶんinputが使える（＝ヘッドフォンなどが刺さった）場合
-        //}
-        
-        //どちらにせよPauseで良いのでは？
-        print(inputIsAvailableChanged)
-        pause()
-    }
- */
     /** ヘッドフォンが挿入された時2（機能してない）*/
     func didChangeAudioSessionRoute() {
         //var desc = AVAudioSessionPortDescription()

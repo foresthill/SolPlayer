@@ -28,15 +28,8 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     //appDelegate外出し
     var appDelegate: AppDelegate!
     
-    //ダミーのplaylist
-    //let playlistDummy = ["default", "Rock", "20160609", "プレイリストを新規作成"]
-    //var allPlaylists:[(id: NSNumber, name: String)]!      //["201606240212":"mainPlaylist"]
-    
     //SolPlayer本体
     var solPlayer: SolPlayer!
-    
-    //メインとサブを分けたことによりこの画面でプレイリストを操作するための変数（微妙かも！）
-    //var dispPlaylist:[MPMediaItem]!
     
     override func viewDidLoad() {
         
@@ -52,23 +45,11 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         //Delegateを設定する
         tableView.delegate = self
         
-        //tableViewの背景色を変更する
-        //tableView.backgroundColor?.colorWithAlphaComponent(0.5)
-        
-        //tableView.backgroundView?.alpha = 0.5
-        
-        
         /* 表示 */
         //タイトルの設定（変わってない）
         self.navigationItem.title = "プレイリスト"
-        //self.navigationItem.titleView?.tintColor = UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.0)
         self.navigationController?.navigationBar.backgroundColor = UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.2)
-        //self.navigationController!.navigationBar.tintColor = UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.1)
-        //self.navigationController!.navigationBar.tintColor.colorWithAlphaComponent(0.2)
-        
-        //編集ボタンの配置
-        //navigationItem.leftBarButtonItem = editButtonItem()
-        
+
         //プレイリスト追加ボタン
         let addPlaylistButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Add, target: self, action: #selector(PlaylistViewController.addPlaylist))
         self.navigationItem.setLeftBarButtonItem(addPlaylistButton, animated: true)
@@ -150,9 +131,7 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         
         //UIAlertControllerにtextFieldを追加
         alert.addTextFieldWithConfigurationHandler{(textField:UITextField) -> Void in
-            //NotificationCenterを生成
-            //let notificationCenter = NSNotificationCenter.defaultCenter()
-            //notificationCenter.addObserver(self, selector: #selector(PlaylistViewController.mainPlaylistValidate), name: UITextFieldTextDidChangeNotification, object: nil)
+            //
         }
         
         //アクションを追加
@@ -466,7 +445,6 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         //TODO:プレイリスト読み込み処理
         do {
-            //print("変更前 ID:\(solPlayer.subPlaylist.id) 中身:\(solPlayer.editPlaylist)")
             //現在の状態を保存
             try solPlayer.updatePlayList(solPlayer.subPlaylist.id)
             //選択されたプレイリストを読込
@@ -476,7 +454,7 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
             solPlayer.subPlaylist = solPlayer.allPlaylists[row]
             //TableViewを更新する
             tableView.reloadData()
-            //print("変更後 ID:\(solPlayer.subPlaylist.id) \(solPlayer.editPlaylist)")
+
         } catch {
             
             let alert = UIAlertController(title: "プレイリストを読込", message: "プレイリストの読み込みに失敗しました", preferredStyle: UIAlertControllerStyle.Alert)
@@ -488,9 +466,6 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
             
             //表示
             presentViewController(alert, animated: true, completion: nil)
-            
-            //defaultのプレイリストを読み込む
-            //do { try solPlayer.loadPlayList(0) } catch { }
             
         }
         
