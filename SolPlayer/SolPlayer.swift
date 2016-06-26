@@ -410,7 +410,7 @@ class SolPlayer {
             //全曲追加
             try savePlayList(playlistId)
             
-            //プレイリストも更新
+            //プレイリストも更新（2016/06/26）
             if(mainPlaylist == subPlaylist){
                 playlist = editPlaylist
             }
