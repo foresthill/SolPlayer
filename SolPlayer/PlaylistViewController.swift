@@ -11,7 +11,7 @@ import MediaPlayer
 
 /**
  * プレイリストを追加・編集・削除する画面
- *
+ * ※プレイリストのCoreDataを更新するトリガーは（１）切替時（２）画面が消えるタイミング
  */
 class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate, UITableViewDataSource, UITableViewDelegate, UIPickerViewDataSource, UIPickerViewDelegate {
     

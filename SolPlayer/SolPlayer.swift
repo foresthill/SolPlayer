@@ -828,7 +828,6 @@ class SolPlayer {
         
     }
     
-    
     /**
      ロック画面からのイベントを処理する→ViewControllerへ移動。
      */

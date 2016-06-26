@@ -64,8 +64,11 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         //画面ロック時のアクションを取得する
         UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
         
-        //ファーストレスポンダになる
-        self.becomeFirstResponder()
+        //ファーストレスポンダになる 一旦コメントアウト（2016/06/26）→やっぱりしない。
+        //self.becomeFirstResponder()
+        
+        //リモートイベントを取得
+        addRemoteControlEvent()
         
         //ヘッドフォンの状態を取得するためにAVAudioSessionを用いる（意味ない？）
         do { try AVAudioSession.sharedInstance().setActive(true) } catch { }
@@ -417,8 +420,9 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         
     }
     /**
-     ロック画面から呼び出されるメソッド（本来はSolPlayer内に置きたい）
+     ロック画面から呼び出されるメソッド（本来はSolPlayer内に置きたい→と思ったが画面も更新しなきゃなのでここでいいのでわ？）
      */
+    /*
     override func remoteControlReceivedWithEvent(event: UIEvent?) {
         
         if event?.type == UIEventType.RemoteControl {
@@ -448,6 +452,35 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
                 break
             }
         }
+    }
+      */
+    
+    /**
+     リモートイベント（ロック画面、AirPlay、コントローラ等）を処理する。
+     */
+    func addRemoteControlEvent() {
+        let commandCenter = MPRemoteCommandCenter.sharedCommandCenter()
+        
+        commandCenter.togglePlayPauseCommand.addTarget(self, action: #selector(ViewController.remoteTogglePlayPause))
+        commandCenter.playCommand.addTarget(self, action: #selector(ViewController.remoteTogglePlayPause))
+        commandCenter.pauseCommand.addTarget(self, action: #selector(ViewController.remoteTogglePlayPause))
+        commandCenter.nextTrackCommand.addTarget(self, action: #selector(ViewController.remoteNextTrack))
+        commandCenter.previousTrackCommand.addTarget(self, action: #selector(ViewController.remotePrevTrack))
+    }
+    
+    /** リモートイベント：再生・停止 */
+    func remoteTogglePlayPause(event: MPRemoteCommandEvent){
+        playOrPause()
+    }
+    
+    /** リモートイベント：次の曲へ */
+    func remoteNextTrack(event: MPRemoteCommandEvent){
+        nextSongPlay()
+    }
+    
+    /** リモートイベント：前の曲へ */
+    func remotePrevTrack(event: MPRemoteCommandEvent){
+        prevSongPlay()
     }
     
     /** 他のアプリから割り込みがあった場合 */
