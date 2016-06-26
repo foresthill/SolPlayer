@@ -171,7 +171,7 @@ class SolPlayer {
             //プレイリストのIDを代入
             playlistObject.setValue(name, forKey: "name")
             
-            print("\(id)と\(name)でプレイリスト作ります")
+            //print("\(id)と\(name)でプレイリスト作ります")
             
             try managedContext.save()
             
@@ -306,7 +306,7 @@ class SolPlayer {
                 //曲順を代入
                 songObject.setValue(index, forKey: "trackNumber")
                 
-                print("songID:\(songId) playlistID:\(playlistId) index:\(index) に保存")
+                //print("songID:\(songId) playlistID:\(playlistId) index:\(index) に保存")
                 
                 try managedContext.save()
             }
@@ -333,7 +333,7 @@ class SolPlayer {
                     //削除
                     managedContext.deleteObject(songObject as! NSManagedObject)
                     
-                    print("songID:\(persistentId)の\(songObject) を削除")
+                    //print("songID:\(persistentId)の\(songObject) を削除")
                 }
                 
             }
@@ -361,7 +361,7 @@ class SolPlayer {
                     //削除
                     managedContext.deleteObject(songObject as! NSManagedObject)
                     
-                    print("\(songObject) を削除")
+                    //print("\(songObject) を削除")
                 }
                 
             }
@@ -545,9 +545,7 @@ class SolPlayer {
         }
         
     }
-    
-    
-    
+
     /**
      solPlayer再生処理
      
@@ -567,7 +565,7 @@ class SolPlayer {
                 //再生するプレイリストを更新 #64,#81
                 //if(mainPlaylist != subPlaylist){
                     //選択されたプレイリストを読込
-                    print("読みなおす")
+                    //print("読みなおす")
                     playlist = try loadPlayList(self.subPlaylist.id)
                     mainPlaylist = subPlaylist
                 //}

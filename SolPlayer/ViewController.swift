@@ -65,7 +65,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
         
         //ファーストレスポンダになる 一旦コメントアウト（2016/06/26）→やっぱりしない。
-        //self.becomeFirstResponder()
+        self.becomeFirstResponder()
         
         //リモートイベントを取得
         addRemoteControlEvent()
@@ -159,7 +159,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
             timeSlider.enabled = false
             
             //プレイリスト情報を更新
-            playlistLabel.text = ""
+            playlistLabel.text = solPlayer.mainPlaylist.name
             
         }
         
@@ -518,9 +518,9 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         //var desc = AVAudioSessionPortDescription()
         for desc in AVAudioSession.sharedInstance().currentRoute.outputs {
             if(desc.portType == AVAudioSessionPortHeadphones){
-                print("ヘッドフォン刺さった")
+                //print("ヘッドフォン刺さった")
             } else {
-                print("ヘッドフォン抜けた")
+                //print("ヘッドフォン抜けた")
             }
         }
         

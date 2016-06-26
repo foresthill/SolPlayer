@@ -113,7 +113,7 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
                     
                     self.solPlayer.allPlaylists.append((id, name!))
                     
-                    print(self.solPlayer.allPlaylists)
+                    //print(self.solPlayer.allPlaylists)
                     
                     alert = UIAlertController(title: "作成完了", message: "プレイリストを作成しました。", preferredStyle: UIAlertControllerStyle.Alert)
                     
@@ -183,7 +183,7 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
                     //表示されているプレイリストを削除
                     self.solPlayer.allPlaylists.removeAtIndex(selectedRow)
                     
-                    print("プレイリス→\(self.solPlayer.allPlaylists)")
+                    //print("プレイリス→\(self.solPlayer.allPlaylists)")
                     
                     alert = UIAlertController(title: "削除完了", message: "プレイリストを削除しました。", preferredStyle: UIAlertControllerStyle.Alert)
                     
@@ -278,51 +278,6 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         
         //アクションを追加
         alert.addAction(clearAction)
-        alert.addAction(cancelAction)
-        
-        //表示
-        presentViewController(alert, animated: true, completion: nil)
-        
-
-        
-    }
-    
-    /** 「プレイリストを保存」をクリックした時の処理（永続化） */
-    @IBAction func savePlaylist(sender: UIButton) {
-        //アラートを作成
-        var alert = UIAlertController(title: "プレイリストを保存", message: "現在の状態で保存してもよろしいですか？", preferredStyle: UIAlertControllerStyle.Alert)
-        
-        //保存時のアクション
-        let saveAction = UIAlertAction(title: "保存", style: .Default){(action: UIAlertAction!) -> Void in
-            
-            do {
-                //選択されたプレイリストに保存
-                let selected = self.playListPicker.selectedRowInComponent(0)
-                let allPlaylistsId: NSNumber = self.solPlayer.allPlaylists[selected].id as NSNumber
-                try self.solPlayer.savePlayList(allPlaylistsId)
-                print(self.playListPicker.selectedRowInComponent(0))
-                
-                alert = UIAlertController(title: "保存完了", message: "プレイリストを保存しました。", preferredStyle: UIAlertControllerStyle.Alert)
-            } catch {
-                alert = UIAlertController(title: "保存失敗", message: "プレイリストの保存に失敗しました。", preferredStyle: UIAlertControllerStyle.Alert)
-            }
-            
-            alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
-                (action: UIAlertAction!) -> Void in
-                //
-            }))
-            
-            self.presentViewController(alert, animated: true, completion: nil)
-                
-        }
-        
-        //キャンセル時のアクション
-        let cancelAction = UIAlertAction(title: "キャンセル", style: .Default){(action: UIAlertAction!) -> Void in
-            //
-        }
-        
-        //アクションを追加
-        alert.addAction(saveAction)
         alert.addAction(cancelAction)
         
         //表示
@@ -511,17 +466,17 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         //TODO:プレイリスト読み込み処理
         do {
-            print("変更前 ID:\(solPlayer.subPlaylist.id) 中身:\(solPlayer.editPlaylist)")
+            //print("変更前 ID:\(solPlayer.subPlaylist.id) 中身:\(solPlayer.editPlaylist)")
             //現在の状態を保存
             try solPlayer.updatePlayList(solPlayer.subPlaylist.id)
             //選択されたプレイリストを読込
-            print("ID:\(solPlayer.allPlaylists[row].id), name:\(solPlayer.allPlaylists[row].name)のプレイリストを読み込む")
+            //print("ID:\(solPlayer.allPlaylists[row].id), name:\(solPlayer.allPlaylists[row].name)のプレイリストを読み込む")
             solPlayer.editPlaylist = try solPlayer.loadPlayList(solPlayer.allPlaylists[row].id)
             //待機中（サブ）のプレイリストを最新状態に変更　※再生中（メイン）のプレイリストへは「停止」時に読み込み
             solPlayer.subPlaylist = solPlayer.allPlaylists[row]
             //TableViewを更新する
             tableView.reloadData()
-            print("変更後 ID:\(solPlayer.subPlaylist.id) \(solPlayer.editPlaylist)")
+            //print("変更後 ID:\(solPlayer.subPlaylist.id) \(solPlayer.editPlaylist)")
         } catch {
             
             let alert = UIAlertController(title: "プレイリストを読込", message: "プレイリストの読み込みに失敗しました", preferredStyle: UIAlertControllerStyle.Alert)
