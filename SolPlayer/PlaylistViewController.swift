@@ -316,6 +316,26 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         cell.detailTextLabel?.numberOfLines = 0 //0にすると制限なし（「…」とならない）
         cell.backgroundColor = UIColor.clearColor() //背景色を透明に
         
+        //フォント
+        
+        //var font: UIFont = UIFont(name: "Hiragino Kaku Gothic ProN", size: 16.0)!
+        var font: UIFont = UIFont(name: "Helvetica Neue", size: 16.0)!
+        font = UIFont.systemFontOfSize(16.0, weight: UIFontWeightLight)
+        
+        //cell.textLabel?.font = UIFont(name: "System Light", size: 13.0)
+        //UIFont.systemFontOfSize(<#T##fontSize: CGFloat##CGFloat#>, weight: <#T##CGFloat#>)
+        
+        cell.textLabel?.font = font
+        
+        font = UIFont(name: "Helvetica Neue", size: 11.0)!
+        font = UIFont.systemFontOfSize(11.0, weight: UIFontWeightLight)
+        //cell.detailTextLabel?.font = UIFont(name: "Helvetica Neue Light", size: 8.0)
+        
+        cell.detailTextLabel?.font = font
+        
+        cell.textLabel?.textColor = UIColor.whiteColor()    //tintColorではなくテキストカラー？
+        cell.detailTextLabel?.textColor = UIColor.darkGrayColor()
+        
         //表示内容
         cell.textLabel?.text = solPlayer.editPlaylist![indexPath.row].title ?? "Untitled"
         cell.detailTextLabel?.text = solPlayer.editPlaylist![indexPath.row].artist ?? "Unknown Artist"

@@ -527,6 +527,7 @@ class SolPlayer {
             //ヘッドフォンを抜き差しした（なぜかnodeTimeがnilになる）時のエラーハンドリング #75
             if(nodeTime == nil){
                 stop()
+                //TODO: 抜き差しされた時の時間remoteOffsetを持っておく
                 return 0
             }
             
