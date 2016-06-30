@@ -62,20 +62,23 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         timeSlider.enabled = false
         
         //画面ロック時のアクションを取得する
-        UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
+        //UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
         
         //ファーストレスポンダになる 一旦コメントアウト（2016/06/26）→やっぱりしない。
-        self.becomeFirstResponder()
+        //self.becomeFirstResponder()
         
-        //リモートイベントを取得
-        addRemoteControlEvent()
+        //リモートイベントを取得（一旦コメントアウト）
+        //addRemoteControlEvent()
         
         //ヘッドフォンの状態を取得するためにAVAudioSessionを用いる（意味ない？）
         do { try AVAudioSession.sharedInstance().setActive(true) } catch { }
         
-        //Notificationの設定（意味ない？）
+        //Notificationの設定（意味ない？）※objectをnil→appに！いや違う、nameがおかしいんや！
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.didChangeAudioSessionRoute), name: "SolNotification", object: nil)
         
+        //ロック・スリープ復帰時に画面を更新する
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.viewWillAppear), name: UIApplicationWillEnterForegroundNotification, object: UIApplication.sharedApplication())
+
     }
     
     /**
@@ -291,7 +294,12 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
                 //PlaylistViewControllerのテーブルも更新する（もっと効率よいやりかたあればおしえて。）※navigationControllerやめようかな
                 let navigationController:UINavigationController = self.tabBarController?.viewControllers![1] as! UINavigationController
                 let playlistViewController = navigationController.viewControllers[0] as! PlaylistViewController
-                playlistViewController.tableView.reloadData()
+                
+                //多分一度もplayViewControllerを開いてない時はnilになる？
+                if(playlistViewController.tableView != nil){
+                    playlistViewController.tableView.reloadData()
+                }
+                
             } catch {
                 //setScreen(false)
             }
@@ -400,7 +408,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
     
     /**
      リモートイベント（ロック画面、AirPlay、コントローラ等）を処理する。
-     */
+
     func addRemoteControlEvent() {
         let commandCenter = MPRemoteCommandCenter.sharedCommandCenter()
         
@@ -410,6 +418,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         commandCenter.nextTrackCommand.addTarget(self, action: #selector(ViewController.remoteNextTrack))
         commandCenter.previousTrackCommand.addTarget(self, action: #selector(ViewController.remotePrevTrack))
     }
+      */
     
     /** リモートイベント：再生・停止 */
     func remoteTogglePlayPause(event: MPRemoteCommandEvent){
@@ -458,9 +467,10 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         
     }
     
-    /** この画面が表示された時に更新する*/
-    override func viewDidAppear(animated: Bool) {
-        playlistLabel.text = solPlayer.mainPlaylist.name
+    /** この画面が表示される時に項目を更新する*/
+    override func viewWillAppear(animated: Bool) {
+        //playlistLabel.text = solPlayer.mainPlaylist.name
+        setScreen(!solPlayer.stopFlg)
     }
 
     override func didReceiveMemoryWarning() {

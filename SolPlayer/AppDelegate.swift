@@ -14,6 +14,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     
+    //let solPlayer: SolPlayer! = nil
+    
     //プレイリスト
     //var playlist: [Song]?
     
@@ -110,6 +112,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
     
+    override func remoteControlReceivedWithEvent(event: UIEvent?) {
+        //
+        SolPlayer.sharedManager.remoteControlReceivedWithEvent(event)
+    }
     
     /*どうしろと。
     func remoteControlReceivedWithEvent(receivedEvent: UIEvent){

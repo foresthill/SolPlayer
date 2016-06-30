@@ -148,6 +148,9 @@ class SolPlayer {
         } catch {
             
         }
+        
+        //画面ロック時のアクションを取得する
+        UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
 
     }
     
@@ -467,7 +470,7 @@ class SolPlayer {
             MPMediaItemPropertyArtist:(song.artist ?? "Unknown Artist"),
             MPMediaItemPropertyPlaybackDuration:duration!,
             MPNowPlayingInfoPropertyPlaybackRate:1.0,
-            MPNowPlayingInfoPropertyElapsedPlaybackTime: playbackTime
+            //MPNowPlayingInfoPropertyElapsedPlaybackTime: playbackTime
         ]
         
         if let artwork = song.artwork {
@@ -831,21 +834,35 @@ class SolPlayer {
         
     }
     
+    /** 再生/停止イベント（主にリモートイベントで使用） */
+    func playOrPause() {
+        if !audioPlayerNode.playing {
+            do { try play() } catch { }
+        } else {
+            pause()
+        }
+    }
+    
     /**
-     ロック画面からのイベントを処理する→ViewControllerへ移動。
+     ロック画面からのイベントを処理する→ViewControllerへ移動→SolPlayer内でやってみる（2016/07/01）
      */
-    /*
     //override func remoteControlReceivedWithEvent(event: UIEvent?) {
     func remoteControlReceivedWithEvent(event: UIEvent?) {
         
         if event?.type == UIEventType.RemoteControl {
             switch event!.subtype {
             case UIEventSubtype.RemoteControlPlay:
-                do { try play() } catch { }
+                playOrPause()
+                break
             case UIEventSubtype.RemoteControlPause:
-                pause()
+                playOrPause()
+                break
             case UIEventSubtype.RemoteControlTogglePlayPause:
-                if
+                if !audioPlayerNode.playing {
+                    do { try play() } catch { }
+                } else {
+                    pause()
+                }
                 break
             case UIEventSubtype.RemoteControlStop:
                 stop()
@@ -861,7 +878,6 @@ class SolPlayer {
             }
         }
     }
- */
 
     
 }
