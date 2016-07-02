@@ -157,7 +157,8 @@ class SolPlayer {
     /** "C"RUD:プレイリスト新規作成 #64 */
 //    func newPlayList(name: String) throws -> NSNumber {
     func newPlayList(name: String) throws -> Int {
-  
+//    func newPlayList(name: String) throws -> UInt {
+    
         let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
         
         do {
@@ -186,7 +187,8 @@ class SolPlayer {
     /** ID生成（プレイリスト作成時に使う：NSManagedObjectIDの使い方がわかるまで）*/
     //func generateID() -> NSNumber {
     func generateID() -> Int {
-        
+//    func generateID() -> UInt {
+    
         let now = NSDate()
         
         let formatter = NSDateFormatter()
@@ -194,7 +196,12 @@ class SolPlayer {
         
         let string: String = formatter.stringFromDate(now)
         
-        return Int(string)!
+        //return Int(string)!   //これだとおかしくなる
+        
+        let numberFormat = NSNumberFormatter()
+        
+        return numberFormat.numberFromString(string) as! Int
+//        return UInt(string)!
     }
     
     /** C"R"UD:プレイリストのリストを読込 #64 */
@@ -233,6 +240,7 @@ class SolPlayer {
     /** C"R"UD:プレイリストの曲を読込 #81 */
     func loadPlayList(playlistId: Int) throws -> Array<MPMediaItem> {
         
+        print("playlistId:\(playlistId)を読み込み")
         //プレイリストを初期化
         var retPlaylist = Array<MPMediaItem>()
         
@@ -255,6 +263,8 @@ class SolPlayer {
                     if(mediaItem.valueForKey("assetURL") != nil){
                         retPlaylist.append(mediaItem)
                     }
+                    
+                    print("\(songObject) を読み込み")
                 }
                 
             }
@@ -288,7 +298,8 @@ class SolPlayer {
     
     /** "C"RUD:プレイリストの曲を保存（永続化処理） #81 */
     func savePlayList(playlistId: NSNumber) throws {
-        
+//    func savePlayList(playlistId: UInt) throws {
+    
         let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
 
         do {
@@ -302,12 +313,14 @@ class SolPlayer {
                 songObject.setValue(NSNumber(unsignedLongLong: songId), forKey: "persistentID")
 
                 //プレイリストのIDを代入
+//                songObject.setValue(NSNumber(unsignedLong: playlistId), forKey: "playlist")
                 songObject.setValue(playlistId, forKey: "playlist")
                 
                 //曲順を代入
-                songObject.setValue(index, forKey: "trackNumber")
+                songObject.setValue(index, forKey: "index")
                 
                 //print("songID:\(songId) playlistID:\(playlistId) index:\(index) に保存")
+                print("\(songObject) を保存")
                 
                 try managedContext.save()
             }
@@ -335,6 +348,7 @@ class SolPlayer {
                     managedContext.deleteObject(songObject as! NSManagedObject)
                     
                     //print("songID:\(persistentId)の\(songObject) を削除")
+                    print("\(songObject) を削除")
                 }
                 
             }
@@ -347,6 +361,7 @@ class SolPlayer {
     
     /** CRU"D":プレイリストの曲を削除（全曲削除） */
     func removeAllSongs(playlistId: Int) throws {
+//    func removeAllSongs(playlistId: UInt) throws {
         do {
             let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
             
@@ -362,7 +377,7 @@ class SolPlayer {
                     //削除
                     managedContext.deleteObject(songObject as! NSManagedObject)
                     
-                    //print("\(songObject) を削除")
+                    print("\(songObject) を削除")
                 }
                 
             }
@@ -375,6 +390,7 @@ class SolPlayer {
     
     /** CRU"D":プレイリスト自体を削除 */
     func removePlaylist(playlistId: Int) throws {
+    //func removePlaylist(playlistId: UInt) throws {
         
         do {
             //最初にプレイリストに入っている曲を削除
@@ -404,7 +420,8 @@ class SolPlayer {
     
     /** CR"U"D:プレイリストの曲を更新（実際はは削除→追加） */
     func updatePlayList(playlistId: Int) throws {
-        
+//    func updatePlayList(playlistId: UInt) throws {
+    
         do {
             //全曲削除
             try removeAllSongs(playlistId)
@@ -461,7 +478,7 @@ class SolPlayer {
         //画面ロック時の情報を指定 #73
         let defaultCenter = MPNowPlayingInfoCenter.defaultCenter()
         
-        let playbackTime:NSTimeInterval = Double(currentPlayTime())
+        //let playbackTime:NSTimeInterval = Double(currentPlayTime())
         //print(playbackTime)
         
         //ディクショナリ型で定義
@@ -840,6 +857,8 @@ class SolPlayer {
             do { try play() } catch { }
         } else {
             pause()
+            //remoteOffset
+            //audioPlayerNode.stop()    //stopしても意味ない
         }
     }
     

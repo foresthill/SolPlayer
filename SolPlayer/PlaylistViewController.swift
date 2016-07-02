@@ -91,6 +91,7 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
                     //新規作成されたプレイリストをCoreDataに保存
                     let name = textField.text
                     let id:Int = try self.solPlayer.newPlayList(name!)
+//                    let id = try self.solPlayer.newPlayList(name!)
                     
                     self.solPlayer.allPlaylists.append((id, name!))
                     
@@ -152,6 +153,7 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         //新規作成時のアクション
         let removeAction = UIAlertAction(title: "削除する", style: .Default){(action: UIAlertAction!) -> Void in
   
+            //let selectedRow = self.playListPicker.selectedRowInComponent(0) as! UInt
             let selectedRow = self.playListPicker.selectedRowInComponent(0)
             
             if(selectedRow != 0) {
@@ -453,10 +455,32 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     
     /**
      UIPicker用メソッド（3.表示内容）
-     */
+
     func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         //TODO:これでいいんだっけ？列順とIDが異なる可能性もあるが。。
         return solPlayer.allPlaylists[row].name
+    }
+      */
+    
+    /**
+     UIPicker用メソッド（4.表示内容＋デザイン）
+     */
+    func pickerView(pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusingView view: UIView?) -> UIView {
+        
+        let pickerLabel: UILabel = UILabel()
+        
+        //表示内容
+        pickerLabel.text = solPlayer.allPlaylists[row].name
+        
+        //フォント
+        var font: UIFont = UIFont(name: "Helvetica Neue", size: 18.0)!
+        font = UIFont.systemFontOfSize(18.0, weight: UIFontWeightLight)
+        pickerLabel.font = font
+        
+        //表示位置
+        pickerLabel.textAlignment = NSTextAlignment.Center
+        
+        return pickerLabel
     }
     
     /**

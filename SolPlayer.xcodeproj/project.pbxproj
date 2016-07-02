@@ -151,6 +151,7 @@
 		BB6B85671D1C4A3700816498 /* SongModel 5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "SongModel 5.xcdatamodel"; sourceTree = "<group>"; };
 		BB7855A01D03D75B00FB0914 /* PlaylistViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaylistViewController.swift; sourceTree = "<group>"; };
 		BB7855A21D03F61200FB0914 /* Song1.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Song1.swift; sourceTree = "<group>"; };
+		BB7D745E1D27FC6F002D7A3D /* SongModel 6.xcdatamodel */ = {isa = PBXFileReference; explicitFileType = wrapper.xcdatamodel; path = "SongModel 6.xcdatamodel"; sourceTree = "<group>"; };
 		BB7DA6731CFD055000A5A706 /* UserConfigViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserConfigViewController.swift; sourceTree = "<group>"; };
 		BB9FC60E1D1E28C6004CB9F4 /* ImageUtil.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageUtil.swift; sourceTree = "<group>"; };
 		BBACEA131D0CEA4600CC07C4 /* play40.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play40.png; sourceTree = "<group>"; };
@@ -809,13 +810,14 @@
 		BBF5C2B01D164C2F00DE7CBA /* SongModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				BB7D745E1D27FC6F002D7A3D /* SongModel 6.xcdatamodel */,
 				BB6B85671D1C4A3700816498 /* SongModel 5.xcdatamodel */,
 				BB6B85441D1B57BD00816498 /* SongModel 4.xcdatamodel */,
 				BB6B85431D19F5A200816498 /* SongModel 3.xcdatamodel */,
 				BB6B85421D1971B500816498 /* SongModel 2.xcdatamodel */,
 				BBF5C2B11D164C2F00DE7CBA /* SongModel.xcdatamodel */,
 			);
-			currentVersion = BB6B85441D1B57BD00816498 /* SongModel 4.xcdatamodel */;
+			currentVersion = BB7D745E1D27FC6F002D7A3D /* SongModel 6.xcdatamodel */;
 			path = SongModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

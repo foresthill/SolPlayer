@@ -73,8 +73,8 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         //ヘッドフォンの状態を取得するためにAVAudioSessionを用いる（意味ない？）
         do { try AVAudioSession.sharedInstance().setActive(true) } catch { }
         
-        //Notificationの設定（意味ない？）※objectをnil→appに！いや違う、nameがおかしいんや！
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.didChangeAudioSessionRoute), name: "SolNotification", object: nil)
+        //Notificationの設定（意味ない？）※objectをnil→appに！いや違う、nameがおかしいんや！"SolNotification"から変更
+        //NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.didChangeAudioSessionRoute), name: UI, object: nil)
         
         //ロック・スリープ復帰時に画面を更新する
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.viewWillAppear), name: UIApplicationWillEnterForegroundNotification, object: UIApplication.sharedApplication())
