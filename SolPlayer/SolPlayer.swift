@@ -71,13 +71,16 @@ class SolPlayer {
     
     //プレイリストのリスト。#64
     //var allPlaylists:[(id: NSNumber, name: String)]!
-    var allPlaylists:[(id: Int, name: String)]!
+//    var allPlaylists:[(id: Int, name: String)]!
+    var allPlaylists:[(id: String, name: String)]!
     
     //メイン（再生中）のプレイリスト名 #64, #81
-    var mainPlaylist: (id: Int, name: String) = (0, "default")
+    //var mainPlaylist: (id: Int, name: String) = (0, "default")
+    var mainPlaylist: (id: String, name: String) = ("0", "default")
     
     //サブ（待機中）のプレイリスト名 #64, #81
-    var subPlaylist: (id: Int, name: String) = (0, "default")
+    //var subPlaylist: (id: Int, name: String) = (0, "default")
+    var subPlaylist: (id: String, name: String) = ("0", "default")
     
     //停止フラグ（プレイリストの再読み込みなど）
     var stopFlg = true
@@ -137,7 +140,8 @@ class SolPlayer {
         
         //defaultのプレイリストを読み込み
         do {
-            playlist = try loadPlayList(0)
+//            playlist = try loadPlayList(0)
+            playlist = try loadPlayList("0")
         } catch {
             
         }
@@ -156,7 +160,7 @@ class SolPlayer {
     
     /** "C"RUD:プレイリスト新規作成 #64 */
 //    func newPlayList(name: String) throws -> NSNumber {
-    func newPlayList(name: String) throws -> Int {
+    func newPlayList(name: String) throws -> String {
 //    func newPlayList(name: String) throws -> UInt {
     
         let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
@@ -186,8 +190,9 @@ class SolPlayer {
     
     /** ID生成（プレイリスト作成時に使う：NSManagedObjectIDの使い方がわかるまで）*/
     //func generateID() -> NSNumber {
-    func generateID() -> Int {
+//    func generateID() -> Int {
 //    func generateID() -> UInt {
+    func generateID() -> String {
     
         let now = NSDate()
         
@@ -198,17 +203,19 @@ class SolPlayer {
         
         //return Int(string)!   //これだとおかしくなる
         
-        let numberFormat = NSNumberFormatter()
+//        let numberFormat = NSNumberFormatter()
         
-        return numberFormat.numberFromString(string) as! Int
+//        return numberFormat.numberFromString(string) as! Int
 //        return UInt(string)!
+        return string
     }
     
     /** C"R"UD:プレイリストのリストを読込 #64 */
     func loadAllPlayLists() throws {
         
         //defaultを設定
-        allPlaylists = [(0,"default")]
+//        allPlaylists = [(0,"default")]
+        allPlaylists = [("0","default")]
         
         do {
             let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
@@ -220,10 +227,20 @@ class SolPlayer {
                 for playlistObject:AnyObject in results {
                     //persistentIDを頼りに検索
 //                    let id: NSNumber = playlistObject.valueForKey("id") as! NSNumber
-                    let id: Int = playlistObject.valueForKey("id") as! Int
+//                    let id: Int = playlistObject.valueForKey("id") as! Int
+                    
+                    //CoreDataマイグレーション Numberの場合はStringに変換
+//                    var playlistId = playlistObject.valueForKey("id")
+//                    
+//                    if playlistId!.isKindOfClass(NSNumber) {
+//                        playlistId = String(playlistId)
+//                    }
+                    
+                    let id: String = playlistObject.valueForKey("id") as! String
                     let name: String = playlistObject.valueForKey("name") as! String
                     //読み込んだMPMediaItemをプレイリストに追加
-                    if(id != 0){
+//                    if(id != 0){
+                    if(id != "0"){
                         allPlaylists.append((id, name))
                     }
                 }
@@ -238,7 +255,8 @@ class SolPlayer {
     }
     
     /** C"R"UD:プレイリストの曲を読込 #81 */
-    func loadPlayList(playlistId: Int) throws -> Array<MPMediaItem> {
+    //func loadPlayList(playlistId: Int) throws -> Array<MPMediaItem> {
+    func loadPlayList(playlistId: String) throws -> Array<MPMediaItem> {
         
         print("playlistId:\(playlistId)を読み込み")
         //プレイリストを初期化
@@ -247,7 +265,7 @@ class SolPlayer {
         do {
             let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
             let fetchRequest = NSFetchRequest(entityName:SONG)
-            fetchRequest.predicate = NSPredicate(format: "playlist = %d", playlistId)
+            fetchRequest.predicate = NSPredicate(format: "playlist = %@", playlistId)
             let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
             
             //TODO:ソート
@@ -297,9 +315,10 @@ class SolPlayer {
     }
     
     /** "C"RUD:プレイリストの曲を保存（永続化処理） #81 */
-    func savePlayList(playlistId: NSNumber) throws {
+//    func savePlayList(playlistId: NSNumber) throws {
 //    func savePlayList(playlistId: UInt) throws {
-    
+    func savePlayList(playlistId: String) throws {
+        //
         let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
 
         do {
@@ -360,13 +379,14 @@ class SolPlayer {
     }
     
     /** CRU"D":プレイリストの曲を削除（全曲削除） */
-    func removeAllSongs(playlistId: Int) throws {
+//    func removeAllSongs(playlistId: Int) throws {
 //    func removeAllSongs(playlistId: UInt) throws {
+    func removeAllSongs(playlistId: String) throws {
         do {
             let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
             
             let fetchRequest = NSFetchRequest(entityName:SONG)
-            fetchRequest.predicate = NSPredicate(format: "playlist = %d", playlistId)
+            fetchRequest.predicate = NSPredicate(format: "playlist = %@", playlistId)
             
             let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
             
@@ -389,7 +409,8 @@ class SolPlayer {
     }
     
     /** CRU"D":プレイリスト自体を削除 */
-    func removePlaylist(playlistId: Int) throws {
+    //func removePlaylist(playlistId: Int) throws {
+    func removePlaylist(playlistId: String) throws {
     //func removePlaylist(playlistId: UInt) throws {
         
         do {
@@ -399,7 +420,8 @@ class SolPlayer {
             let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
             
             let fetchRequest = NSFetchRequest(entityName:PLAYLIST)
-            fetchRequest.predicate = NSPredicate(format: "id = %d", playlistId)
+//            fetchRequest.predicate = NSPredicate(format: "id = %d", playlistId)
+            fetchRequest.predicate = NSPredicate(format: "id = %@", playlistId)
             
             let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
             
@@ -419,8 +441,9 @@ class SolPlayer {
     }
     
     /** CR"U"D:プレイリストの曲を更新（実際はは削除→追加） */
-    func updatePlayList(playlistId: Int) throws {
+//    func updatePlayList(playlistId: Int) throws {
 //    func updatePlayList(playlistId: UInt) throws {
+    func updatePlayList(playlistId: String) throws {
     
         do {
             //全曲削除

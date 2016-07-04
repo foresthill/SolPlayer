@@ -31,6 +31,9 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     //SolPlayer本体
     var solPlayer: SolPlayer!
     
+    //選択されているプレイリスト
+    //var selectedRow: (String, String) = ("0", "default")
+    
     override func viewDidLoad() {
         
         /* SolPlayer（シングルトンクラス）呼び出し */
@@ -90,9 +93,11 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
                 do {
                     //新規作成されたプレイリストをCoreDataに保存
                     let name = textField.text
-                    let id:Int = try self.solPlayer.newPlayList(name!)
+                    //let id:Int = try self.solPlayer.newPlayList(name!)
 //                    let id = try self.solPlayer.newPlayList(name!)
+                    let id:String = try self.solPlayer.newPlayList(name!)
                     
+                    //
                     self.solPlayer.allPlaylists.append((id, name!))
                     
                     //print(self.solPlayer.allPlaylists)
@@ -156,11 +161,13 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
             //let selectedRow = self.playListPicker.selectedRowInComponent(0) as! UInt
             let selectedRow = self.playListPicker.selectedRowInComponent(0)
             
-            if(selectedRow != 0) {
+            let playlistId = self.solPlayer.subPlaylist.id
+            
+            if(playlistId != "0") {
                 //削除処理
                 do {
                     //CoreDataのデータを削除
-                    try self.solPlayer.removePlaylist(selectedRow)
+                    try self.solPlayer.removePlaylist(playlistId)
                     //表示されているプレイリストを削除
                     self.solPlayer.allPlaylists.removeAtIndex(selectedRow)
                     

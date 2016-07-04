@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" initialViewController="01J-lp-oVM">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" initialViewController="01J-lp-oVM">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
@@ -21,7 +21,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pyB-7f-0EN">
-                                <rect key="frame" x="176" y="236" width="247.5" height="49"/>
+                                <rect key="frame" x="176" y="236" width="248" height="49"/>
                                 <attributedString key="attributedText">
                                     <fragment content="SolPlayer">
                                         <attributes>
@@ -37,7 +37,7 @@
                                             <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
                                         </attributes>
                                     </fragment>
-                                    <fragment content="ver 1.0">
+                                    <fragment content="ver 1.1">
                                         <attributes>
                                             <color key="NSColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                             <font key="NSFont" size="21" name="HelveticaNeue"/>
@@ -54,7 +54,7 @@
                                     <constraint firstAttribute="height" constant="41" id="HZM-og-i1k"/>
                                 </constraints>
                                 <attributedString key="attributedText">
-                                    <fragment content="Solfeggio Music for Normal Life.">
+                                    <fragment content="Solfeggio Music for ordinary life.">
                                         <attributes>
                                             <color key="NSColor" red="0.70202323717948723" green="0.62825926532400578" blue="0.57696740463245189" alpha="1" colorSpace="calibratedRGB"/>
                                             <font key="NSFont" size="17" name="Helvetica-Light"/>

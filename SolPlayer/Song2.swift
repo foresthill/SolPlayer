@@ -9,7 +9,7 @@
 import Foundation
 import MediaPlayer
 
-class Song1 {
+class Song2 {
     
     /*あれ？独自クラス作らんでもMPMediaItemそのまま使えばよくね？？→軽量化の要件が出たら。→結局中身がよく分からんので作ることに。*/
     
@@ -34,6 +34,12 @@ class Song1 {
     var discNumber: String?
     /** メディアの種類 */
     var mediaType: String?
+    /** 現在の再生時間（しおり機能） @since ver2.0 */
+    var playTime: Double?
+    /** リピート再生開始（区間リピート） @since ver2.0 */
+    var repeatStart: Double?
+    /** リピート終了時間（区間リピート） @since ver2.0 */
+    var repeatEnd: Double?
     /** 曲の長さ */
     //var totalTime
     

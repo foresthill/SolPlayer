@@ -17,6 +17,7 @@
 		BB2C636B1D0F1247002CCFB2 /* play64.png in Resources */ = {isa = PBXBuildFile; fileRef = BB2C63691D0F1247002CCFB2 /* play64.png */; };
 		BB2C636E1D0F151F002CCFB2 /* pause64.png in Resources */ = {isa = PBXBuildFile; fileRef = BB2C636C1D0F151F002CCFB2 /* pause64.png */; };
 		BB2C636F1D0F151F002CCFB2 /* pause64@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BB2C636D1D0F151F002CCFB2 /* pause64@2x.png */; };
+		BB5980451D2B1D7100F79EBB /* Model4to7.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = BB5980441D2B1D7100F79EBB /* Model4to7.xcmappingmodel */; };
 		BB659A751D04ED3C005535FC /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB659A741D04ED3C005535FC /* AppError.swift */; };
 		BB66AF8E1D076DE9007CA80A /* PlaylistViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7855A01D03D75B00FB0914 /* PlaylistViewController.swift */; };
 		BB66AF951D0BA120007CA80A /* solplayer_bg3.png in Resources */ = {isa = PBXBuildFile; fileRef = BB66AF941D0BA120007CA80A /* solplayer_bg3.png */; };
@@ -51,8 +52,9 @@
 		BB6B85631D1B5B6D00816498 /* dustbox.png in Resources */ = {isa = PBXBuildFile; fileRef = BB6B855F1D1B5B6D00816498 /* dustbox.png */; };
 		BB6B85641D1B5B6D00816498 /* dustbox@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BB6B85601D1B5B6D00816498 /* dustbox@2x.png */; };
 		BB6B85661D1B5B8500816498 /* download.png in Resources */ = {isa = PBXBuildFile; fileRef = BB6B85651D1B5B8500816498 /* download.png */; };
-		BB7855A31D03F61200FB0914 /* Song1.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7855A21D03F61200FB0914 /* Song1.swift */; };
+		BB7855A31D03F61200FB0914 /* Song2.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7855A21D03F61200FB0914 /* Song2.swift */; };
 		BB7DA6741CFD055000A5A706 /* UserConfigViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7DA6731CFD055000A5A706 /* UserConfigViewController.swift */; };
+		BB83E2181D28AB7A00921085 /* DataMigration4to7Policy.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB83E2171D28AB7A00921085 /* DataMigration4to7Policy.swift */; };
 		BB9FC60F1D1E28C6004CB9F4 /* ImageUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9FC60E1D1E28C6004CB9F4 /* ImageUtil.swift */; };
 		BBACEA141D0CEA4600CC07C4 /* play40.png in Resources */ = {isa = PBXBuildFile; fileRef = BBACEA131D0CEA4600CC07C4 /* play40.png */; };
 		BBACEA161D0CEA4F00CC07C4 /* play40@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BBACEA151D0CEA4F00CC07C4 /* play40@2x.png */; };
@@ -110,6 +112,7 @@
 		BB2C63691D0F1247002CCFB2 /* play64.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play64.png; sourceTree = "<group>"; };
 		BB2C636C1D0F151F002CCFB2 /* pause64.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pause64.png; sourceTree = "<group>"; };
 		BB2C636D1D0F151F002CCFB2 /* pause64@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pause64@2x.png"; sourceTree = "<group>"; };
+		BB5980441D2B1D7100F79EBB /* Model4to7.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = Model4to7.xcmappingmodel; sourceTree = "<group>"; };
 		BB659A741D04ED3C005535FC /* AppError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
 		BB66AF8F1D087ACA007CA80A /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Main.strings; sourceTree = "<group>"; };
 		BB66AF901D087ACA007CA80A /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
@@ -150,9 +153,11 @@
 		BB6B85651D1B5B8500816498 /* download.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = download.png; sourceTree = "<group>"; };
 		BB6B85671D1C4A3700816498 /* SongModel 5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "SongModel 5.xcdatamodel"; sourceTree = "<group>"; };
 		BB7855A01D03D75B00FB0914 /* PlaylistViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaylistViewController.swift; sourceTree = "<group>"; };
-		BB7855A21D03F61200FB0914 /* Song1.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Song1.swift; sourceTree = "<group>"; };
+		BB7855A21D03F61200FB0914 /* Song2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Song2.swift; sourceTree = "<group>"; };
 		BB7D745E1D27FC6F002D7A3D /* SongModel 6.xcdatamodel */ = {isa = PBXFileReference; explicitFileType = wrapper.xcdatamodel; path = "SongModel 6.xcdatamodel"; sourceTree = "<group>"; };
+		BB7D745F1D28A21B002D7A3D /* SongModel 7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "SongModel 7.xcdatamodel"; sourceTree = "<group>"; };
 		BB7DA6731CFD055000A5A706 /* UserConfigViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserConfigViewController.swift; sourceTree = "<group>"; };
+		BB83E2171D28AB7A00921085 /* DataMigration4to7Policy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataMigration4to7Policy.swift; sourceTree = "<group>"; };
 		BB9FC60E1D1E28C6004CB9F4 /* ImageUtil.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageUtil.swift; sourceTree = "<group>"; };
 		BBACEA131D0CEA4600CC07C4 /* play40.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play40.png; sourceTree = "<group>"; };
 		BBACEA151D0CEA4F00CC07C4 /* play40@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "play40@2x.png"; sourceTree = "<group>"; };
@@ -277,10 +282,12 @@
 		BBC6328F1CFB2AD3006407C9 = {
 			isa = PBXGroup;
 			children = (
+				BB5980441D2B1D7100F79EBB /* Model4to7.xcmappingmodel */,
 				BB6B853E1D18A66B00816498 /* Playlist+CoreDataProperties.swift */,
 				BB6B853F1D18A66B00816498 /* Playlist.swift */,
 				BBF5C2B31D164D9F00DE7CBA /* Song+CoreDataProperties.swift */,
 				BBF5C2B41D164D9F00DE7CBA /* Song.swift */,
+				BB83E2171D28AB7A00921085 /* DataMigration4to7Policy.swift */,
 				BBF5C2B01D164C2F00DE7CBA /* SongModel.xcdatamodeld */,
 				BBC6329A1CFB2AD3006407C9 /* SolPlayer */,
 				BBC632AF1CFB2AD3006407C9 /* SolPlayerTests */,
@@ -307,7 +314,7 @@
 				BB66AF911D0BA009007CA80A /* images */,
 				BBC6329D1CFB2AD3006407C9 /* ViewController.swift */,
 				BB9FC60E1D1E28C6004CB9F4 /* ImageUtil.swift */,
-				BB7855A21D03F61200FB0914 /* Song1.swift */,
+				BB7855A21D03F61200FB0914 /* Song2.swift */,
 				BB659A741D04ED3C005535FC /* AppError.swift */,
 				BBC6329F1CFB2AD3006407C9 /* Main.storyboard */,
 				BB7855A01D03D75B00FB0914 /* PlaylistViewController.swift */,
@@ -533,12 +540,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BB7855A31D03F61200FB0914 /* Song1.swift in Sources */,
+				BB7855A31D03F61200FB0914 /* Song2.swift in Sources */,
 				BBC6329E1CFB2AD3006407C9 /* ViewController.swift in Sources */,
 				BB66AF8E1D076DE9007CA80A /* PlaylistViewController.swift in Sources */,
 				BBC6329C1CFB2AD3006407C9 /* AppDelegate.swift in Sources */,
+				BB83E2181D28AB7A00921085 /* DataMigration4to7Policy.swift in Sources */,
 				BBF5C2B61D164D9F00DE7CBA /* Song.swift in Sources */,
 				BB9FC60F1D1E28C6004CB9F4 /* ImageUtil.swift in Sources */,
+				BB5980451D2B1D7100F79EBB /* Model4to7.xcmappingmodel in Sources */,
 				BB66AF971D0BB879007CA80A /* SolPlayer.swift in Sources */,
 				BB7DA6741CFD055000A5A706 /* UserConfigViewController.swift in Sources */,
 				BBF5C2B51D164D9F00DE7CBA /* Song+CoreDataProperties.swift in Sources */,
@@ -810,6 +819,7 @@
 		BBF5C2B01D164C2F00DE7CBA /* SongModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				BB7D745F1D28A21B002D7A3D /* SongModel 7.xcdatamodel */,
 				BB7D745E1D27FC6F002D7A3D /* SongModel 6.xcdatamodel */,
 				BB6B85671D1C4A3700816498 /* SongModel 5.xcdatamodel */,
 				BB6B85441D1B57BD00816498 /* SongModel 4.xcdatamodel */,
@@ -817,7 +827,7 @@
 				BB6B85421D1971B500816498 /* SongModel 2.xcdatamodel */,
 				BBF5C2B11D164C2F00DE7CBA /* SongModel.xcdatamodel */,
 			);
-			currentVersion = BB7D745E1D27FC6F002D7A3D /* SongModel 6.xcdatamodel */;
+			currentVersion = BB7D745F1D28A21B002D7A3D /* SongModel 7.xcdatamodel */;
 			path = SongModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
