@@ -264,14 +264,15 @@ class SolPlayer {
         
         do {
             let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
+            //フェッチリクエストを設定
             let fetchRequest = NSFetchRequest(entityName:SONG)
             fetchRequest.predicate = NSPredicate(format: "playlist = %@", playlistId)
+            //ソート設定
+            let sortDescriptor: NSSortDescriptor = NSSortDescriptor(key:"index", ascending: true)
+            fetchRequest.sortDescriptors = [sortDescriptor]
+            //フェッチ実行
             let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
             
-            //TODO:ソート
-            //let sort_descriptor: NSSortDescriptor = NSSortDescriptor(key:"trackNumber", ascending: true)
-            //fetchResults.sort
-
             if let results: Array = fetchResults {
                 
                 for songObject:AnyObject in results {
@@ -389,7 +390,6 @@ class SolPlayer {
             fetchRequest.predicate = NSPredicate(format: "playlist = %@", playlistId)
             
             let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
-            
             
             if let results: Array = fetchResults {
                 

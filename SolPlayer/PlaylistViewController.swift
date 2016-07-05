@@ -174,12 +174,16 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
                     //print("プレイリス→\(self.solPlayer.allPlaylists)")
                     
                     alert = UIAlertController(title: "削除完了", message: "プレイリストを削除しました。", preferredStyle: UIAlertControllerStyle.Alert)
+
+                    //再読込処理
+                    do { self.solPlayer.editPlaylist = try self.solPlayer.loadPlayList("0") } catch { }
+                    self.solPlayer.subPlaylist = ("0", "default")
+                    
+                    //pickerViewを更新
+                    self.playListPicker.reloadAllComponents()
                     
                     //defaultを選択
                     self.playListPicker.selectRow(0, inComponent: 0, animated: true)
-
-                    //再読込処理
-                    self.playListPicker.reloadAllComponents()
                     
                     //tableViewを更新
                     self.tableView.reloadData()
