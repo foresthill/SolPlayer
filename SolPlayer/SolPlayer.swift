@@ -114,8 +114,8 @@ class SolPlayer {
     private init(){
         //画面ロック時も再生のカテゴリを指定
         do {
-            //try session.setCategory(AVAudioSessionCategoryPlayback)
-            try session.setCategory(AVAudioSessionCategoryPlayAndRecord)
+            try session.setCategory(AVAudioSessionCategoryPlayback)
+            //try session.setCategory(AVAudioSessionCategoryPlayAndRecord)
             //オーディオセッションを有効化
             try session.setActive(true)
         } catch {
@@ -155,7 +155,9 @@ class SolPlayer {
         
         //画面ロック時のアクションを取得する
         UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
-
+        
+        //リモートイベントを設定する
+        //addRemoteControlEvent()
     }
     
     /** "C"RUD:プレイリスト新規作成 #64 */
@@ -873,8 +875,33 @@ class SolPlayer {
         return false
         
     }
+
+     /** リモートイベント（ロック画面、AirPlay、コントローラ等）を処理する。*/
+    /*
+     func addRemoteControlEvent() {
+        let commandCenter = MPRemoteCommandCenter.sharedCommandCenter()
+        
+//         commandCenter.togglePlayPauseCommand.addTarget(self, action: #selector(ViewController.remoteTogglePlayPause))
+        commandCenter.playCommand.enabled = true
+        commandCenter.pauseCommand.enabled = true
+        commandCenter.nextTrackCommand.enabled = true
+        commandCenter.previousTrackCommand.enabled = true
+    
+        commandCenter.playCommand.addTarget(self, action: #selector(ViewController.remoteTogglePlayPause))
+        commandCenter.pauseCommand.addTarget(self, action: #selector(ViewController.remoteTogglePlayPause))
+        commandCenter.nextTrackCommand.addTarget(self, action: #selector(ViewController.remoteNextTrack))
+        commandCenter.previousTrackCommand.addTarget(self, action: #selector(ViewController.remotePrevTrack))
+        
+//          commandCenter.togglePlayPauseCommand.addTarget(self, action: #selector(SolPlayer.playOrPause))
+//        commandCenter.playCommand.addTarget(self, action: Selector("remotePlayOrPause"))  //UIViewControllerじゃないとだめなのか
+//        commandCenter.pauseCommand.addTarget(self, action: Selector("remotePlayOrPause:"))
+//        commandCenter.nextTrackCommand.addTarget(self, action: Selector("remoteNextTrack"))
+//        commandCenter.previousTrackCommand.addTarget(self, action: Selector("remotePrevTrack"))
+    }
+    */
     
     /** 再生/停止イベント（主にリモートイベントで使用） */
+    //func remotePlayOrPause(event: MPRemoteCommandEvent) {
     func playOrPause() {
         if !audioPlayerNode.playing {
             do { try play() } catch { }
@@ -884,6 +911,20 @@ class SolPlayer {
             //audioPlayerNode.stop()    //stopしても意味ない
         }
     }
+    
+    /** 次の曲へ（リモートイベント）*/
+    /*
+    func remoteNextTrack(event: MPRemoteCommandEvent) {
+        do { try nextSong() } catch { }
+    }
+    */
+    
+    /** 前の曲へ（リモートイベント）*/
+    /*
+    func remotePrevTrack(event: MPRemoteCommandEvent) {
+        do { try prevSong() } catch { }
+    }
+    */
     
     /**
      ロック画面からのイベントを処理する→ViewControllerへ移動→SolPlayer内でやってみる（2016/07/01）
@@ -920,6 +961,5 @@ class SolPlayer {
             }
         }
     }
-
     
 }

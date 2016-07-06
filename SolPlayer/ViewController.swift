@@ -135,7 +135,8 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
             timeSlider.maximumValue = Float(solPlayer.duration)
             
             //プレイリスト情報を更新
-            playlistLabel.text = solPlayer.subPlaylist.name
+            //playlistLabel.text = solPlayer.subPlaylist.name
+            playlistLabel.text = solPlayer.mainPlaylist.name
 
         } else {
             
@@ -408,9 +409,15 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
     
     /**
      リモートイベント（ロック画面、AirPlay、コントローラ等）を処理する。
-
+    */
+    /*
     func addRemoteControlEvent() {
         let commandCenter = MPRemoteCommandCenter.sharedCommandCenter()
+        
+        commandCenter.playCommand.enabled = true
+        commandCenter.pauseCommand.enabled = true
+        commandCenter.nextTrackCommand.enabled = true
+        commandCenter.previousTrackCommand.enabled = true
         
         commandCenter.togglePlayPauseCommand.addTarget(self, action: #selector(ViewController.remoteTogglePlayPause))
         commandCenter.playCommand.addTarget(self, action: #selector(ViewController.remoteTogglePlayPause))
@@ -418,7 +425,8 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         commandCenter.nextTrackCommand.addTarget(self, action: #selector(ViewController.remoteNextTrack))
         commandCenter.previousTrackCommand.addTarget(self, action: #selector(ViewController.remotePrevTrack))
     }
-      */
+    */
+ 
     
     /** リモートイベント：再生・停止 */
     func remoteTogglePlayPause(event: MPRemoteCommandEvent){

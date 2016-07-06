@@ -203,8 +203,7 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
             }))
             
             self.presentViewController(alert, animated: true, completion: nil)
-            
-            
+
         }
         
         //キャンセル時のアクション
@@ -219,7 +218,6 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         //表示
         presentViewController(alert, animated: true, completion: nil)
         
-
     }
     
     
@@ -308,9 +306,6 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         self.dismissViewControllerAnimated(true, completion: nil)
     }
     
-
-    
-    
     /** 
      tableView用メソッド（1.セルの行数）
      */
@@ -330,7 +325,6 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         cell.backgroundColor = UIColor.clearColor() //背景色を透明に
         
         //フォント
-        
         //var font: UIFont = UIFont(name: "Hiragino Kaku Gothic ProN", size: 16.0)!
         var font: UIFont = UIFont(name: "Helvetica Neue", size: 16.0)!
         font = UIFont.systemFontOfSize(16.0, weight: UIFontWeightLight)
@@ -380,12 +374,28 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         
         // タッチされたセルの曲を再生待ちに
-        if(solPlayer.mainPlaylist == solPlayer.subPlaylist){
-            solPlayer.number = indexPath.row
+//        if(solPlayer.mainPlaylist == solPlayer.subPlaylist){
+//            solPlayer.number = indexPath.row
+//        }
+        
+        //タップされた曲を再生する @since 1.1
+        solPlayer.mainPlaylist = solPlayer.subPlaylist
+        solPlayer.playlist = solPlayer.editPlaylist
+        solPlayer.number = indexPath.row
+        
+        do {
+            solPlayer.stop()
+            try solPlayer.play()
+        } catch {
+            
         }
         
-        // 選択を解除しておく
-        //tableView.deselectRowAtIndexPath(indexPath, animated: true)
+        //選択を解除しておく
+        tableView.deselectRowAtIndexPath(indexPath, animated: true)
+        
+        //tableViewを更新
+        tableView.reloadData()
+        
     }
     
     /**

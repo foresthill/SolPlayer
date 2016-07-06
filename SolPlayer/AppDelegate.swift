@@ -114,6 +114,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
     
+    /** リモートイベントを処理する */
     override func remoteControlReceivedWithEvent(event: UIEvent?) {
         //
         SolPlayer.sharedManager.remoteControlReceivedWithEvent(event)
