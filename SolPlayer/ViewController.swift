@@ -30,7 +30,8 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
 
     @IBOutlet weak var speedSlider: UISlider!
     @IBOutlet weak var speedLabel: UILabel!
-    @IBOutlet weak var speedSegment: UISegmentedControl!
+//    @IBOutlet weak var speedSegment: UISegmentedControl!
+    @IBOutlet weak var speedButton: CustomButton!
     
     @IBOutlet weak var playlistLabel: UILabel!
     
@@ -75,6 +76,12 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         
         //Notificationの設定（意味ない？）※objectをnil→appに！いや違う、nameがおかしいんや！"SolNotification"から変更
         //NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.didChangeAudioSessionRoute), name: UI, object: nil)
+        
+        //割り込みが入った時の処理（現状うまくく行っているのでコメントアウト）
+        //NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.viewWillAppear), name: AVAudioSessionInterruptionNotification, object: UIApplication.sharedApplication())
+        
+        //ヘッドフォン等の状態を取得する
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.audioSessionRouteChange), name: AVAudioSessionRouteChangeNotification, object: UIApplication.sharedApplication())
         
         //ロック・スリープ復帰時に画面を更新する
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.viewWillAppear), name: UIApplicationWillEnterForegroundNotification, object: UIApplication.sharedApplication())
@@ -214,6 +221,8 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         timer = nil
         //SolPlayer停止処理
         solPlayer.stop()
+        //停止フラグをtrueに
+        solPlayer.stopFlg = true
         //スライダーを使用不可に（暫定対応）
         timeSlider.enabled = false
         //ラベル更新
@@ -388,6 +397,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
      再生速度のセグメントが変更された時（Action→ValueChanged）
      - parameter sender: UISegmentedControl
      */
+    /*
     @IBAction func speedSegmentAction(sender: UISegmentedControl) {
         var speed = 0.25
         for _ in 0 ... speedSegment.selectedSegmentIndex {
@@ -400,7 +410,26 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         //プレイヤーに速度処理変更
         solPlayer.speedChange(speedSlider.value)
     }
+     */
     
+    /**
+     再生速度のボタンが押された時
+     - parameter sender: CustomButton
+     */
+    @IBAction func speedButtonAction(sender: AnyObject) {
+        var speed = 0.25
+        for _ in 0 ... sender.tag {
+            speed = speed * 2
+        }
+        //スライダーと同期する
+        speedSlider.value = Float(speed)
+        //ラベルを書き換える
+        speedLabel.text = "x \((round(speedSlider.value*10)/10))"
+        //プレイヤーに速度処理変更
+        solPlayer.speedChange(speedSlider.value)
+    }
+    
+    /** リピート（繰り返し）再生ボタン */
     @IBAction func repeatButtonAction(sender: UIButton) {
         //ON/OFF切り替え
         repeatButton.selected = !repeatButton.selected
@@ -474,6 +503,42 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         }
         
     }
+    
+    /** ヘッドフォンが挿入された時（Bluetoothの時も行ける？）*/
+    func audioSessionRouteChange(notification: NSNotification) {
+        if let userInfos = notification.userInfo {
+            if let type: AnyObject = userInfos["AVAudioSessionRouteChangeReasonKey"] {
+                if type is NSNumber {
+                    if type.unsignedLongValue == AVAudioSessionRouteChangeReason.NewDeviceAvailable.rawValue{
+                        print("NewDeviceAvailable")
+                    }
+                    if type.unsignedLongValue == AVAudioSessionRouteChangeReason.Override.rawValue{
+                        print("Override")
+                    }
+                }
+            }
+        }
+        for port in solPlayer.session.currentRoute.outputs as [AVAudioSessionPortDescription] {
+            print(port.portName)
+            print(port.portType)
+            print(port.UID)
+            if port.portType == AVAudioSessionPortBuiltInSpeaker {
+                //内臓スピーカが選ばれている時の処理
+                print("スピーカ")
+            }else if port.portType == AVAudioSessionPortHeadphones {
+                //ヘッドホンが選ばれている時の処理
+                print("ヘッドホン")
+            }
+            for channel in port.channels! as [AVAudioSessionChannelDescription] {
+                //左右チャンネルなどの情報が欲しいとき、以下を検討
+                print(channel.channelName)
+                print(channel.channelNumber)
+                print(channel.owningPortUID)
+                print(channel.channelName)
+            }
+        }
+    }
+
     
     /** この画面が表示される時に項目を更新する*/
     override func viewWillAppear(animated: Bool) {

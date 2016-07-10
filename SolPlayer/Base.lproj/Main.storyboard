@@ -125,19 +125,6 @@
                                     <action selector="stopButtonAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="k3Z-5Y-juD"/>
                                 </connections>
                             </button>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="D3Y-v3-jLs">
-                                <rect key="frame" x="105" y="470" width="204" height="29"/>
-                                <segments>
-                                    <segment title="x0.5"/>
-                                    <segment title="x1.0"/>
-                                    <segment title="x2.0"/>
-                                    <segment title="x4.0"/>
-                                    <segment title="x8.0"/>
-                                </segments>
-                                <connections>
-                                    <action selector="speedSegmentAction:" destination="BYZ-38-t0r" eventType="valueChanged" id="Icc-oQ-Jnt"/>
-                                </connections>
-                            </segmentedControl>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="zgi-XZ-dO8">
                                 <rect key="frame" x="30" y="200" width="40" height="40"/>
                                 <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
@@ -173,6 +160,126 @@
                                     <action selector="repeatButtonAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="FAq-VW-s2A"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DTk-VC-YG1" customClass="CustomButton" customModule="SolPlayer" customModuleProvider="target">
+                                <rect key="frame" x="108" y="479" width="39" height="27"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="39" id="kWd-jw-05b"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="12"/>
+                                <state key="normal" title="x 0.5">
+                                    <color key="titleColor" name="highlightColor" catalog="System" colorSpace="catalog"/>
+                                </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                        <real key="value" value="3"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                        <real key="value" value="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                                        <color key="value" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <action selector="speedButtonAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="cKa-tq-gNE"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="G7Y-dG-YcL" customClass="CustomButton" customModule="SolPlayer" customModuleProvider="target">
+                                <rect key="frame" x="148" y="479" width="39" height="27"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="39" id="pOB-Fv-1yk"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="12"/>
+                                <state key="normal" title="x 1.0">
+                                    <color key="titleColor" name="highlightColor" catalog="System" colorSpace="catalog"/>
+                                </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                        <real key="value" value="3"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                        <real key="value" value="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                                        <color key="value" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <action selector="speedButtonAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="o2f-hX-smS"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" tag="2" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="67e-iv-1rL" customClass="CustomButton" customModule="SolPlayer" customModuleProvider="target">
+                                <rect key="frame" x="188" y="479" width="39" height="27"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="39" id="8X5-aq-f70"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="12"/>
+                                <state key="normal" title="x 2.0">
+                                    <color key="titleColor" name="highlightColor" catalog="System" colorSpace="catalog"/>
+                                </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                        <real key="value" value="3"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                        <real key="value" value="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                                        <color key="value" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <action selector="speedButtonAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Bnt-wQ-vQj"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" tag="3" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TJa-pX-qrL" customClass="CustomButton" customModule="SolPlayer" customModuleProvider="target">
+                                <rect key="frame" x="228" y="479" width="39" height="27"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="39" id="r5v-c0-Hzt"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="12"/>
+                                <state key="normal" title="x 4.0">
+                                    <color key="titleColor" name="highlightColor" catalog="System" colorSpace="catalog"/>
+                                </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                        <real key="value" value="3"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                        <real key="value" value="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                                        <color key="value" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <action selector="speedButtonAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="m8p-IP-TgX"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" tag="4" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5Ne-uh-eGV" customClass="CustomButton" customModule="SolPlayer" customModuleProvider="target">
+                                <rect key="frame" x="268" y="479" width="39" height="27"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="39" id="A7p-7m-ct4"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="12"/>
+                                <state key="normal" title="x 8.0">
+                                    <color key="titleColor" name="highlightColor" catalog="System" colorSpace="catalog"/>
+                                </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                        <real key="value" value="3"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                        <real key="value" value="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                                        <color key="value" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <action selector="speedButtonAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="oeU-XP-Q7z"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
@@ -187,6 +294,8 @@
                             <constraint firstItem="eFg-Mw-MpI" firstAttribute="leading" secondItem="41H-OZ-4bF" secondAttribute="leading" id="EUM-2w-xX2"/>
                             <constraint firstItem="5a8-Zd-8Nx" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="EUf-mZ-WB5"/>
                             <constraint firstAttribute="trailingMargin" secondItem="uKK-pi-yjk" secondAttribute="trailing" constant="10" id="Eb5-DL-lqn"/>
+                            <constraint firstItem="5Ne-uh-eGV" firstAttribute="leading" secondItem="TJa-pX-qrL" secondAttribute="trailing" constant="1" id="Gjs-3x-avt"/>
+                            <constraint firstItem="TJa-pX-qrL" firstAttribute="top" secondItem="Fak-xp-40e" secondAttribute="bottom" constant="17" id="HPm-fE-lxy"/>
                             <constraint firstItem="Gtm-1I-BXc" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="HRB-ac-r7L"/>
                             <constraint firstAttribute="trailingMargin" secondItem="yM9-zp-XEH" secondAttribute="trailing" constant="10" id="Hqg-JM-WQ5"/>
                             <constraint firstItem="JbX-fK-92H" firstAttribute="leading" secondItem="5a8-Zd-8Nx" secondAttribute="trailing" constant="5" id="JWY-6t-8j5"/>
@@ -195,14 +304,17 @@
                             <constraint firstItem="eFg-Mw-MpI" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="10" id="MaT-0M-d9D"/>
                             <constraint firstItem="lL4-Vs-x9n" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="10" id="Mjl-bN-NBR"/>
                             <constraint firstItem="qPF-tK-T57" firstAttribute="centerY" secondItem="5a8-Zd-8Nx" secondAttribute="centerY" id="NHb-4C-imO"/>
+                            <constraint firstItem="G7Y-dG-YcL" firstAttribute="top" secondItem="Fak-xp-40e" secondAttribute="bottom" constant="17" id="O8h-7R-sY7"/>
                             <constraint firstItem="LiR-Hf-Dd2" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="OlY-an-fWM"/>
                             <constraint firstItem="X4g-LQ-Ehi" firstAttribute="top" secondItem="jqk-m6-XYb" secondAttribute="top" id="PPN-3z-Kf6"/>
                             <constraint firstItem="qPF-tK-T57" firstAttribute="leading" secondItem="5a8-Zd-8Nx" secondAttribute="trailing" constant="80" id="Ppk-Ea-TXa"/>
                             <constraint firstItem="Fak-xp-40e" firstAttribute="leading" secondItem="jqk-m6-XYb" secondAttribute="trailing" constant="30" id="QcP-zc-kca"/>
                             <constraint firstItem="Qu3-AK-yLB" firstAttribute="leading" secondItem="sdu-4d-lCR" secondAttribute="trailing" constant="60" id="R24-3j-OF4"/>
+                            <constraint firstItem="DTk-VC-YG1" firstAttribute="top" secondItem="Fak-xp-40e" secondAttribute="bottom" constant="17" id="R9c-Hm-d5F"/>
                             <constraint firstItem="QM4-Y4-3De" firstAttribute="leading" secondItem="eVk-O8-mRi" secondAttribute="leading" id="SVs-9C-bqO"/>
                             <constraint firstItem="41H-OZ-4bF" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="10" id="WHm-Rb-395"/>
                             <constraint firstItem="eVk-O8-mRi" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="180" id="WUX-TX-adb"/>
+                            <constraint firstItem="TJa-pX-qrL" firstAttribute="leading" secondItem="67e-iv-1rL" secondAttribute="trailing" constant="1" id="Wie-pK-71l"/>
                             <constraint firstItem="41H-OZ-4bF" firstAttribute="top" secondItem="jqk-m6-XYb" secondAttribute="bottom" constant="74.5" id="YJn-2j-X1O"/>
                             <constraint firstItem="Qu3-AK-yLB" firstAttribute="centerY" secondItem="5a8-Zd-8Nx" secondAttribute="centerY" id="bgM-p5-b2q"/>
                             <constraint firstAttribute="trailingMargin" secondItem="uKK-pi-yjk" secondAttribute="trailing" constant="10" id="cFq-qX-aLX"/>
@@ -210,18 +322,21 @@
                             <constraint firstItem="5a8-Zd-8Nx" firstAttribute="leading" secondItem="sdu-4d-lCR" secondAttribute="trailing" constant="80" id="f7e-XH-znt"/>
                             <constraint firstItem="5a8-Zd-8Nx" firstAttribute="top" secondItem="QM4-Y4-3De" secondAttribute="bottom" constant="15" id="fDV-9q-DF6"/>
                             <constraint firstItem="Gtm-1I-BXc" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="10" id="fiN-rC-8zS"/>
+                            <constraint firstItem="5Ne-uh-eGV" firstAttribute="top" secondItem="Fak-xp-40e" secondAttribute="bottom" constant="17" id="fvn-hN-ezc"/>
                             <constraint firstItem="QM4-Y4-3De" firstAttribute="top" secondItem="eVk-O8-mRi" secondAttribute="bottom" constant="3" id="gci-ub-sIj"/>
-                            <constraint firstItem="D3Y-v3-jLs" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="h8B-7l-x7J"/>
                             <constraint firstItem="SF4-90-oyI" firstAttribute="top" secondItem="Gtm-1I-BXc" secondAttribute="bottom" constant="10" id="iBX-MP-m8V"/>
                             <constraint firstItem="QM4-Y4-3De" firstAttribute="bottom" secondItem="zgi-XZ-dO8" secondAttribute="bottom" id="iab-vW-8pm"/>
                             <constraint firstItem="jqk-m6-XYb" firstAttribute="top" secondItem="Z0o-wI-htU" secondAttribute="bottom" constant="15" id="jtT-VI-r44"/>
+                            <constraint firstItem="67e-iv-1rL" firstAttribute="leading" secondItem="G7Y-dG-YcL" secondAttribute="trailing" constant="1" id="lfi-Xj-i3e"/>
                             <constraint firstItem="Z0o-wI-htU" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="10" id="me2-2r-fWt"/>
                             <constraint firstItem="uKK-pi-yjk" firstAttribute="top" secondItem="sdu-4d-lCR" secondAttribute="bottom" constant="5" id="nFo-bw-Z3e"/>
                             <constraint firstItem="eFg-Mw-MpI" firstAttribute="top" secondItem="41H-OZ-4bF" secondAttribute="bottom" constant="10" id="niO-wT-L5U"/>
                             <constraint firstItem="qPF-tK-T57" firstAttribute="top" secondItem="sdu-4d-lCR" secondAttribute="top" id="prv-Fk-Lxo"/>
+                            <constraint firstItem="G7Y-dG-YcL" firstAttribute="leading" secondItem="DTk-VC-YG1" secondAttribute="trailing" constant="1" id="sQP-VQ-aJ9"/>
+                            <constraint firstItem="67e-iv-1rL" firstAttribute="top" secondItem="Fak-xp-40e" secondAttribute="bottom" constant="17" id="syn-8t-N6Q"/>
+                            <constraint firstItem="DTk-VC-YG1" firstAttribute="leading" secondItem="Fak-xp-40e" secondAttribute="leading" id="umQ-nD-Vwe"/>
                             <constraint firstItem="QM4-Y4-3De" firstAttribute="leading" secondItem="eVk-O8-mRi" secondAttribute="leading" id="wjN-DG-DGr"/>
                             <constraint firstItem="uKK-pi-yjk" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="xbX-0x-gV8"/>
-                            <constraint firstItem="D3Y-v3-jLs" firstAttribute="top" secondItem="Fak-xp-40e" secondAttribute="bottom" constant="8" id="xs4-hq-9xq"/>
                             <constraint firstItem="X4g-LQ-Ehi" firstAttribute="leading" secondItem="Fak-xp-40e" secondAttribute="trailing" constant="9" id="zNy-Lp-Gik"/>
                         </constraints>
                     </view>
@@ -237,8 +352,8 @@
                         <outlet property="playlistLabel" destination="eFg-Mw-MpI" id="G8G-LT-q1p"/>
                         <outlet property="repeatButton" destination="JbX-fK-92H" id="fn7-I9-Ag7"/>
                         <outlet property="solButton" destination="SF4-90-oyI" id="XIe-jR-8kz"/>
+                        <outlet property="speedButton" destination="DTk-VC-YG1" id="NlN-PI-72j"/>
                         <outlet property="speedLabel" destination="X4g-LQ-Ehi" id="Lb9-pK-YhU"/>
-                        <outlet property="speedSegment" destination="D3Y-v3-jLs" id="pqt-gZ-f6l"/>
                         <outlet property="speedSlider" destination="Fak-xp-40e" id="DRF-YO-HF1"/>
                         <outlet property="stopButton" destination="Qu3-AK-yLB" id="UPb-pR-zSQ"/>
                         <outlet property="timeSlider" destination="uKK-pi-yjk" id="yoa-Nh-Kfd"/>

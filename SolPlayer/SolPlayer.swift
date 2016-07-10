@@ -260,7 +260,7 @@ class SolPlayer {
     //func loadPlayList(playlistId: Int) throws -> Array<MPMediaItem> {
     func loadPlayList(playlistId: String) throws -> Array<MPMediaItem> {
         
-        print("playlistId:\(playlistId)を読み込み")
+        //print("playlistId:\(playlistId)を読み込み")
         //プレイリストを初期化
         var retPlaylist = Array<MPMediaItem>()
         
@@ -285,7 +285,7 @@ class SolPlayer {
                         retPlaylist.append(mediaItem)
                     }
                     
-                    print("\(songObject) を読み込み")
+                    //print("\(songObject) を読み込み")
                 }
                 
             }
@@ -342,7 +342,7 @@ class SolPlayer {
                 songObject.setValue(index, forKey: "index")
                 
                 //print("songID:\(songId) playlistID:\(playlistId) index:\(index) に保存")
-                print("\(songObject) を保存")
+                //print("\(songObject) を保存")
                 
                 try managedContext.save()
             }
@@ -370,7 +370,7 @@ class SolPlayer {
                     managedContext.deleteObject(songObject as! NSManagedObject)
                     
                     //print("songID:\(persistentId)の\(songObject) を削除")
-                    print("\(songObject) を削除")
+                    //print("\(songObject) を削除")
                 }
                 
             }
@@ -486,6 +486,8 @@ class SolPlayer {
         
         //let song = playlist[number]
         song = playlist[number]
+        
+        print("実際に流す曲はコレです。song = playlist[\(number)] = \(song.title)")
         
         //audioFile = try AVAudioFile(forReading: song.assetURL!)
         let assetURL = song.valueForProperty(MPMediaItemPropertyAssetURL) as! NSURL
@@ -643,6 +645,9 @@ class SolPlayer {
         //リモート操作されるとpauseがうまく動かないため暫定対応 #74
         if(remoteOffset != 0.0){
             
+            //ロック画面で再生時間が止まらないバグ対応（2016/07/11） #74
+            do { try session.setActive(true) } catch {}
+            
             //シーク位置（AVAudioFramePosition）取得
             let restartPosition = AVAudioFramePosition(Float(sampleRate) * Float(remoteOffset))
             
@@ -698,7 +703,7 @@ class SolPlayer {
             pausedTime = 0.0
 
             //停止フラグをtrueに
-            stopFlg = true
+            //stopFlg = true
             
         }
         
@@ -907,6 +912,9 @@ class SolPlayer {
             do { try play() } catch { }
         } else {
             pause()
+            //ロック画面で再生時間が止まらないバグ対応 #74
+            //do { try session.setActive(false) } catch { }
+            
             //remoteOffset
             //audioPlayerNode.stop()    //stopしても意味ない
         }

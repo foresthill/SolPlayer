@@ -383,8 +383,16 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         solPlayer.playlist = solPlayer.editPlaylist
         solPlayer.number = indexPath.row
         
+        solPlayer.playlist.forEach {
+            print("\($0.title)")
+        }
+        
+        //print("playlist=\(solPlayer.playlist)")
+        
         do {
             solPlayer.stop()
+            print("これから再生する曲は…\(solPlayer.song.title)")
+            print("indexPath.row = \(indexPath.row)")
             try solPlayer.play()
         } catch {
             
@@ -449,14 +457,19 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         
         //現在のプレイリストに適用（なんか違う？） #64, #81
         if(solPlayer.mainPlaylist == solPlayer.subPlaylist){
-            solPlayer.playlist?.removeAtIndex(sourceIndexPath.row)
-            solPlayer.playlist?.insert(targetSong, atIndex: destinationIndexPath.row)
+            //solPlayer.playlist?.removeAtIndex(sourceIndexPath.row)
+            //solPlayer.playlist?.insert(targetSong, atIndex: destinationIndexPath.row)
+            
+            //曲順の管理 #101
+            solPlayer.playlist = solPlayer.editPlaylist
             
             //曲順も変更する（2016/06/22）
             if(solPlayer.number == sourceIndexPath.row){
                 solPlayer.number = destinationIndexPath.row
             }
         }
+        
+        tableView.reloadData()
 
     }
     
