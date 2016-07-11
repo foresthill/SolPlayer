@@ -435,6 +435,10 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         //現在のプレイリストに適用（なんか違う？） #64, #81
         if(solPlayer.mainPlaylist == solPlayer.subPlaylist){
             solPlayer.playlist?.removeAtIndex(indexPath.row)
+            //曲順と見た目を合わせる #101
+            if indexPath.row < solPlayer.number {
+                solPlayer.number = solPlayer.number - 1
+            }
         }
         
         //それからテーブルの更新
@@ -459,19 +463,26 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         solPlayer.editPlaylist?.insert(targetSong, atIndex: destinationIndexPath.row)
         
         //現在のプレイリストに適用（なんか違う？） #64, #81
-        if(solPlayer.mainPlaylist == solPlayer.subPlaylist){
-            //solPlayer.playlist?.removeAtIndex(sourceIndexPath.row)
-            //solPlayer.playlist?.insert(targetSong, atIndex: destinationIndexPath.row)
+        if solPlayer.mainPlaylist == solPlayer.subPlaylist {
+            solPlayer.playlist?.removeAtIndex(sourceIndexPath.row)
+            solPlayer.playlist?.insert(targetSong, atIndex: destinationIndexPath.row)
             
             //曲順の管理 #101
-            solPlayer.playlist = solPlayer.editPlaylist
+            //solPlayer.playlist = solPlayer.editPlaylist
             
-            //曲順も変更する（2016/06/22）
-            if(solPlayer.number == sourceIndexPath.row){
+            //曲順も変更する（2016/06/22）#101
+            if solPlayer.number == sourceIndexPath.row {
+                //再生中の曲を移動する
                 solPlayer.number = destinationIndexPath.row
+            } else if sourceIndexPath.row < solPlayer.number && solPlayer.number <= destinationIndexPath.row {
+                //再生中の曲の前から後に移動する
+                solPlayer.number = solPlayer.number - 1
+            } else if sourceIndexPath.row > solPlayer.number && solPlayer.number >= destinationIndexPath.row {
+                //再生中の曲の後から前に移動する
+                solPlayer.number = solPlayer.number + 1
             }
         }
-        
+        //tableviewの更新（アイコンを更新する）
         tableView.reloadData()
 
     }

@@ -634,7 +634,6 @@ class SolPlayer {
             }
             
         }
-        
         //player起動
         startPlayer()
         
