@@ -391,8 +391,11 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         
         do {
             solPlayer.stop()
-            print("これから再生する曲は…\(solPlayer.song.title)")
-            print("indexPath.row = \(indexPath.row)")
+            //デバッグ（下３行）
+            if solPlayer.song != nil {
+                print("これから再生する曲は…\(solPlayer.song.title)")
+                print("indexPath.row = \(indexPath.row)")
+            }
             try solPlayer.play()
         } catch {
             

@@ -221,8 +221,10 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         timer = nil
         //SolPlayer停止処理
         solPlayer.stop()
+        
         //停止フラグをtrueに
-        solPlayer.stopFlg = true
+        //solPlayer.stopFlg = true
+        
         //スライダーを使用不可に（暫定対応）
         timeSlider.enabled = false
         //ラベル更新

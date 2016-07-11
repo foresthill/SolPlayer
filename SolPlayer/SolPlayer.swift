@@ -612,8 +612,14 @@ class SolPlayer {
                 //if(mainPlaylist != subPlaylist){
                     //選択されたプレイリストを読込
                     //print("読みなおす")
-                    playlist = try loadPlayList(self.subPlaylist.id)
+                
+                if playlist == nil {
                     mainPlaylist = subPlaylist
+                }
+                
+                //playlist = try loadPlayList(self.subPlaylist.id)
+                playlist = try loadPlayList(self.mainPlaylist.id)
+                
                 //}
                 
                 //音源ファイルを読み込む
@@ -703,7 +709,7 @@ class SolPlayer {
             pausedTime = 0.0
 
             //停止フラグをtrueに
-            //stopFlg = true
+            stopFlg = true
             
         }
         
