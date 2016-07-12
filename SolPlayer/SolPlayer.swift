@@ -55,6 +55,9 @@ class SolPlayer {
     //リモートで操作された時
     var remoteOffset = 0.0
     
+    //再生時間（急に落ちた時などのエラーハンドリングとして）
+    var currentTime = 0.0
+    
     //ユーザ設定値
     var config = NSUserDefaults.standardUserDefaults()
     
@@ -575,12 +578,13 @@ class SolPlayer {
             if(nodeTime == nil){
                 stop()
                 //TODO: 抜き差しされた時の時間remoteOffsetを持っておく
+                remoteOffset = currentTime
                 return 0
             }
             
             //便宜上分かりやすく書いてみる
             let playerTime = audioPlayerNode.playerTimeForNodeTime(nodeTime!)
-            let currentTime = (Double(playerTime!.sampleTime) / sampleRate)
+            currentTime = (Double(playerTime!.sampleTime) / sampleRate)
             
             return (Float)(currentTime + offset)
             
@@ -605,8 +609,8 @@ class SolPlayer {
     func play() throws {
  
         //初回再生時あるいは再読込時
-        if stopFlg {
- 
+        //if stopFlg {
+        if(!audioPlayerNode.playing){
             do {
                 //再生するプレイリストを更新 #64,#81
                 //if(mainPlaylist != subPlaylist){
@@ -615,11 +619,9 @@ class SolPlayer {
                 
                 if playlist == nil {
                     mainPlaylist = subPlaylist
+                    //playlist = try loadPlayList(self.subPlaylist.id)
+                    playlist = try loadPlayList(self.mainPlaylist.id)
                 }
-                
-                //playlist = try loadPlayList(self.subPlaylist.id)
-                playlist = try loadPlayList(self.mainPlaylist.id)
-                
                 //}
                 
                 //音源ファイルを読み込む
@@ -820,9 +822,21 @@ class SolPlayer {
             throw AppError.NoSongError
         }
         
+        print("duration=\(duration)")
+        
+        //一般の再生プレイヤーの挙動に合わせる（ある程度進んだら、「戻る」ボタンで曲のアタマへ）
+        if(currentPlayTime() > 3.0) {
+            do {
+                stop()
+                try play()
+                return
+            } catch {
+            }
+        }
+        
+        //前の曲へ戻っていく（再生可能な曲に届くまで繰り返す）
         while number > 0 {
             number = number - 1
-            
             do {
                 stop()
                 try play()

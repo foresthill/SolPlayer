@@ -378,7 +378,7 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
 //            solPlayer.number = indexPath.row
 //        }
         
-        //タップされた曲を再生する @since 1.1
+        //タップされた曲を再生する @since v1.1
         solPlayer.mainPlaylist = solPlayer.subPlaylist
         solPlayer.playlist = solPlayer.editPlaylist
         solPlayer.number = indexPath.row
