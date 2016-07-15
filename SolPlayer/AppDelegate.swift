@@ -120,6 +120,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         SolPlayer.sharedManager.remoteControlReceivedWithEvent(event)
     }
     
+    /** ヘッドフォン（Bluetooth）が抜き差しされた時のイベント */
+    
+    
     /*どうしろと。
     func remoteControlReceivedWithEvent(receivedEvent: UIEvent){
         SolPlayer.sharedManager.remoteControlReceivedWithEvent(receivedEvent)

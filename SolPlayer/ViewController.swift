@@ -17,7 +17,6 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
     @IBOutlet weak var stopButton: UIButton!
     @IBOutlet weak var repeatButton: UIButton!
     
-    //@IBOutlet weak var solSwitch: UISwitch!
     @IBOutlet weak var solButton: UIButton!
     
     @IBOutlet weak var titleLabel: UILabel!
@@ -30,7 +29,6 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
 
     @IBOutlet weak var speedSlider: UISlider!
     @IBOutlet weak var speedLabel: UILabel!
-//    @IBOutlet weak var speedSegment: UISegmentedControl!
     @IBOutlet weak var speedButton: CustomButton!
     
     @IBOutlet weak var playlistLabel: UILabel!
@@ -81,11 +79,10 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         //NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.viewWillAppear), name: AVAudioSessionInterruptionNotification, object: UIApplication.sharedApplication())
         
         //ヘッドフォン等の状態を取得する
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.audioSessionRouteChange), name: AVAudioSessionRouteChangeNotification, object: UIApplication.sharedApplication())
+//        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.audioSessionRouteChange), name: AVAudioSessionRouteChangeNotification, object: UIApplication.sharedApplication())
         
         //ロック・スリープ復帰時に画面を更新する
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.viewWillAppear), name: UIApplicationWillEnterForegroundNotification, object: UIApplication.sharedApplication())
-
     }
     
     /**
@@ -507,9 +504,13 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
     }
     
     /** ヘッドフォンが挿入された時（Bluetoothの時も行ける？）*/
+    /** 現在未使用
     func audioSessionRouteChange(notification: NSNotification) {
+        print(notification)
         if let userInfos = notification.userInfo {
+            print(userInfos)
             if let type: AnyObject = userInfos["AVAudioSessionRouteChangeReasonKey"] {
+                print(type)
                 if type is NSNumber {
                     if type.unsignedLongValue == AVAudioSessionRouteChangeReason.NewDeviceAvailable.rawValue{
                         print("NewDeviceAvailable")
@@ -540,6 +541,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
             }
         }
     }
+    **/
 
     
     /** この画面が表示される時に項目を更新する*/

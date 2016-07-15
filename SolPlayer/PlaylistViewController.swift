@@ -86,21 +86,16 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         let addAction = UIAlertAction(title: "作成", style: .Default){(action: UIAlertAction!) -> Void in
             //入力したテキストをコンソールに表示
             let textField = alert.textFields![0] as UITextField
-            //print(textField)
             
             if(textField.text?.lengthOfBytesUsingEncoding(NSUTF8StringEncoding) > 0){
                 //永続化処理
                 do {
                     //新規作成されたプレイリストをCoreDataに保存
                     let name = textField.text
-                    //let id:Int = try self.solPlayer.newPlayList(name!)
-//                    let id = try self.solPlayer.newPlayList(name!)
                     let id:String = try self.solPlayer.newPlayList(name!)
                     
-                    //
+                    //プレイリスト一覧に追加
                     self.solPlayer.allPlaylists.append((id, name!))
-                    
-                    //print(self.solPlayer.allPlaylists)
                     
                     alert = UIAlertController(title: "作成完了", message: "プレイリストを作成しました。", preferredStyle: UIAlertControllerStyle.Alert)
                     
@@ -119,7 +114,6 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
                 self.presentViewController(alert, animated: true, completion: nil)
                 
             } else {
-                //print("未入力です")
                 alert = UIAlertController(title: "作成失敗", message: "プレイリスト名を入力してください。", preferredStyle: UIAlertControllerStyle.Alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
                     (action: UIAlertAction!) -> Void in
@@ -170,8 +164,6 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
                     try self.solPlayer.removePlaylist(playlistId)
                     //表示されているプレイリストを削除
                     self.solPlayer.allPlaylists.removeAtIndex(selectedRow)
-                    
-                    //print("プレイリス→\(self.solPlayer.allPlaylists)")
                     
                     alert = UIAlertController(title: "削除完了", message: "プレイリストを削除しました。", preferredStyle: UIAlertControllerStyle.Alert)
 
@@ -325,18 +317,13 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         cell.backgroundColor = UIColor.clearColor() //背景色を透明に
         
         //フォント
-        //var font: UIFont = UIFont(name: "Hiragino Kaku Gothic ProN", size: 16.0)!
         var font: UIFont = UIFont(name: "Helvetica Neue", size: 16.0)!
         font = UIFont.systemFontOfSize(16.0, weight: UIFontWeightLight)
-        
-        //cell.textLabel?.font = UIFont(name: "System Light", size: 13.0)
-        //UIFont.systemFontOfSize(<#T##fontSize: CGFloat##CGFloat#>, weight: <#T##CGFloat#>)
         
         cell.textLabel?.font = font
         
         font = UIFont(name: "Helvetica Neue", size: 11.0)!
         font = UIFont.systemFontOfSize(11.0, weight: UIFontWeightLight)
-        //cell.detailTextLabel?.font = UIFont(name: "Helvetica Neue Light", size: 8.0)
         
         cell.detailTextLabel?.font = font
         
@@ -351,7 +338,6 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
             
         if (indexPath.row == solPlayer.number) && solPlayer.mainPlaylist == solPlayer.subPlaylist {
             //再生中の場合はアイコン表示
-            //cell.imageView?.image = UIImage(named: "play40.png")
             cell.imageView?.image = UIImage(named: "speeker.png")
             
         } else {
@@ -372,41 +358,22 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
      tableView用メソッド（3.タップ時のメソッド）
      */
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        
-        // タッチされたセルの曲を再生待ちに
-//        if(solPlayer.mainPlaylist == solPlayer.subPlaylist){
-//            solPlayer.number = indexPath.row
-//        }
-        
         //タップされた曲を再生する @since v1.1
         solPlayer.mainPlaylist = solPlayer.subPlaylist
         solPlayer.playlist = solPlayer.editPlaylist
         solPlayer.number = indexPath.row
         
-        solPlayer.playlist.forEach {
-            print("\($0.title)")
-        }
-        
-        //print("playlist=\(solPlayer.playlist)")
-        
         do {
             solPlayer.stop()
-            //デバッグ（下３行）
-            if solPlayer.song != nil {
-                print("これから再生する曲は…\(solPlayer.song.title)")
-                print("indexPath.row = \(indexPath.row)")
-            }
             try solPlayer.play()
         } catch {
             
         }
-        
         //選択を解除しておく
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
         
         //tableViewを更新
         tableView.reloadData()
-        
     }
     
     /**
@@ -440,7 +407,6 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
                 solPlayer.number = solPlayer.number - 1
             }
         }
-        
         //それからテーブルの更新
         tableView.deleteRowsAtIndexPaths([NSIndexPath(forRow: indexPath.row, inSection: 0)], withRowAnimation: UITableViewRowAnimation.Fade)
     }
@@ -502,16 +468,7 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     }
     
     /**
-     UIPicker用メソッド（3.表示内容）
-
-    func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        //TODO:これでいいんだっけ？列順とIDが異なる可能性もあるが。。
-        return solPlayer.allPlaylists[row].name
-    }
-      */
-    
-    /**
-     UIPicker用メソッド（4.表示内容＋デザイン）
+     UIPicker用メソッド（3.表示内容＋デザイン）
      */
     func pickerView(pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusingView view: UIView?) -> UIView {
         
@@ -540,7 +497,6 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
             //現在の状態を保存
             try solPlayer.updatePlayList(solPlayer.subPlaylist.id)
             //選択されたプレイリストを読込
-            //print("ID:\(solPlayer.allPlaylists[row].id), name:\(solPlayer.allPlaylists[row].name)のプレイリストを読み込む")
             solPlayer.editPlaylist = try solPlayer.loadPlayList(solPlayer.allPlaylists[row].id)
             //待機中（サブ）のプレイリストを最新状態に変更　※再生中（メイン）のプレイリストへは「停止」時に読み込み
             solPlayer.subPlaylist = solPlayer.allPlaylists[row]
