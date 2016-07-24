@@ -765,8 +765,8 @@ Cg
                                     <constraint firstItem="7Jz-dn-Lce" firstAttribute="centerX" secondItem="z2B-m5-fIF" secondAttribute="centerX" id="pzf-np-aCx"/>
                                 </constraints>
                             </stackView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="しおりモード" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="W7H-Qo-YpO">
-                                <rect key="frame" x="20" y="282" width="102" height="20.5"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="しおり（レジューム再生）機能" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="W7H-Qo-YpO">
+                                <rect key="frame" x="20" y="282" width="238" height="21"/>
                                 <fontDescription key="fontDescription" type="system" weight="light" pointSize="17"/>
                                 <color key="textColor" name="highlightColor" catalog="System" colorSpace="catalog"/>
                                 <nil key="highlightedColor"/>
@@ -790,18 +790,11 @@ Cg
                                 </attributedString>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="DOB-22-jeS">
-                                <rect key="frame" x="500" y="282" width="80" height="29"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="80" id="bza-pe-xFL"/>
-                                </constraints>
-                                <segments>
-                                    <segment title="On"/>
-                                    <segment title="Off"/>
-                                </segments>
-                            </segmentedControl>
-                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6f3-WR-YVs">
-                                <rect key="frame" x="510" y="386" width="51" height="31"/>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="6f3-WR-YVs">
+                                <rect key="frame" x="531" y="282" width="51" height="31"/>
+                                <connections>
+                                    <action selector="redumeSwitchChange:" destination="5M1-io-k7w" eventType="valueChanged" id="Qbx-MB-ZMU"/>
+                                </connections>
                             </switch>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -813,22 +806,22 @@ Cg
                             <constraint firstItem="ZeR-Rc-hcS" firstAttribute="leading" secondItem="spU-xl-JAU" secondAttribute="leadingMargin" id="LaA-1w-pm7"/>
                             <constraint firstAttribute="trailing" secondItem="z2B-m5-fIF" secondAttribute="trailing" id="Oud-g3-GYz"/>
                             <constraint firstItem="ZeR-Rc-hcS" firstAttribute="top" secondItem="9uy-Lk-Dgz" secondAttribute="bottom" constant="60" id="QXm-DL-OCT"/>
-                            <constraint firstItem="DOB-22-jeS" firstAttribute="trailing" secondItem="q95-Tm-LMA" secondAttribute="trailing" id="WI4-Mb-0nx"/>
                             <constraint firstItem="CfI-Yc-5OG" firstAttribute="centerY" secondItem="spU-xl-JAU" secondAttribute="centerY" id="Yw1-L3-9hE"/>
                             <constraint firstItem="CfI-Yc-5OG" firstAttribute="centerX" secondItem="spU-xl-JAU" secondAttribute="centerX" id="c19-h6-w9n"/>
                             <constraint firstItem="z2B-m5-fIF" firstAttribute="leading" secondItem="spU-xl-JAU" secondAttribute="leading" id="ccU-FS-hgf"/>
                             <constraint firstItem="W7H-Qo-YpO" firstAttribute="leading" secondItem="spU-xl-JAU" secondAttribute="leadingMargin" id="cnu-YS-veV"/>
                             <constraint firstItem="WJd-nl-nJR" firstAttribute="top" secondItem="BBh-Li-tB5" secondAttribute="bottom" constant="50" id="jLF-lG-o5p"/>
                             <constraint firstItem="WJd-nl-nJR" firstAttribute="leading" secondItem="spU-xl-JAU" secondAttribute="leadingMargin" id="luq-XZ-2G5"/>
-                            <constraint firstItem="DOB-22-jeS" firstAttribute="top" secondItem="W7H-Qo-YpO" secondAttribute="top" id="mfV-hq-HWE"/>
                             <constraint firstAttribute="trailingMargin" secondItem="q95-Tm-LMA" secondAttribute="trailing" id="pbP-dW-1mr"/>
+                            <constraint firstItem="6f3-WR-YVs" firstAttribute="trailing" secondItem="q95-Tm-LMA" secondAttribute="trailing" id="sj6-Ay-HzK"/>
                             <constraint firstItem="BBh-Li-tB5" firstAttribute="top" secondItem="q95-Tm-LMA" secondAttribute="bottom" constant="15" id="x8M-bV-BFW"/>
                             <constraint firstItem="q95-Tm-LMA" firstAttribute="top" secondItem="9uy-Lk-Dgz" secondAttribute="bottom" constant="60" id="xeO-hx-SX5"/>
+                            <constraint firstItem="6f3-WR-YVs" firstAttribute="top" secondItem="W7H-Qo-YpO" secondAttribute="top" id="zei-7D-iLg"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="amW-Ny-ozT"/>
                     <connections>
-                        <outlet property="resumeSegment" destination="DOB-22-jeS" id="1up-ns-Tx9"/>
+                        <outlet property="resumeSwitch" destination="6f3-WR-YVs" id="ZdZ-HN-MfW"/>
                         <outlet property="solModeSegment" destination="q95-Tm-LMA" id="7bR-UO-S8z"/>
                     </connections>
                 </viewController>

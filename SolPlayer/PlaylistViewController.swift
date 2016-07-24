@@ -69,9 +69,17 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         } catch {
         }
         
-        //表示
+        //PickerView表示
         playListPicker.delegate = self
         playListPicker.dataSource = self
+        
+        //NSUserDefaultからとってきたID選択 #103
+        for (index, element) in solPlayer.allPlaylists.enumerate() {
+            if solPlayer.subPlaylist.id == element.id {
+                self.playListPicker.selectRow(index, inComponent: 0, animated: true)
+                break
+            }
+        }
         
         //allPlaylists = [(0,"default")]
         

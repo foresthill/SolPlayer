@@ -710,14 +710,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Naoya Morioka (M836YTN2FQ)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Naoya Morioka (M836YTN2FQ)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Naoya Morioka (4J9PHT6FW9)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Naoya Morioka (4J9PHT6FW9)";
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				INFOPLIST_FILE = SolPlayer/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = jp.foresthill.SolPlayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "014c4237-8ac8-44c8-b7cd-aad0af18c25f";
+				PROVISIONING_PROFILE = "d692d111-38d8-45b3-b3b8-e0bf672e3805";
 			};
 			name = Debug;
 		};
@@ -725,14 +725,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Naoya Morioka (M836YTN2FQ)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Naoya Morioka (M836YTN2FQ)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Naoya Morioka (4J9PHT6FW9)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Naoya Morioka (4J9PHT6FW9)";
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				INFOPLIST_FILE = SolPlayer/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = jp.foresthill.SolPlayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "014c4237-8ac8-44c8-b7cd-aad0af18c25f";
+				PROVISIONING_PROFILE = "d692d111-38d8-45b3-b3b8-e0bf672e3805";
 			};
 			name = Release;
 		};

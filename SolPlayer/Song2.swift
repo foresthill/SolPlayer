@@ -11,7 +11,8 @@ import MediaPlayer
 
 class Song2 {
     
-    /*あれ？独自クラス作らんでもMPMediaItemそのまま使えばよくね？？→軽量化の要件が出たら。→結局中身がよく分からんので作ることに。*/
+    /*あれ？独自クラス作らんでもMPMediaItemそのまま使えばよくね？？→軽量化の要件が出たら。→結局中身がよく分からんので作ることに。
+     →いやMPMediaItemでいけた（2016/05）→再生時間の保存などもしたいので独自クラスで。（2016/07/24）*/
     
     /** 曲名 */
     var title: String?
@@ -34,7 +35,7 @@ class Song2 {
     var discNumber: String?
     /** メディアの種類 */
     var mediaType: String?
-    /** 現在の再生時間（しおり機能） @since ver2.0 */
+    /** 現在の再生時間→しおり（レジューム）機能で使用 @since ver2.0 */
     var playTime: Double?
     /** リピート再生開始（区間リピート） @since ver2.0 */
     var repeatStart: Double?

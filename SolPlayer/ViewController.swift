@@ -59,6 +59,9 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         solPlayer = SolPlayer.sharedManager
         
         /* 初期化処理 */
+        
+        //表示を初期化
+        setScreen(true)
 
         //スライダーを操作不能に #72
         timeSlider.enabled = false
@@ -130,12 +133,13 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
     func setScreen(values: Bool) {
         
         if values {
-            //プレイヤーラベルを設定
-            let song = solPlayer.song
-            titleLabel.text = song.title ?? "Untitled"
-            artistLabel.text = song.artist ?? "Unknown Artist"
-            endTimeLabel.text = formatTimeString(Float(solPlayer.duration)) ?? "-99:99:99"
-            artworkImage.image = song.artwork?.imageWithSize(CGSize.init(width: 50, height: 50)) ?? nil
+            //プレイヤーラベルを設定 #103
+            if let song = solPlayer.song {
+                titleLabel.text = song.title ?? "Untitled"
+                artistLabel.text = song.artist ?? "Unknown Artist"
+                endTimeLabel.text = formatTimeString(Float(solPlayer.duration)) ?? "-99:99:99"
+                artworkImage.image = song.artwork?.imageWithSize(CGSize.init(width: 50, height: 50)) ?? nil
+            }
             
             //スライダーを操作可能に #72
             timeSlider.enabled = true

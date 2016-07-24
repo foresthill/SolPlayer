@@ -12,8 +12,10 @@ class UserConfigViewController: UIViewController {
     
     @IBOutlet weak var solModeSegment: UISegmentedControl!
     
-    @IBOutlet weak var resumeSegment: UISegmentedControl!
-    //ユーザ設定（コンフィグ）管理クラス呼び出し（シングルトン）
+    //@IBOutlet weak var resumeSegment: UISegmentedControl!
+    @IBOutlet weak var resumeSwitch: UISwitch!
+    
+    //UserConfigManagerクラス呼び出し（シングルトン）
     let userConfigManager: UserConfigManager! = UserConfigManager.sharedManager
     
     override func viewDidLoad() {
@@ -23,7 +25,10 @@ class UserConfigViewController: UIViewController {
         //solMode設定
         solModeSegment.selectedSegmentIndex = userConfigManager.solMode - 1
         
-        // イトルの設定
+        //しおりMode
+        resumeSwitch.on = userConfigManager.isRedume
+        
+        //タイトルの設定
         self.navigationItem.title = "設定"
         //self.navigationController!.navigationBar.barTintColor = UIColor.init(colorLiteralRed: 1.0, green: 0.0, blue: 0.0, alpha: 0.6)
         self.navigationController!.navigationBar.barTintColor = UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.1)
@@ -31,11 +36,19 @@ class UserConfigViewController: UIViewController {
         //self.navigationItem.prompt = ""
         
     }
+    
+    /** ソルフェジオモードが変更された時 */
     @IBAction func solModeChange(sender: UISegmentedControl) {
         //ユーザ設定に保存
         userConfigManager.setSolMode(solModeSegment.selectedSegmentIndex + 1)
     }
 
+    /** しおり（レジューム機能）が変更された時 */
+    @IBAction func redumeSwitchChange(sender: AnyObject) {
+        //ユーザ設定に保存
+        userConfigManager.setIsRedume(resumeSwitch.on)
+    }
+    
     //「戻る」ボタン押下時に呼ばれるメソッド
     override func viewWillDisappear(animated: Bool) {
         //

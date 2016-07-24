@@ -62,16 +62,16 @@ class SolPlayer {
     var editPlaylist:[MPMediaItem]!
     
     //再生中の曲番号
-    var number: Int! = 0
+    var number: Int!
     
     //プレイリストのリスト。#64
     var allPlaylists:[(id: String, name: String)]!
     
-    //メイン（再生中）のプレイリスト名 #64, #81
-    var mainPlaylist: (id: String, name: String) = ("0", "default")
+    //メイン（再生中）のプレイリスト名 #64, #81, #103
+    var mainPlaylist: (id: String, name: String)!
     
     //サブ（待機中）のプレイリスト名 #64, #81
-    var subPlaylist: (id: String, name: String) = ("0", "default")
+    var subPlaylist: (id: String, name: String)!
     
     //停止フラグ（プレイリストの再読み込みなど）
     var stopFlg = true
@@ -119,9 +119,16 @@ class SolPlayer {
         //画面ロック時の曲情報を持つインスタンス
         //var defaultCenter = MPNowPlayingInfoCenter.defaultCenter()
         
-        //defaultのプレイリストを読み込み
+        //曲順を読み込み #103
+        number = userConfigManager.getRedumeNumber()
+        
+        //プレイリスト情報を読み込み #103
+        mainPlaylist = userConfigManager.getRedumePlaylist()
+        subPlaylist = mainPlaylist
+        
+        //defaultのプレイリストを読み込み→UserDefaultsに保存されたプレイリストIDを読み込み #103（2016/07/24）
         do {
-            playlist = try loadPlayList("0")
+            playlist = try loadPlayList(mainPlaylist.id)
         } catch {
             
         }
@@ -132,6 +139,9 @@ class SolPlayer {
         } catch {
             
         }
+        
+        //曲情報を読み込む #103
+        do{ try readAudioFile() } catch { }
         
         //画面ロック時のアクションを取得する
         UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
@@ -879,4 +889,9 @@ class SolPlayer {
         }
     }
     
+    /** アプリ終了時の処理 */
+    func applicationWillTerminate() {
+        userConfigManager.setRedumeNumber(number)
+        userConfigManager.setRedumePlaylist(mainPlaylist)
+    }
 }
