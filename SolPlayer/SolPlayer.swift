@@ -17,9 +17,7 @@ import CoreData
  */
 class SolPlayer {
     
-    /**
-     シングルトン
-     */
+    //シングルトン
     static let sharedManager = SolPlayer()
     
     //AVKit
@@ -30,9 +28,6 @@ class SolPlayer {
     //エフェクトを外出し（2016/06/03）
     var reverbEffect: AVAudioUnitReverb! = AVAudioUnitReverb()
     var timePitch: AVAudioUnitTimePitch! = AVAudioUnitTimePitch()
-    
-    //ソルフェジオのモード（ver1:440→444Hz、ver2:440→432Hz）
-    var solMode:Int! = 1
     
     //ソルフェジオSwitchの画像
     var solSwitchImage: UIImage!
@@ -57,9 +52,6 @@ class SolPlayer {
     
     //再生時間（急に落ちた時などのエラーハンドリングとして）
     var currentTime = 0.0
-    
-    //ユーザ設定値
-    var config = NSUserDefaults.standardUserDefaults()
     
     //再生中のプレイリスト（ViewController）
     //var playlist: [Song]! = nil
@@ -104,6 +96,9 @@ class SolPlayer {
     let SONG = "Song"
     let PLAYLIST = "Playlist"
     
+    //ユーザ設定（コンフィグ）管理クラス呼び出し（シングルトン）
+    let userConfigManager: UserConfigManager! = UserConfigManager.sharedManager
+    
     /**
      初期処理（シングルトンクラスのため外部からのアクセス禁止）
      */
@@ -123,15 +118,6 @@ class SolPlayer {
         
         //画面ロック時の曲情報を持つインスタンス
         //var defaultCenter = MPNowPlayingInfoCenter.defaultCenter()
-        
-        //設定値を取得する
-        config = NSUserDefaults.standardUserDefaults()
-        
-        //ソルフェジオモード
-        let defaultConfig = config.objectForKey("solMode")
-        if(defaultConfig != nil){
-            solMode = defaultConfig as! Int
-        }
         
         //defaultのプレイリストを読み込み
         do {
@@ -687,14 +673,8 @@ class SolPlayer {
      */
     func pitchChange(solSwitch: Bool){
         
-        //設定値を取得する
-        let result = config.objectForKey("solMode")
-        if(result != nil){
-            solMode = result as! Int
-        }
-        
         if(solSwitch){
-            switch solMode {
+            switch userConfigManager.solMode {
             case 1:
                 timePitch.pitch = 15.66738339053706   //17:440Hz→444.34Hz 16:440Hz→444.09Hz
                 break

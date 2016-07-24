@@ -12,23 +12,18 @@ class UserConfigViewController: UIViewController {
     
     @IBOutlet weak var solModeSegment: UISegmentedControl!
     
-    //ユーザ設定保存用変数
-    var config: NSUserDefaults!
-
+    @IBOutlet weak var resumeSegment: UISegmentedControl!
+    //ユーザ設定（コンフィグ）管理クラス呼び出し（シングルトン）
+    let userConfigManager: UserConfigManager! = UserConfigManager.sharedManager
+    
     override func viewDidLoad() {
 
         super.viewDidLoad()
         
-        config = NSUserDefaults.standardUserDefaults()
+        //solMode設定
+        solModeSegment.selectedSegmentIndex = userConfigManager.solMode - 1
         
-        let defaultConfig = config.objectForKey("solMode")
-        
-        if(defaultConfig != nil){
-            solModeSegment.selectedSegmentIndex = (defaultConfig as! Int) - 1
-        
-        }
-        
-        // タイトルの設定
+        // イトルの設定
         self.navigationItem.title = "設定"
         //self.navigationController!.navigationBar.barTintColor = UIColor.init(colorLiteralRed: 1.0, green: 0.0, blue: 0.0, alpha: 0.6)
         self.navigationController!.navigationBar.barTintColor = UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.1)
@@ -38,7 +33,7 @@ class UserConfigViewController: UIViewController {
     }
     @IBAction func solModeChange(sender: UISegmentedControl) {
         //ユーザ設定に保存
-        config.setObject(solModeSegment.selectedSegmentIndex + 1, forKey: "solMode")
+        userConfigManager.setSolMode(solModeSegment.selectedSegmentIndex + 1)
     }
 
     //「戻る」ボタン押下時に呼ばれるメソッド

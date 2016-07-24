@@ -3,6 +3,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
@@ -740,7 +741,7 @@ Cg
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="z2B-m5-fIF">
-                                <rect key="frame" x="0.0" y="300" width="600" height="200"/>
+                                <rect key="frame" x="0.0" y="500" width="600" height="50"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="2016 foresthill" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7Jz-dn-Lce">
                                         <rect key="frame" x="0.0" y="0.0" width="600" height="20"/>
@@ -752,30 +753,74 @@ Cg
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" text="Please tell us in the review if you have any idea for the app." textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="KXe-2H-iS3">
-                                        <rect key="frame" x="0.0" y="20" width="600" height="180"/>
+                                        <rect key="frame" x="0.0" y="20" width="600" height="30"/>
                                         <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                     </textView>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="200" id="3sU-gj-Imc"/>
+                                    <constraint firstAttribute="height" constant="50" id="3sU-gj-Imc"/>
                                     <constraint firstItem="7Jz-dn-Lce" firstAttribute="top" secondItem="z2B-m5-fIF" secondAttribute="top" id="alk-nr-9zB"/>
                                     <constraint firstItem="7Jz-dn-Lce" firstAttribute="centerX" secondItem="z2B-m5-fIF" secondAttribute="centerX" id="pzf-np-aCx"/>
                                 </constraints>
                             </stackView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="しおりモード" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="W7H-Qo-YpO">
+                                <rect key="frame" x="20" y="282" width="102" height="20.5"/>
+                                <fontDescription key="fontDescription" type="system" weight="light" pointSize="17"/>
+                                <color key="textColor" name="highlightColor" catalog="System" colorSpace="catalog"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" usesAttributedText="YES" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WJd-nl-nJR">
+                                <rect key="frame" x="20" y="317" width="560" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="560" id="2wE-eP-LZ3"/>
+                                    <constraint firstAttribute="height" constant="30" id="TDG-pE-E3s"/>
+                                </constraints>
+                                <attributedString key="attributedText">
+                                    <fragment content="曲の再生時間を保持し、次回再生時に続きから再生できるようにします。">
+                                        <attributes>
+                                            <color key="NSBackgroundColor" red="0.96636618589743595" green="0.96636618589743595" blue="0.96636618589743595" alpha="0.0" colorSpace="calibratedRGB"/>
+                                            <color key="NSColor" red="0.38908253205128207" green="0.38251655483157376" blue="0.38285821878976056" alpha="1" colorSpace="calibratedRGB"/>
+                                            <font key="NSFont" size="12" name="HiraginoSans-W3"/>
+                                            <font key="NSOriginalFont" size="12" name="HelveticaNeue"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                        </attributes>
+                                    </fragment>
+                                </attributedString>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="DOB-22-jeS">
+                                <rect key="frame" x="500" y="282" width="80" height="29"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="80" id="bza-pe-xFL"/>
+                                </constraints>
+                                <segments>
+                                    <segment title="On"/>
+                                    <segment title="Off"/>
+                                </segments>
+                            </segmentedControl>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6f3-WR-YVs">
+                                <rect key="frame" x="510" y="386" width="51" height="31"/>
+                            </switch>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="trailingMargin" secondItem="BBh-Li-tB5" secondAttribute="trailing" id="00q-2E-ITh"/>
+                            <constraint firstItem="W7H-Qo-YpO" firstAttribute="top" secondItem="BBh-Li-tB5" secondAttribute="bottom" constant="15" id="2xb-x8-0pN"/>
                             <constraint firstItem="BBh-Li-tB5" firstAttribute="leading" secondItem="ZeR-Rc-hcS" secondAttribute="leading" id="3rc-G1-3ex"/>
-                            <constraint firstItem="z2B-m5-fIF" firstAttribute="top" secondItem="spU-xl-JAU" secondAttribute="topMargin" constant="300" id="LHC-Zq-yHB"/>
+                            <constraint firstItem="z2B-m5-fIF" firstAttribute="bottom" secondItem="spU-xl-JAU" secondAttribute="baseline" constant="-50" id="LHC-Zq-yHB"/>
                             <constraint firstItem="ZeR-Rc-hcS" firstAttribute="leading" secondItem="spU-xl-JAU" secondAttribute="leadingMargin" id="LaA-1w-pm7"/>
                             <constraint firstAttribute="trailing" secondItem="z2B-m5-fIF" secondAttribute="trailing" id="Oud-g3-GYz"/>
                             <constraint firstItem="ZeR-Rc-hcS" firstAttribute="top" secondItem="9uy-Lk-Dgz" secondAttribute="bottom" constant="60" id="QXm-DL-OCT"/>
+                            <constraint firstItem="DOB-22-jeS" firstAttribute="trailing" secondItem="q95-Tm-LMA" secondAttribute="trailing" id="WI4-Mb-0nx"/>
                             <constraint firstItem="CfI-Yc-5OG" firstAttribute="centerY" secondItem="spU-xl-JAU" secondAttribute="centerY" id="Yw1-L3-9hE"/>
                             <constraint firstItem="CfI-Yc-5OG" firstAttribute="centerX" secondItem="spU-xl-JAU" secondAttribute="centerX" id="c19-h6-w9n"/>
                             <constraint firstItem="z2B-m5-fIF" firstAttribute="leading" secondItem="spU-xl-JAU" secondAttribute="leading" id="ccU-FS-hgf"/>
+                            <constraint firstItem="W7H-Qo-YpO" firstAttribute="leading" secondItem="spU-xl-JAU" secondAttribute="leadingMargin" id="cnu-YS-veV"/>
+                            <constraint firstItem="WJd-nl-nJR" firstAttribute="top" secondItem="BBh-Li-tB5" secondAttribute="bottom" constant="50" id="jLF-lG-o5p"/>
+                            <constraint firstItem="WJd-nl-nJR" firstAttribute="leading" secondItem="spU-xl-JAU" secondAttribute="leadingMargin" id="luq-XZ-2G5"/>
+                            <constraint firstItem="DOB-22-jeS" firstAttribute="top" secondItem="W7H-Qo-YpO" secondAttribute="top" id="mfV-hq-HWE"/>
                             <constraint firstAttribute="trailingMargin" secondItem="q95-Tm-LMA" secondAttribute="trailing" id="pbP-dW-1mr"/>
                             <constraint firstItem="BBh-Li-tB5" firstAttribute="top" secondItem="q95-Tm-LMA" secondAttribute="bottom" constant="15" id="x8M-bV-BFW"/>
                             <constraint firstItem="q95-Tm-LMA" firstAttribute="top" secondItem="9uy-Lk-Dgz" secondAttribute="bottom" constant="60" id="xeO-hx-SX5"/>
@@ -783,6 +828,7 @@ Cg
                     </view>
                     <navigationItem key="navigationItem" id="amW-Ny-ozT"/>
                     <connections>
+                        <outlet property="resumeSegment" destination="DOB-22-jeS" id="1up-ns-Tx9"/>
                         <outlet property="solModeSegment" destination="q95-Tm-LMA" id="7bR-UO-S8z"/>
                     </connections>
                 </viewController>

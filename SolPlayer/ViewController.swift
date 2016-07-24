@@ -45,6 +45,9 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
     //中断される前の状態（再生中：true、停止中：false）
     var status = false
     
+    //ユーザ設定（コンフィグ）管理クラス呼び出し（シングルトン）
+    let userConfigManager: UserConfigManager! = UserConfigManager.sharedManager
+    
     /** 
      初期処理
      */
@@ -343,7 +346,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         //音源処理
         solPlayer.pitchChange(solButton.selected)
         //画像を差し替え
-        solButton.setImage(UIImage(named: "solSwitch1_on\(solPlayer.solMode).png"), forState: UIControlState.Selected)
+        solButton.setImage(UIImage(named: "solSwitch1_on\(userConfigManager.solMode).png"), forState: UIControlState.Selected)
     }
     
     /*
