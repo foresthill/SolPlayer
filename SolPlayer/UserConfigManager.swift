@@ -19,6 +19,9 @@ class UserConfigManager {
     //ソルフェジオのモード（ver1:440→444Hz、ver2:440→432Hz）
     var solMode:Int! = 1
     
+    //ソルフェジオモードかどうか
+    var isSolMode = false
+    
     //しおり（レジューム再生）機能
     var isRedume = false
     
@@ -55,6 +58,24 @@ class UserConfigManager {
         solMode = _solMode
         //NSUserDefaultsに格納する
         config.setObject(_solMode, forKey: "solMode")
+    }
+    
+    /** solModeかどうかをNSUserDefaultsにセットする */
+    func setIsSolMode(_isSolMode: Bool) {
+        isSolMode = _isSolMode
+        //NSUserDefaultsに格納する
+        config.setObject(_isSolMode, forKey: "isSolMode")
+    }
+    
+    /** solModeかどうかをNSUserDefaultsから取得する */
+    func getIsSolMode() -> Bool {
+        //プレイリスト名を取得
+        if let defaultConfig = config.objectForKey("isSolMode") {
+            isSolMode = defaultConfig as! Bool
+        } else {
+            isSolMode = false
+        }
+        return isSolMode
     }
     
     /** isRedumeをNSUserDefaultsにセットする */

@@ -14,6 +14,8 @@ class Song2 {
     /*あれ？独自クラス作らんでもMPMediaItemそのまま使えばよくね？？→軽量化の要件が出たら。→結局中身がよく分からんので作ることに。
      →いやMPMediaItemでいけた（2016/05）→再生時間の保存などもしたいので独自クラスで。（2016/07/24）*/
     
+    /** PersistenceID(PK) */
+    var persistentID: UInt64?
     /** 曲名 */
     var title: String?
     /** アセットURL */
@@ -49,6 +51,7 @@ class Song2 {
     }
     
     init(mediaItem: MPMediaItem){
+        self.persistentID = mediaItem.persistentID
         self.title = mediaItem.title
         //self.assetURL = mediaItem.assetURL
         self.assetURL = mediaItem.valueForProperty(MPMediaItemPropertyAssetURL) as? NSURL

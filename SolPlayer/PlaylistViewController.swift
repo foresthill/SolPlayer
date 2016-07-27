@@ -63,7 +63,8 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         
 
         //プレイリスト（メインとサブを分けたことにより）
-        solPlayer.editPlaylist = Array<MPMediaItem>()
+        //solPlayer.editPlaylist = Array<MPMediaItem>()
+        solPlayer.editPlaylist = Array<Song2>()
         do {
             solPlayer.editPlaylist = try self.solPlayer.loadPlayList(solPlayer.subPlaylist.id)
         } catch {
@@ -289,7 +290,8 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         //playlistにmediaItemを追加
         mediaItemCollection.items.forEach { (mediaItem) in
             //solPlayer.playlist?.append(Song(mediaItem: mediaItem))
-            solPlayer.editPlaylist.append(mediaItem)
+            //solPlayer.editPlaylist.append(mediaItem)
+            solPlayer.editPlaylist.append(Song2(mediaItem: mediaItem))
         }
         
         //ピッカーを閉じ、破棄する

@@ -61,7 +61,12 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         /* 初期化処理 */
         
         //表示を初期化
-        setScreen(true)
+        //setScreen(true)
+        
+        //solSwitchを初期化
+        if userConfigManager.getIsSolMode() {
+            solModeChange()
+        }
 
         //スライダーを操作不能に #72
         timeSlider.enabled = false
@@ -75,6 +80,17 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         //リモートイベントを取得（一旦コメントアウト）
         //addRemoteControlEvent()
         
+        //曲情報を読み込む（一瞬だけ曲を再生して停止する） #103
+         do {
+            try play()
+            if let playtime = solPlayer.song.playTime {
+                solPlayer.timeShift(Float(playtime))
+            }
+            pause()
+         } catch {
+         
+         }
+ 
         //ヘッドフォンの状態を取得するためにAVAudioSessionを用いる（意味ない？）
         do { try AVAudioSession.sharedInstance().setActive(true) } catch { }
         
@@ -105,7 +121,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
             setPlayLabel(solPlayer.audioPlayerNode.playing)
             
             if stopFlg {  //停止→再生（あるいは初回再生時）
-                //タイマーを新規で設定
+                //タイマーを新規で設定（2016/07/27→SolPlayerクラスに移動→戻し）
                 timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: #selector(ViewController.didEverySecondPassed), userInfo: nil, repeats: true)
                 setScreen(true)
                 //画面と再生箇所を同期をとる（停止時にいじられてもOKにする）
@@ -338,6 +354,18 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         }
     }
 
+    /** solSwitchを切り替える処理 */
+    func solModeChange() {
+        //ON/OFF切り替え
+        solButton.selected = !solButton.selected
+        //音源処理
+        solPlayer.pitchChange(solButton.selected)
+        //画像を差し替え
+        solButton.setImage(UIImage(named: "solSwitch1_on\(userConfigManager.solMode).png"), forState: UIControlState.Selected)
+        //UserDefaultsに保存
+        userConfigManager.setIsSolMode(solButton.selected)
+    }
+    
     /**
      solfeggioスイッチが押された時（Action→ValueChanged）
      ※UISwitchに画像がセットできないためUIButtonで同様の機能を実装
@@ -345,12 +373,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
      - parameter sender: UISwitch
      */
     @IBAction func solButtonAction(sender: UIButton) {
-        //ON/OFF切り替え
-        solButton.selected = !solButton.selected
-        //音源処理
-        solPlayer.pitchChange(solButton.selected)
-        //画像を差し替え
-        solButton.setImage(UIImage(named: "solSwitch1_on\(userConfigManager.solMode).png"), forState: UIControlState.Selected)
+        solModeChange()
     }
     
     /*
