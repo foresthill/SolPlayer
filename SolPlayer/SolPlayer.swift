@@ -300,9 +300,9 @@ class SolPlayer {
                     if(mediaItem.valueForKey("assetURL") != nil){
                         //retPlaylist.append(mediaItem)
                         let song2 = Song2(mediaItem: mediaItem)
-                        //再生時間を挿入 #103
+                        //再生時間をセット #103
                         song2.playTime = songObject.valueForKey("playTime") as? Double
-                        print(songObject.valueForKey("playTime"))
+                        //print(songObject.valueForKey("playTime"))
                         retPlaylist.append(song2)
                     }
                 }
@@ -318,10 +318,13 @@ class SolPlayer {
 
     }
     
-    /** CR"U"D:再生中の曲を更新（再生時間を保存する）#103 */
-    //func saveSong(mediaItem: MPMediaItem) throws {
-    //func saveSong(_song: Song2) throws {
-    func saveSong() throws {
+    /**
+     CR"U"D:再生中の曲を更新（再生時間を保存する）#103
+      - parameter isRedume（trueの場合は時間を保存、falseの場合は時間をリセット）
+     */
+    func saveSong(isRedume: Bool) throws {
+        //func saveSong(mediaItem: MPMediaItem) throws {
+        //func saveSong(_song: Song2) throws {
 
         //SONGエンティティに保存する
         //let entity = NSEntityDescription.entityForName(SONG, inManagedObjectContext: managedContext)
@@ -345,10 +348,22 @@ class SolPlayer {
                 for songObject:AnyObject in results {
                     //songObject = NSManagedObject(entity: entity!, insertIntoManagedObjectContext: managedContext)
                     let songModel = songObject as! Song
-                    songModel.playTime = currentPlayTime()
+                    
+                    if(isRedume){
+                        //trueの場合は時間を記録
+                        songModel.playTime = currentPlayTime()
+                    } else {
+                        //falseの場合は時間をリセット
+                        songModel.playTime = 0.0
+                    }
+                    
+                    //アプリ上の変数も更新（基本的には１回しか通らないはず） #103
+                    playlist[number].playTime = songModel.playTime as? Double
                 }
-                //更新
+    
+                //更新（永続化処理）
                 appDelegate.saveContext()
+                
             }
             
         } catch {
@@ -616,7 +631,7 @@ class SolPlayer {
     /**
      solPlayer再生処理
      
-     - parameter:なし
+     - parameter なし
      
      - throws: AppError.CantPlayError（音源ファイルの読み込みに失敗した時）
      
@@ -652,7 +667,6 @@ class SolPlayer {
         }
         //player起動
         startPlayer()
-        
     }
     
     /**
@@ -768,7 +782,7 @@ class SolPlayer {
     /**
      再生スピード変更処理
      
-     -parameter: speedSliderValue（画面の再生速度スライダーから）
+     - parameter speedSliderValue（画面の再生速度スライダーから）
      */
     func speedChange(speedSliderValue: Float){
         timePitch.rate = speedSliderValue
@@ -827,6 +841,11 @@ class SolPlayer {
             throw AppError.NoSongError
         }
         
+        //曲の再生時間をリセット #103
+        //if(userConfigManager.isRedume){
+            try saveSong(false)
+        //}
+        
         //一般の再生プレイヤーの挙動に合わせる（ある程度進んだら、「戻る」ボタンで曲のアタマへ）
         if(currentPlayTime() > 3.0) {
             do {
@@ -855,8 +874,9 @@ class SolPlayer {
     
     /**
      プレイリストの次の曲を読みこむ
+     - parameter status 次の曲に行ったら再生する→true ポーズ→false
      */
-    func nextSong() throws {
+    func nextSong(status: Bool) throws {
         
         if !playable() {
             throw AppError.NoSongError
@@ -867,6 +887,10 @@ class SolPlayer {
             do {
                 stop()
                 try play()
+                //停止中に曲を送った場合は停止する
+                if(!status){
+                    pause()
+                }
                 return
             } catch {
             }
@@ -880,6 +904,10 @@ class SolPlayer {
             do {
                 stop()
                 try play()
+                //停止中に曲を送った場合は停止する
+                if(status){
+                    pause()
+                }
                 return
             } catch {
             }
@@ -946,7 +974,7 @@ class SolPlayer {
                 do { try prevSong() } catch { }
                 break
             case UIEventSubtype.RemoteControlNextTrack:
-                do { try nextSong() } catch { }
+                do { try nextSong(audioPlayerNode.playing) } catch { }
                 break
             default:
                 break
@@ -960,8 +988,9 @@ class SolPlayer {
         userConfigManager.setRedumeNumber(number)
         //再生中のプレイリストを保存
         userConfigManager.setRedumePlaylist(mainPlaylist)
-        //曲の再生時間を保存
-        //do { try saveSong(song) } catch { }
-        do { try saveSong() } catch { }
+        //曲の再生時間を保存 #103
+        if(userConfigManager.isRedume){
+            do { try saveSong(true) } catch { }
+        }
     }
 }

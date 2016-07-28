@@ -68,8 +68,8 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
             solModeChange()
         }
 
-        //スライダーを操作不能に #72
-        timeSlider.enabled = false
+        //スライダーを操作不能に #72 →　再生して止めるようにしたので問題ないかと
+        //timeSlider.enabled = false
         
         //画面ロック時のアクションを取得する
         //UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
@@ -83,9 +83,9 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         //曲情報を読み込む（一瞬だけ曲を再生して停止する） #103
          do {
             try play()
-            if let playtime = solPlayer.song.playTime {
-                solPlayer.timeShift(Float(playtime))
-            }
+//            if let playtime = solPlayer.song.playTime {
+//                solPlayer.timeShift(Float(playtime))
+//            }
             pause()
          } catch {
          
@@ -97,7 +97,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         //Notificationの設定（意味ない？）※objectをnil→appに！いや違う、nameがおかしいんや！"SolNotification"から変更
         //NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.didChangeAudioSessionRoute), name: UI, object: nil)
         
-        //割り込みが入った時の処理（現状うまくく行っているのでコメントアウト）
+        //割り込みが入った時の処理（現状うまく行っているのでコメントアウト）
         //NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.viewWillAppear), name: AVAudioSessionInterruptionNotification, object: UIApplication.sharedApplication())
         
         //ヘッドフォン等の状態を取得する
@@ -256,8 +256,11 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
      前の曲を再生する処理
      */
     func prevSongPlay(){
+        
         do {
+            //前の曲へ
             try solPlayer.prevSong()
+            //画面に反映する
             setScreen(true)
 
         } catch {
@@ -269,8 +272,15 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
      次の曲を再生する処理
      */
     func nextSongPlay(){
+        
         do {
-            try solPlayer.nextSong()
+            //曲の再生時間を保存 #103
+            if(userConfigManager.isRedume){
+                try solPlayer.saveSong(true)
+            }
+            //次の曲へ
+            try solPlayer.nextSong(solPlayer.audioPlayerNode.playing)
+            //画面に反映する
             setScreen(true)
         } catch {
             //setScreen(false)
@@ -320,7 +330,12 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
             
             //通常時処理
             do {
-                try solPlayer.nextSong()
+                //曲の再生時間をリセット #103
+                if(userConfigManager.isRedume){
+                    do { try solPlayer.saveSong(false) } catch { }
+                }
+                //この時点でaudioPlayernodeは止まっているため、判定はせず次の曲を確実に再生させる
+                try solPlayer.nextSong(true)
                 setScreen(true)
                 
                 //PlaylistViewControllerのテーブルも更新する（もっと効率よいやりかたあればおしえて。）※navigationControllerやめようかな
