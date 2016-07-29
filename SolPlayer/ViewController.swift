@@ -320,6 +320,13 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         
         //曲の最後に到達したら次の曲へ
         if current >= Float(solPlayer.duration) {
+            
+            //曲の再生時間をリセット #103
+            if(userConfigManager.isRedume){
+                do { try solPlayer.saveSong(false) } catch { }
+            }
+            
+            //曲を停止する
             stop()
             
             //リピート処理
@@ -330,11 +337,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
             
             //通常時処理
             do {
-                //曲の再生時間をリセット #103
-                if(userConfigManager.isRedume){
-                    do { try solPlayer.saveSong(false) } catch { }
-                }
-                //この時点でaudioPlayernodeは止まっているため、判定はせず次の曲を確実に再生させる
+                //この時点でaudioPlayernode.playingはfalseとなるため、左記で判定せず次の曲を確実に再生させる
                 try solPlayer.nextSong(true)
                 setScreen(true)
                 

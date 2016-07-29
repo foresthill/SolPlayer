@@ -43,8 +43,8 @@ class Song2 {
     var repeatStart: Double?
     /** リピート終了時間（区間リピート） @since ver2.0 */
     var repeatEnd: Double?
-    /** 曲の長さ */
-    //var totalTime
+    /** 曲の長さ（総再生時間） */
+    var duration: Double?
     
     init(){
         
@@ -65,4 +65,48 @@ class Song2 {
         //MPMediaItem.en
     }
     
+    func getDuration() -> Double {
+        
+        if assetURL != nil {
+            do {
+                let audioFile = try AVAudioFile(forReading: assetURL!)
+                
+                //サンプルレートの取得
+                let sampleRate = audioFile.fileFormat.sampleRate
+                
+                //再生時間
+                //self.duration = Double(audioFile.length) / sampleRate
+                
+                return Double(audioFile.length) / sampleRate
+                
+            } catch {
+               //
+            }
+        }
+        
+        return 0.0
+        
+    }
+    
+    /** 曲の再生時間を計算しセットする */
+    func calcDuration() {
+        //初期化
+        self.duration = 0.0
+        
+        //assetURLが存在する場合
+        if assetURL != nil {
+            do {
+                let audioFile = try AVAudioFile(forReading: assetURL!)
+                
+                //サンプルレートの取得
+                let sampleRate = audioFile.fileFormat.sampleRate
+                
+                //再生時間をセット
+                self.duration = Double(audioFile.length) / sampleRate
+                
+            } catch {
+                //
+            }
+        }
+    }
 }

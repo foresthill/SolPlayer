@@ -667,6 +667,13 @@ class SolPlayer {
         }
         //player起動
         startPlayer()
+        
+        //曲の再生開始時間をセット #103
+        if userConfigManager.isRedume {
+            if let playtime = song.playTime {
+                timeShift(Float(playtime))
+            }
+        }
     }
     
     /**
@@ -801,6 +808,9 @@ class SolPlayer {
         //退避
         offset = Double(current)
         
+        //pause状態でseekbarを動かした場合→動かした後もpause状態を維持する（最後につじつま合わせる）
+        let playing = audioPlayerNode.playing
+        
         //シーク位置（AVAudioFramePosition）取得
         let restartPosition = AVAudioFramePosition(Float(sampleRate) * current)
         
@@ -809,9 +819,6 @@ class SolPlayer {
         
         //残りフレーム数（AVAudioFrameCount）取得
         let remainFrames = AVAudioFrameCount(Float(sampleRate) * remainSeconds)
-        
-        //pause状態でseekbarを動かした場合→動かした後もpause状態を維持する（最後につじつま合わせる）
-        let playing = audioPlayerNode.playing
         
         audioPlayerNode.stop()
         
