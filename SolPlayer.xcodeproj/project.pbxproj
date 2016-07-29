@@ -81,6 +81,7 @@
 		BBC632B11CFB2AD3006407C9 /* SolPlayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC632B01CFB2AD3006407C9 /* SolPlayerTests.swift */; };
 		BBC632BC1CFB2AD3006407C9 /* SolPlayerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBC632BB1CFB2AD3006407C9 /* SolPlayerUITests.swift */; };
 		BBC632CA1CFB3654006407C9 /* BGM.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = BBC632C91CFB3654006407C9 /* BGM.mp3 */; };
+		BBE075881D4BEDA80091973B /* Model7to8.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = BBE075871D4BEDA80091973B /* Model7to8.xcmappingmodel */; };
 		BBF5C2B21D164C2F00DE7CBA /* SongModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BBF5C2B01D164C2F00DE7CBA /* SongModel.xcdatamodeld */; };
 		BBF5C2B51D164D9F00DE7CBA /* Song+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBF5C2B31D164D9F00DE7CBA /* Song+CoreDataProperties.swift */; };
 		BBF5C2B61D164D9F00DE7CBA /* Song.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBF5C2B41D164D9F00DE7CBA /* Song.swift */; };
@@ -192,6 +193,8 @@
 		BBC632BB1CFB2AD3006407C9 /* SolPlayerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolPlayerUITests.swift; sourceTree = "<group>"; };
 		BBC632BD1CFB2AD3006407C9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BBC632C91CFB3654006407C9 /* BGM.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = BGM.mp3; sourceTree = "<group>"; };
+		BBE075861D4BECEC0091973B /* SongModel 8.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "SongModel 8.xcdatamodel"; sourceTree = "<group>"; };
+		BBE075871D4BEDA80091973B /* Model7to8.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = Model7to8.xcmappingmodel; sourceTree = "<group>"; };
 		BBF5C2B11D164C2F00DE7CBA /* SongModel.xcdatamodel */ = {isa = PBXFileReference; explicitFileType = wrapper.xcdatamodel; path = SongModel.xcdatamodel; sourceTree = "<group>"; };
 		BBF5C2B31D164D9F00DE7CBA /* Song+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Song+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		BBF5C2B41D164D9F00DE7CBA /* Song.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Song.swift; sourceTree = "<group>"; };
@@ -287,6 +290,7 @@
 			isa = PBXGroup;
 			children = (
 				BB5980441D2B1D7100F79EBB /* Model4to7.xcmappingmodel */,
+				BBE075871D4BEDA80091973B /* Model7to8.xcmappingmodel */,
 				BB6B853E1D18A66B00816498 /* Playlist+CoreDataProperties.swift */,
 				BB6B853F1D18A66B00816498 /* Playlist.swift */,
 				BBF5C2B31D164D9F00DE7CBA /* Song+CoreDataProperties.swift */,
@@ -555,6 +559,7 @@
 				BB83E2181D28AB7A00921085 /* DataMigration4to7Policy.swift in Sources */,
 				BBF5C2B61D164D9F00DE7CBA /* Song.swift in Sources */,
 				BB9FC60F1D1E28C6004CB9F4 /* ImageUtil.swift in Sources */,
+				BBE075881D4BEDA80091973B /* Model7to8.xcmappingmodel in Sources */,
 				BB5980451D2B1D7100F79EBB /* Model4to7.xcmappingmodel in Sources */,
 				BB66AF971D0BB879007CA80A /* SolPlayer.swift in Sources */,
 				BB7DA6741CFD055000A5A706 /* UserConfigViewController.swift in Sources */,
@@ -827,6 +832,7 @@
 		BBF5C2B01D164C2F00DE7CBA /* SongModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				BBE075861D4BECEC0091973B /* SongModel 8.xcdatamodel */,
 				BB7D745F1D28A21B002D7A3D /* SongModel 7.xcdatamodel */,
 				BB7D745E1D27FC6F002D7A3D /* SongModel 6.xcdatamodel */,
 				BB6B85671D1C4A3700816498 /* SongModel 5.xcdatamodel */,

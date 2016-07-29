@@ -83,9 +83,10 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         //曲情報を読み込む（一瞬だけ曲を再生して停止する） #103
          do {
             try play()
-//            if let playtime = solPlayer.song.playTime {
-//                solPlayer.timeShift(Float(playtime))
-//            }
+            //初回時はしおり機能のOn/Offにかかわらず確実に読みこむ
+            if let playtime = solPlayer.song.playTime {
+                solPlayer.timeShift(Float(playtime))
+            }
             pause()
          } catch {
          
@@ -259,7 +260,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         
         do {
             //前の曲へ
-            try solPlayer.prevSong()
+            try solPlayer.prevSong(solPlayer.audioPlayerNode.playing)
             //画面に反映する
             setScreen(true)
 

@@ -300,7 +300,7 @@ class SolPlayer {
                     if(mediaItem.valueForKey("assetURL") != nil){
                         //retPlaylist.append(mediaItem)
                         let song2 = Song2(mediaItem: mediaItem)
-                        //再生時間をセット #103
+                        //現在の再生時間をセット #103
                         song2.playTime = songObject.valueForKey("playTime") as? Double
                         //print(songObject.valueForKey("playTime"))
                         retPlaylist.append(song2)
@@ -359,6 +359,10 @@ class SolPlayer {
                     
                     //アプリ上の変数も更新（基本的には１回しか通らないはず） #103
                     playlist[number].playTime = songModel.playTime as? Double
+                    //ここは曲順などが一緒になるか？？注意して確認（2016/07/30）　#103
+//                    if(mainPlaylist == subPlaylist) {
+//                        editPlaylist[number].playTime = songModel.playTime as? Double
+//                    }
                 }
     
                 //更新（永続化処理）
@@ -394,8 +398,69 @@ class SolPlayer {
                 //曲順を代入
                 songObject.setValue(index, forKey: "index")
                 
+                //現在の再生時間を代入
+                songObject.setValue(song.playTime, forKey: "playTime")
+                
+                //総再生時間を代入
+                //songObject.setValue(song.duration, forKey: "duration")
+                
                 try managedContext.save()
             }
+        } catch {
+            throw AppError.CantSaveError
+        }
+
+    }
+    
+    /**  CR"U"D:mainPlaylistの現在の再生時間をCoreDataに保存する #103（2016/07/30暫定版） */
+    func updatePlayTime() throws {
+        
+        //レジューム機能がONでない場合は保存しない
+        if !userConfigManager.isRedume {
+            return
+        }
+        
+        do {
+            //保存準備
+            let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
+            
+            let fetchRequest = NSFetchRequest(entityName:SONG)
+            fetchRequest.predicate = NSPredicate(format: "playlist = %@", mainPlaylist.id)
+            
+            let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
+            if let results: Array = fetchResults {
+                
+                for songObject:AnyObject in results {
+                    let songModel = songObject as! Song
+                    
+//                    if(isRedume){
+//                        //trueの場合は時間を記録
+//                        songModel.playTime = currentPlayTime()
+//                    } else {
+//                        //falseの場合は時間をリセット
+//                        songModel.playTime = 0.0
+//                    }
+                    //見た目のプレイリストと中身が合っていることが前提 #103
+                    let index: Int = songModel.index as! Int
+                    if index == number {
+                        //現在再生中の曲はイマの状態を更新
+                        playlist[index].playTime = Double(currentPlayTime())
+                        
+                    } else {
+                        //プレイリストに入っている状態を更新
+                        //songModel.playTime = playlist[index].playTime
+
+                    }
+                    //プレイリストに入っている状態を更新
+                    songModel.playTime = playlist[index].playTime
+                    
+                }
+                
+                //更新（永続化処理）
+                appDelegate.saveContext()
+                
+            }
+            
         } catch {
             throw AppError.CantSaveError
         }
@@ -667,20 +732,12 @@ class SolPlayer {
         }
         //player起動
         startPlayer()
-        
-        //曲の再生開始時間をセット #103
-        if userConfigManager.isRedume {
-            if let playtime = song.playTime {
-                timeShift(Float(playtime))
-            }
-        }
     }
     
     /**
      audioPlayerNode起動（暫定的）
      */
     func startPlayer(){
-        
         //再生
         audioPlayerNode.scheduleFile(audioFile, atTime: nil, completionHandler: nil)
         
@@ -703,7 +760,6 @@ class SolPlayer {
                 //指定の位置から再生するようスケジューリング
                 audioPlayerNode.scheduleSegment(audioFile, startingFrame: restartPosition, frameCount: remainFrames, atTime: nil, completionHandler: nil)
             }
-            
             //remoteOffsetを初期化
             remoteOffset = 0.0
         }
@@ -842,7 +898,7 @@ class SolPlayer {
     /**
      プレイリストの前の曲を読みこむ
      */
-    func prevSong() throws {
+    func prevSong(status: Bool) throws {
         
         if !playable() {
             throw AppError.NoSongError
@@ -856,10 +912,10 @@ class SolPlayer {
         //一般の再生プレイヤーの挙動に合わせる（ある程度進んだら、「戻る」ボタンで曲のアタマへ）
         if(currentPlayTime() > 3.0) {
             do {
-                stop()
-                try play()
+                try redumePlay(status)
                 return
             } catch {
+                //
             }
         }
         
@@ -867,10 +923,10 @@ class SolPlayer {
         while number > 0 {
             number = number - 1
             do {
-                stop()
-                try play()
+                try redumePlay(status)
                 return
             } catch {
+                //
             }
         }
         
@@ -892,14 +948,10 @@ class SolPlayer {
         while number < playlist.count-1 {
             number = number + 1
             do {
-                stop()
-                try play()
-                //停止中に曲を送った場合は停止する
-                if(!status){
-                    pause()
-                }
+                try redumePlay(status)
                 return
             } catch {
+                //
             }
         }
         
@@ -909,14 +961,10 @@ class SolPlayer {
         if(repeatAll){
             number = 0
             do {
-                stop()
-                try play()
-                //停止中に曲を送った場合は停止する
-                if(status){
-                    pause()
-                }
+                try redumePlay(status)
                 return
             } catch {
+                //
             }
         }
         
@@ -936,6 +984,29 @@ class SolPlayer {
         
         return false
         
+    }
+    
+    /** レジューム再生する（次の曲へ等で使用）
+     - parameter status:true→処理完了後に再生する false→再生しない
+     
+     */
+    func redumePlay(status: Bool) throws {
+        do {
+            stop()
+            try play()
+            //曲の再生開始時間をセット #103
+            if userConfigManager.isRedume {
+                if let playtime = song.playTime {
+                    timeShift(Float(playtime))
+                }
+            }
+            //停止中に曲を送った場合は停止する
+            if(!status){
+                pause()
+            }
+        } catch {
+            throw AppError.CantPlayError
+        }
     }
     
     /** 再生/停止イベント（主にリモートイベントで使用） */
@@ -978,7 +1049,7 @@ class SolPlayer {
                 stop()
                 break
             case UIEventSubtype.RemoteControlPreviousTrack:
-                do { try prevSong() } catch { }
+                do { try prevSong(audioPlayerNode.playing) } catch { }
                 break
             case UIEventSubtype.RemoteControlNextTrack:
                 do { try nextSong(audioPlayerNode.playing) } catch { }
@@ -995,9 +1066,10 @@ class SolPlayer {
         userConfigManager.setRedumeNumber(number)
         //再生中のプレイリストを保存
         userConfigManager.setRedumePlaylist(mainPlaylist)
-        //曲の再生時間を保存 #103
-        if(userConfigManager.isRedume){
-            do { try saveSong(true) } catch { }
-        }
+        //曲の再生時間を保存（終了時はしおり機能のOn/Offにかかわらず確実に保存する） #103
+        //if(userConfigManager.isRedume){
+        //do { try saveSong(true) } catch { }
+        //}
+        do { try updatePlayTime() } catch { }
     }
 }

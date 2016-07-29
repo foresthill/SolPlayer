@@ -370,7 +370,8 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         
         //現在の再生状態を保存する #103
-        do { try solPlayer.saveSong(UserConfigManager.sharedManager.isRedume) } catch { }
+        //do { try solPlayer.saveSong(UserConfigManager.sharedManager.isRedume) } catch { }
+        do { try solPlayer.updatePlayTime() } catch { }
         
         //タップされた曲を再生する @since v1.1
         solPlayer.mainPlaylist = solPlayer.subPlaylist
@@ -378,8 +379,9 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         solPlayer.number = indexPath.row
         
         do {
-            solPlayer.stop()
-            try solPlayer.play()
+//            solPlayer.stop()
+//            try solPlayer.play()
+            try solPlayer.redumePlay(true)
         } catch {
             
         }
