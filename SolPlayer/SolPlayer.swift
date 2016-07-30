@@ -986,7 +986,7 @@ class SolPlayer {
         
     }
     
-    /** レジューム再生する（次の曲へ等で使用）
+    /** 通常/レジューム再生する（「次の曲へ」等で使用）
      - parameter status:true→処理完了後に再生する false→再生しない
      
      */
@@ -1000,6 +1000,9 @@ class SolPlayer {
                     timeShift(Float(playtime))
                 }
             }
+            //曲情報を更新 #116
+            //appDelegate.application
+            
             //停止中に曲を送った場合は停止する
             if(!status){
                 pause()

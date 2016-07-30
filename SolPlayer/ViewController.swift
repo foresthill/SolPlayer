@@ -340,6 +340,8 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
             do {
                 //この時点でaudioPlayernode.playingはfalseとなるため、左記で判定せず次の曲を確実に再生させる
                 try solPlayer.nextSong(true)
+                
+                //画面を更新する
                 setScreen(true)
                 
                 //PlaylistViewControllerのテーブルも更新する（もっと効率よいやりかたあればおしえて。）※navigationControllerやめようかな

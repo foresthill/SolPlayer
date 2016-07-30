@@ -121,8 +121,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     /** リモートイベントを処理する */
     override func remoteControlReceivedWithEvent(event: UIEvent?) {
-        //
+        //SolPlayer内のリモートイベントを取得する
         SolPlayer.sharedManager.remoteControlReceivedWithEvent(event)
+        
+        //画面更新
+        if let vc = window?.rootViewController?.presentationController?.presentedViewController {
+            print(vc)
+            let tabBarController = vc as! UITabBarController
+            
+            print(tabBarController.viewControllers)
+        
+            //トップ画面
+            if let viewController:ViewController = tabBarController.viewControllers![0] as? ViewController {
+                viewController.setScreen(true)
+            }
+            
+            //tableVIew画面
+            if let navigationController:UINavigationController = tabBarController.viewControllers![1] as? UINavigationController {
+                //let navigationController:UINavigationController = vc
+                let viewController = navigationController.viewControllers[0] as! PlaylistViewController
+                if(viewController.tableView != nil) {
+                    viewController.tableView.reloadData()
+                }
+            }
+            
+        }
     }
     
     /** ヘッドフォン（Bluetooth）が抜き差しされた時のイベント */
