@@ -444,25 +444,6 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
     }
     
     /**
-     再生速度のセグメントが変更された時（Action→ValueChanged）
-     - parameter sender: UISegmentedControl
-     */
-    /*
-    @IBAction func speedSegmentAction(sender: UISegmentedControl) {
-        var speed = 0.25
-        for _ in 0 ... speedSegment.selectedSegmentIndex {
-            speed = speed * 2
-        }
-        //スライダーと同期する
-        speedSlider.value = Float(speed)
-        //ラベルを書き換える
-        speedLabel.text = "x \((round(speedSlider.value*10)/10))"
-        //プレイヤーに速度処理変更
-        solPlayer.speedChange(speedSlider.value)
-    }
-     */
-    
-    /**
      再生速度のボタンが押された時
      - parameter sender: CustomButton
      */

@@ -189,9 +189,6 @@ class SolPlayer {
     }
     
     /** ID生成（プレイリスト作成時に使う：NSManagedObjectIDの使い方がわかるまで）*/
-    //func generateID() -> NSNumber {
-//    func generateID() -> Int {
-//    func generateID() -> UInt {
     func generateID() -> String {
     
         let now = NSDate()
@@ -201,12 +198,6 @@ class SolPlayer {
         
         let string: String = formatter.stringFromDate(now)
         
-        //return Int(string)!   //これだとおかしくなる
-        
-//        let numberFormat = NSNumberFormatter()
-        
-//        return numberFormat.numberFromString(string) as! Int
-//        return UInt(string)!
         return string
     }
     
@@ -720,10 +711,7 @@ class SolPlayer {
                 
                 //停止フラグをfalseに
                 stopFlg = false
-                
-                //タイマーを新規で設定（2016/07/27→SolPlayerクラスに移動）→やっぱり外からでは呼べないか？
-//                timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: #selector(ViewController.didEverySecondPassed), userInfo: nil, repeats: true)
-                
+                                
             } catch {
                 //ファイルが読み込めなかった場合
                 throw AppError.CantPlayError
