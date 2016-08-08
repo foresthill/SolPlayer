@@ -99,11 +99,14 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         //NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.didChangeAudioSessionRoute), name: UI, object: nil)
         
         //割り込みが入った時の処理（現状うまく行っているのでコメントアウト）
-        //NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.viewWillAppear), name: AVAudioSessionInterruptionNotification, object: UIApplication.sharedApplication())
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.audioSessionRouteChange), name: AVAudioSessionInterruptionNotification, object: UIApplication.sharedApplication())
         
         //ヘッドフォン等の状態を取得する
 //        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.audioSessionRouteChange), name: AVAudioSessionRouteChangeNotification, object: UIApplication.sharedApplication())
-        
+
+        //ヘッドフォンが抜き差しされた時のイベントを取得する
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.audioSessionRouteChange), name: AVAudioEngineConfigurationChangeNotification, object: solPlayer.audioEngine)
+
         //ロック・スリープ復帰時に画面を更新する
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.viewWillAppear), name: UIApplicationWillEnterForegroundNotification, object: UIApplication.sharedApplication())
     }
@@ -527,9 +530,9 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         //var desc = AVAudioSessionPortDescription()
         for desc in AVAudioSession.sharedInstance().currentRoute.outputs {
             if(desc.portType == AVAudioSessionPortHeadphones){
-                //print("ヘッドフォン刺さった")
+                print("ヘッドフォン刺さった")
             } else {
-                //print("ヘッドフォン抜けた")
+                print("ヘッドフォン抜けた")
             }
         }
         
@@ -574,7 +577,13 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         }
     }
     **/
-
+    
+    /** ヘッドフォンが抜き差しされた時の処理 */
+    func audioSessionRouteChange(notification: NSNotification) {
+        print("ヘッドフォンが抜き差しされた in ViewController")
+        do { try solPlayer.saveSong(false) } catch { }
+        solPlayer.interruptFlg = true
+    }
     
     /** この画面が表示される時に項目を更新する*/
     override func viewWillAppear(animated: Bool) {

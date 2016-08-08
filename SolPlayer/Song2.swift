@@ -63,11 +63,12 @@ class Song2 {
         //self.releaseDate = mediaItem.releaseDate
         //self.totalTime = mediaItem.?
         //MPMediaItem.en
+        self.duration = getDuration()
     }
     
     func getDuration() -> Double {
         
-        if assetURL != nil {
+        if self.assetURL != nil {
             do {
                 let audioFile = try AVAudioFile(forReading: assetURL!)
                 
@@ -75,8 +76,6 @@ class Song2 {
                 let sampleRate = audioFile.fileFormat.sampleRate
                 
                 //再生時間
-                //self.duration = Double(audioFile.length) / sampleRate
-                
                 return Double(audioFile.length) / sampleRate
                 
             } catch {

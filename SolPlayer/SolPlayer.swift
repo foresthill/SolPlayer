@@ -101,6 +101,9 @@ class SolPlayer {
     //ユーザ設定（コンフィグ）管理クラス呼び出し（シングルトン）
     let userConfigManager: UserConfigManager! = UserConfigManager.sharedManager
     
+    //ヘッドフォンの抜き差しなど
+    var interruptFlg = false
+    
     /**
      初期処理（シングルトンクラスのため外部からのアクセス禁止）
      */
@@ -114,9 +117,6 @@ class SolPlayer {
         } catch {
             
         }
-        
-        //画面ロック時のアクションを取得する（取得できなかったため暫定的にViewControllerで行う）
-        //UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
         
         //画面ロック時の曲情報を持つインスタンス
         //var defaultCenter = MPNowPlayingInfoCenter.defaultCenter()
@@ -159,6 +159,9 @@ class SolPlayer {
         
         //画面ロック時のアクションを取得する
         UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
+        
+        //ヘッドフォンを抜き差しした時のイベントリスナー
+//        NSNotificationCenter.defaultCenter().addObserver(ViewController(), selector: #selector(ViewController.audioSessionRouteChange), name: AVAudioEngineConfigurationChangeNotification, object: audioEngine)
         
     }
     
@@ -343,6 +346,7 @@ class SolPlayer {
                     if(isRedume){
                         //trueの場合は時間を記録
                         songModel.playTime = currentPlayTime()
+                        print(songModel.playTime)
                     } else {
                         //falseの場合は時間をリセット
                         songModel.playTime = 0.0
@@ -581,14 +585,20 @@ class SolPlayer {
         
         song = playlist[number]
         
-        //let assetURL = song.valueForProperty(MPMediaItemPropertyAssetURL) as! NSURL
+        //audioFile取得
         audioFile = try AVAudioFile(forReading: song.assetURL!)
         
         //サンプルレートの取得
         sampleRate = audioFile.fileFormat.sampleRate
         
-        //再生時間
-        duration = Double(audioFile.length) / sampleRate
+        //曲の総再生時間を取得
+        duration = song.duration
+        
+        if song.duration <= 0.0 {
+            print("総再生時間とれてない")
+            //再生時間
+            duration = Double(audioFile.length) / sampleRate
+        }
 
         //AudioEngineを初期化
         initAudioEngine()
@@ -696,8 +706,8 @@ class SolPlayer {
      */
     func play() throws {
  
-        //初回再生時あるいは再読込時
-        if stopFlg {
+        //初回再生時あるいは再読込時 またはヘッドフォン抜き差し時など #88
+        if stopFlg || interruptFlg {
         //if(!audioPlayerNode.playing){
             do {
                 if playlist == nil {
@@ -711,7 +721,13 @@ class SolPlayer {
                 
                 //停止フラグをfalseに
                 stopFlg = false
-                                
+                
+                //TODO:interruptの場合は曲をずらす必要がある #88
+                if interruptFlg {
+                    timeShift(Float(song.playTime!))
+                    interruptFlg = false
+                }
+                
             } catch {
                 //ファイルが読み込めなかった場合
                 throw AppError.CantPlayError
@@ -983,10 +999,12 @@ class SolPlayer {
             stop()
             try play()
             //曲の再生開始時間をセット #103
-            if userConfigManager.isRedume {
+            if userConfigManager.isRedume || interruptFlg {
                 if let playtime = song.playTime {
                     timeShift(Float(playtime))
                 }
+                //intteruptFlgを初期化
+                interruptFlg = false
             }
             //曲情報を更新 #116
             //appDelegate.application
@@ -1030,26 +1048,44 @@ class SolPlayer {
                 playOrPause()
                 break
             case UIEventSubtype.RemoteControlTogglePlayPause:
-                if !audioPlayerNode.playing {
+                /*if !audioPlayerNode.playing {
                     do { try play() } catch { }
                 } else {
                     pause()
-                }
+                }*/
+                playOrPause()
                 break
             case UIEventSubtype.RemoteControlStop:
                 stop()
                 break
             case UIEventSubtype.RemoteControlPreviousTrack:
-                do { try prevSong(audioPlayerNode.playing) } catch { }
+                do {
+                    try prevSong(audioPlayerNode.playing)
+                } catch {
+                    //
+                }
                 break
             case UIEventSubtype.RemoteControlNextTrack:
-                do { try nextSong(audioPlayerNode.playing) } catch { }
+                do {
+                    //曲の再生時間を保存 #103
+                    if(userConfigManager.isRedume){
+                        try saveSong(true)
+                    }
+                    try nextSong(audioPlayerNode.playing)
+                } catch {
+                    //
+                }
                 break
             default:
                 break
             }
         }
     }
+    
+    /** ヘッドフォンが抜き差しされた時の処理→SolPlayer上じゃとれない？*/
+    /*func audioSessionRouteChange(notification: NSNotification) {
+        print("ヘッドフォンが抜き差しされた")
+    }*/
     
     /** アプリ終了時の処理 #103 */
     func applicationWillTerminate() {
