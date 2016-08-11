@@ -81,6 +81,7 @@ class SolPlayer {
     
     //停止フラグ（プレイリストの再読み込みなど）
     var stopFlg = true
+    //var stopFlg = 1   //0:再生中 1:停止中 2:外部要因からの停止（現在未使用）
     
     //appDelegate外出し
     var appDelegate: AppDelegate! = UIApplication.sharedApplication().delegate as! AppDelegate
@@ -665,6 +666,7 @@ class SolPlayer {
         
         if audioPlayerNode.playing {
             
+            //サンプルレートが0の時は再生時間を取得しない（というかできない）
             if(sampleRate == 0){
                 return 0
             }
@@ -682,7 +684,12 @@ class SolPlayer {
             
             //便宜上分かりやすく書いてみる
             let playerTime = audioPlayerNode.playerTimeForNodeTime(nodeTime!)
-            currentTime = (Double(playerTime!.sampleTime) / sampleRate)
+            let nowPlayTime = (Double(playerTime!.sampleTime) / sampleRate)
+            
+            //抜き差しするとcurrentTimeが0.0になってしまうため、保存用に
+            if nowPlayTime > 0.0 {
+                currentTime = nowPlayTime
+            }
             
             return (Float)(currentTime + offset)
             
@@ -708,6 +715,7 @@ class SolPlayer {
  
         //初回再生時あるいは再読込時 またはヘッドフォン抜き差し時など #88
         if stopFlg || interruptFlg {
+        //if stopFlg > 0 {
         //if(!audioPlayerNode.playing){
             do {
                 if playlist == nil {
@@ -724,9 +732,12 @@ class SolPlayer {
                 
                 //TODO:interruptの場合は曲をずらす必要がある #88
                 if interruptFlg {
+                //if stopFlg == 2 {
                     timeShift(Float(song.playTime!))
                     interruptFlg = false
                 }
+                
+//                stopFlg = 0
                 
             } catch {
                 //ファイルが読み込めなかった場合
@@ -794,6 +805,7 @@ class SolPlayer {
     func stop(){
         
         if !stopFlg {
+        //if stopFlg == 0 {
             //タイマーを初期化
             timer = nil
             
@@ -806,9 +818,24 @@ class SolPlayer {
 
             //停止フラグをtrueに
             stopFlg = true
+            //stopFlg = 1
             
         }
         
+    }
+    
+    /** 外部からの停止（ロック時操作、ヘッドフォンから止められた時） #88 */
+    func stopByExternal() {
+    //func audioSessionRouteChange() {
+        
+        //do { try solPlayer.saveSong(false) } catch { }
+        
+        //外部停止のflgをtrueに
+        interruptFlg = true
+        //stopFlg = 2
+        
+        //現在の再生時間を挿入
+        song.playTime = currentTime + offset
     }
     
     /**
@@ -999,12 +1026,14 @@ class SolPlayer {
             stop()
             try play()
             //曲の再生開始時間をセット #103
+            //（外部要因によってストップした場合は設定にかかわらず）
             if userConfigManager.isRedume || interruptFlg {
+            //if userConfigManager.isRedume || stopFlg == 2 {
                 if let playtime = song.playTime {
                     timeShift(Float(playtime))
                 }
                 //intteruptFlgを初期化
-                interruptFlg = false
+                //interruptFlg = false
             }
             //曲情報を更新 #116
             //appDelegate.application
@@ -1024,12 +1053,18 @@ class SolPlayer {
         if !audioPlayerNode.playing {
             do { try play() } catch { }
         } else {
-            pause()
+            //pause()
+            
             //ロック画面で再生時間が止まらないバグ対応 #74
             //do { try session.setActive(false) } catch { }
             
             //remoteOffset
             //audioPlayerNode.stop()    //stopしても意味ない
+            
+            //2016/08/11対応版 #88
+            stopByExternal()
+            stop()
+
         }
     }
     

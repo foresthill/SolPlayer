@@ -125,6 +125,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
             setPlayLabel(solPlayer.audioPlayerNode.playing)
             
             if stopFlg {  //停止→再生（あるいは初回再生時）
+            //if stopFlg > 0 {
                 //タイマーを新規で設定（2016/07/27→SolPlayerクラスに移動→戻し）
                 timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: #selector(ViewController.didEverySecondPassed), userInfo: nil, repeats: true)
                 setScreen(true)
@@ -317,10 +318,10 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         timeSlider.value = current
         
         //0の時は再生ボタンマークに（ヘッドフォンが抜けた時の対策）#75　※いつかちゃんとやります
-        if(current == 0 && solPlayer.stopFlg){
-            setPlayLabel(solPlayer.audioPlayerNode.playing)
-            timeSlider.enabled = false
-        }
+//        if(current == 0 && solPlayer.stopFlg){
+//            setPlayLabel(solPlayer.audioPlayerNode.playing)
+//            timeSlider.enabled = false
+//        }
         
         //曲の最後に到達したら次の曲へ
         if current >= Float(solPlayer.duration) {
@@ -578,17 +579,21 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
     }
     **/
     
-    /** ヘッドフォンが抜き差しされた時の処理 */
+    /** ヘッドフォンが抜き差しされた時の処理 #88 */
     func audioSessionRouteChange(notification: NSNotification) {
-        print("ヘッドフォンが抜き差しされた in ViewController")
-        do { try solPlayer.saveSong(false) } catch { }
-        solPlayer.interruptFlg = true
+        //トリガーが確実に作動するようにする
+        dispatch_async(dispatch_get_main_queue(), {
+            print("ヘッドフォンが抜き差しされた in ViewController")
+            self.solPlayer.stopByExternal()
+        })
+        
     }
     
     /** この画面が表示される時に項目を更新する*/
     override func viewWillAppear(animated: Bool) {
         //playlistLabel.text = solPlayer.mainPlaylist.name
         setScreen(!solPlayer.stopFlg)
+        //setScreen((solPlayer.stopFlg > 0))
     }
 
     override func didReceiveMemoryWarning() {
