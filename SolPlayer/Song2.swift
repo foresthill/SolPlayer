@@ -58,11 +58,7 @@ class Song2 {
         self.artist = mediaItem.artist
         self.albumArtist = mediaItem.albumArtist
         self.albumTitle = mediaItem.albumTitle
-        //self.artwork = mediaItem.artwork?.imageWithSize(CGSize.init(width: 150, height: 150))
         self.artwork = mediaItem.artwork
-        //self.releaseDate = mediaItem.releaseDate
-        //self.totalTime = mediaItem.?
-        //MPMediaItem.en
         self.duration = getDuration()
     }
     

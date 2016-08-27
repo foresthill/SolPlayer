@@ -81,9 +81,7 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
                 break
             }
         }
-        
-        //allPlaylists = [(0,"default")]
-        
+
     }
     
     /** 「新規プレイリスト追加」（＋マーク）をクリックした時の処理 */

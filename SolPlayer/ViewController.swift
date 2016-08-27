@@ -59,26 +59,11 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         solPlayer = SolPlayer.sharedManager
         
         /* 初期化処理 */
-        
-        //表示を初期化
-        //setScreen(true)
-        
+
         //solSwitchを初期化
         if userConfigManager.getIsSolMode() {
             solModeChange()
         }
-
-        //スライダーを操作不能に #72 →　再生して止めるようにしたので問題ないかと
-        //timeSlider.enabled = false
-        
-        //画面ロック時のアクションを取得する
-        //UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
-        
-        //ファーストレスポンダになる 一旦コメントアウト（2016/06/26）→やっぱりしない。
-        //self.becomeFirstResponder()
-        
-        //リモートイベントを取得（一旦コメントアウト）
-        //addRemoteControlEvent()
         
         //曲情報を読み込む（一瞬だけ曲を再生して停止する） #103
          do {
@@ -95,21 +80,15 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         //ヘッドフォンの状態を取得するためにAVAudioSessionを用いる（意味ない？）
         do { try AVAudioSession.sharedInstance().setActive(true) } catch { }
         
-        //Notificationの設定（意味ない？）※objectをnil→appに！いや違う、nameがおかしいんや！"SolNotification"から変更
-        //NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.didChangeAudioSessionRoute), name: UI, object: nil)
         
         //割り込みが入った時の処理（現状うまく行っているのでコメントアウト）
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.audioSessionRouteChange), name: AVAudioSessionInterruptionNotification, object: UIApplication.sharedApplication())
-        
-        //ヘッドフォン等の状態を取得する
-//        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.audioSessionRouteChange), name: AVAudioSessionRouteChangeNotification, object: UIApplication.sharedApplication())
 
         //ヘッドフォンが抜き差しされた時のイベントを取得する
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.audioSessionRouteChange), name: AVAudioEngineConfigurationChangeNotification, object: solPlayer.audioEngine)
 
         //ロック・スリープ復帰時に画面を更新する
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.viewWillAppear), name: UIApplicationWillEnterForegroundNotification, object: UIApplication.sharedApplication())
-        
     }
     
     /**
@@ -248,30 +227,14 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         //SolPlayer停止処理
         solPlayer.stop()
         
-        //再生時間を初期化
-        solPlayer.song.playTime = 0.0     //2016/08/27追加（solPlayerのstop()内に入れるとnextSongなどのときも初期化されてしまうため）
-        timeSlider.value = 0.0
-        
-        //再生してすぐに止める
-        do {
-            try solPlayer.play()
-            solPlayer.pause()
-        } catch {
-            //
-        }
-        
         //停止フラグをtrueに
-        //solPlayer.stopFlg = true
+        solPlayer.stopFlg = true
         
-        /*
         //スライダーを使用不可に（暫定対応）
         timeSlider.enabled = false
-        //playButton.setTitle("PLAY", forState: .Normal)
-         */
 
         //ラベル更新
         setPlayLabel(solPlayer.audioPlayerNode.playing)
-
     }
     
     /** 
@@ -281,7 +244,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         
         do {
             //前の曲へ
-            try solPlayer.prevSong(solPlayer.audioPlayerNode.playing)
+            try solPlayer.prevSong(true)
             //画面に反映する
             setScreen(true)
 
@@ -300,8 +263,8 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
             if(userConfigManager.isRedume){
                 try solPlayer.saveSong(true)
             }
-            //次の曲へ
-            try solPlayer.nextSong(solPlayer.audioPlayerNode.playing)
+            //次の曲へ（いったんtrueで）
+            try solPlayer.nextSong(true)
             //画面に反映する
             setScreen(true)
         } catch {
@@ -333,13 +296,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         
         //timeSlider.value = current / Float(duration)
         timeSlider.value = current
-        
-        //0の時は再生ボタンマークに（ヘッドフォンが抜けた時の対策）#75　※いつかちゃんとやります
-//        if(current == 0 && solPlayer.stopFlg){
-//            setPlayLabel(solPlayer.audioPlayerNode.playing)
-//            timeSlider.enabled = false
-//        }
-        
+
         //曲の最後に到達したら次の曲へ
         if current >= Float(solPlayer.duration) {
             
@@ -437,7 +394,6 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
      - parameter sender: UISlider
      */
     @IBAction func timeSliderAction(sender: UISlider) {
-        //timeShift()
         solPlayer.timeShift(timeSlider.value)
     }
     
@@ -487,33 +443,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         repeatButton.selected = !repeatButton.selected
         
     }
-    
-    /**
-     リモートイベント（ロック画面、AirPlay、コントローラ等）を処理する。
-    */
-    /*
-    func addRemoteControlEvent() {
-        let commandCenter = MPRemoteCommandCenter.sharedCommandCenter()
-        
-        commandCenter.playCommand.enabled = true
-        commandCenter.pauseCommand.enabled = true
-        commandCenter.nextTrackCommand.enabled = true
-        commandCenter.previousTrackCommand.enabled = true
-        
-        commandCenter.togglePlayPauseCommand.addTarget(self, action: #selector(ViewController.remoteTogglePlayPause))
-        commandCenter.playCommand.addTarget(self, action: #selector(ViewController.remoteTogglePlayPause))
-        commandCenter.pauseCommand.addTarget(self, action: #selector(ViewController.remoteTogglePlayPause))
-        commandCenter.nextTrackCommand.addTarget(self, action: #selector(ViewController.remoteNextTrack))
-        commandCenter.previousTrackCommand.addTarget(self, action: #selector(ViewController.remotePrevTrack))
-    }
-    */
-    
-    /** 20160814test http://stackoverflow.com/questions/20405401/mpnowplayinginfocenter-elapsed-time-keeps-counting-when-audio-paused */
-    func updateControlCenter() {
-        
-    }
- 
-    
+
     /** リモートイベント：再生・停止 */
     func remoteTogglePlayPause(event: MPRemoteCommandEvent){
         playOrPause()
@@ -547,65 +477,11 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
             }
         }
     }
-    
-    /** ヘッドフォンが挿入された時2（機能してない）*/
-    func didChangeAudioSessionRoute() {
-        //var desc = AVAudioSessionPortDescription()
-        for desc in AVAudioSession.sharedInstance().currentRoute.outputs {
-            if(desc.portType == AVAudioSessionPortHeadphones){
-                print("ヘッドフォン刺さった")
-            } else {
-                print("ヘッドフォン抜けた")
-            }
-        }
-        
-    }
-    
-    /** ヘッドフォンが挿入された時（Bluetoothの時も行ける？）*/
-    /** 現在未使用
-    func audioSessionRouteChange(notification: NSNotification) {
-        print(notification)
-        if let userInfos = notification.userInfo {
-            print(userInfos)
-            if let type: AnyObject = userInfos["AVAudioSessionRouteChangeReasonKey"] {
-                print(type)
-                if type is NSNumber {
-                    if type.unsignedLongValue == AVAudioSessionRouteChangeReason.NewDeviceAvailable.rawValue{
-                        print("NewDeviceAvailable")
-                    }
-                    if type.unsignedLongValue == AVAudioSessionRouteChangeReason.Override.rawValue{
-                        print("Override")
-                    }
-                }
-            }
-        }
-        for port in solPlayer.session.currentRoute.outputs as [AVAudioSessionPortDescription] {
-            print(port.portName)
-            print(port.portType)
-            print(port.UID)
-            if port.portType == AVAudioSessionPortBuiltInSpeaker {
-                //内臓スピーカが選ばれている時の処理
-                print("スピーカ")
-            }else if port.portType == AVAudioSessionPortHeadphones {
-                //ヘッドホンが選ばれている時の処理
-                print("ヘッドホン")
-            }
-            for channel in port.channels! as [AVAudioSessionChannelDescription] {
-                //左右チャンネルなどの情報が欲しいとき、以下を検討
-                print(channel.channelName)
-                print(channel.channelNumber)
-                print(channel.owningPortUID)
-                print(channel.channelName)
-            }
-        }
-    }
-    **/
-    
+
     /** ヘッドフォンが抜き差しされた時の処理 #88 */
     func audioSessionRouteChange(notification: NSNotification) {
         //トリガーが確実に作動するようにする
         dispatch_async(dispatch_get_main_queue(), {
-            print("ヘッドフォンが抜き差しされた in ViewController")
             self.solPlayer.stopExternal()
             self.setPlayLabel(self.solPlayer.audioPlayerNode.playing)
         })
@@ -614,14 +490,11 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
     
     /** この画面が表示される時に項目を更新する*/
     override func viewWillAppear(animated: Bool) {
-        //playlistLabel.text = solPlayer.mainPlaylist.name
         setScreen(!solPlayer.stopFlg)
-        //setScreen((solPlayer.stopFlg > 0))
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
 
 

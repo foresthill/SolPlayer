@@ -61,13 +61,9 @@ class SolPlayer {
     var number: Int!
 
     //再生中のプレイリスト（ViewController）
-    //var playlist: [Song]! = nil
-    //var playlist:[MPMediaItem]!
-    //var playlist = [NSManagedObject]()
     var playlist:[Song2]!
     
     //編集中のプレイリスト（PlaylistViewController） #64, #81
-    //var editPlaylist:[MPMediaItem]!
     var editPlaylist:[Song2]!
     
     //プレイリストのリスト。#64
@@ -88,9 +84,6 @@ class SolPlayer {
     
     //画面ロック時にも再生を続ける
     let session: AVAudioSession = AVAudioSession.sharedInstance()
-    
-    //Coder（2016/06/19Test）
-    //let coder = NSCoder()
     
     //全曲リピート（１曲リピートはViewControllerで）
     var repeatAll = false
@@ -115,7 +108,6 @@ class SolPlayer {
         //画面ロック時も再生のカテゴリを指定
         do {
             try session.setCategory(AVAudioSessionCategoryPlayback)
-            //try session.setCategory(AVAudioSessionCategoryPlayAndRecord)
             //オーディオセッションを有効化
             try session.setActive(true)
         } catch {
@@ -129,16 +121,9 @@ class SolPlayer {
         number = userConfigManager.getRedumeNumber()
         
         //プレイリスト情報を読み込み #103
-//        mainPlaylist = userConfigManager.getRedumePlaylist()
-//        subPlaylist = mainPlaylist
         subPlaylist = userConfigManager.getRedumePlaylist()
         
         //defaultのプレイリストを読み込み→UserDefaultsに保存されたプレイリストIDを読み込み #103（2016/07/24）
-//        do {
-//            playlist = try loadPlayList(mainPlaylist.id)
-//        } catch {
-//            
-//        }
         
         //プレイリストのリストを読み込み
         do {
@@ -146,26 +131,9 @@ class SolPlayer {
         } catch {
             
         }
-        
-        //曲情報を読み込む（一瞬だけ曲を再生して停止する） #103
-        /*
-        //do{ try readAudioFile() } catch { }
-        do {
-            try play()
-            if let playtime = song.playTime {
-                timeShift(Float(playtime))
-            }
-            pause()
-        } catch {
-            
-        }
-         */
-        
+
         //画面ロック時のアクションを取得する
         UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
-        
-        //ヘッドフォンを抜き差しした時のイベントリスナー
-//        NSNotificationCenter.defaultCenter().addObserver(ViewController(), selector: #selector(ViewController.audioSessionRouteChange), name: AVAudioEngineConfigurationChangeNotification, object: audioEngine)
         
     }
     
@@ -212,7 +180,6 @@ class SolPlayer {
     func loadAllPlayLists() throws {
         
         //defaultを設定
-//        allPlaylists = [(0,"default")]
         allPlaylists = [("0","default")]
         
         do {
@@ -224,20 +191,9 @@ class SolPlayer {
                 
                 for playlistObject:AnyObject in results {
                     //persistentIDを頼りに検索
-//                    let id: NSNumber = playlistObject.valueForKey("id") as! NSNumber
-//                    let id: Int = playlistObject.valueForKey("id") as! Int
-                    
-                    //CoreDataマイグレーション Numberの場合はStringに変換
-//                    var playlistId = playlistObject.valueForKey("id")
-//                    
-//                    if playlistId!.isKindOfClass(NSNumber) {
-//                        playlistId = String(playlistId)
-//                    }
-                    
                     let id: String = playlistObject.valueForKey("id") as! String
                     let name: String = playlistObject.valueForKey("name") as! String
                     //読み込んだMPMediaItemをプレイリストに追加
-//                    if(id != 0){
                     if(id != "0"){
                         allPlaylists.append((id, name))
                     }
@@ -271,11 +227,9 @@ class SolPlayer {
     }
     
     /** C"R"UD:プレイリストの曲を読込 #81 */
-    //func loadPlayList(playlistId: String) throws -> Array<MPMediaItem> {
     func loadPlayList(playlistId: String) throws -> Array<Song2> {
         
         //プレイリストを初期化
-        //var retPlaylist = Array<MPMediaItem>()
         var retPlaylist = Array<Song2>()
         
         do {
@@ -296,11 +250,9 @@ class SolPlayer {
                     let mediaItem:MPMediaItem = loadSong(songObject.valueForKey("persistentID") as! NSNumber)
                     //読み込んだMPMediaItemをプレイリストに追加
                     if(mediaItem.valueForKey("assetURL") != nil){
-                        //retPlaylist.append(mediaItem)
                         let song2 = Song2(mediaItem: mediaItem)
                         //現在の再生時間をセット #103
                         song2.playTime = songObject.valueForKey("playTime") as? Double
-                        //print(songObject.valueForKey("playTime"))
                         retPlaylist.append(song2)
                     }
                 }
@@ -317,34 +269,23 @@ class SolPlayer {
     }
     
     /**
-     CR"U"D:再生中の曲を更新（再生時間を保存する）#103
+     CR"U"D:再生中の曲を更新（再生時間を保存する）#103 ※保存処理については今後改善するかも
       - parameter isRedume（trueの場合は時間を保存、falseの場合は時間をリセット）
      */
     func saveSong(isRedume: Bool) throws {
-        //func saveSong(mediaItem: MPMediaItem) throws {
-        //func saveSong(_song: Song2) throws {
 
-        //SONGエンティティに保存する
-        //let entity = NSEntityDescription.entityForName(SONG, inManagedObjectContext: managedContext)
-        
         //フェッチ実行
         do {
             //保存準備
             let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
             
             let fetchRequest = NSFetchRequest(entityName:SONG)
-//            let temp: NSDecimalNumber = NSDecimalNumber(unsignedLongLong: song.persistentID!)
-            //let fetchRequest = NSFetchRequest()
-            //fetchRequest.entity = NSEntityDescription.entityForName(SONG, inManagedObjectContext: managedContext)
-//            fetchRequest.predicate = NSPredicate(format: "persistentID = %d", NSNumber(unsignedLongLong: song.persistentID!))
-//            fetchRequest.predicate = NSPredicate(format: "persistentID = %d", temp)
             fetchRequest.predicate = NSPredicate(format: "playlist = %@ and index = %d", mainPlaylist.id, number)
 
             let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
             if let results: Array = fetchResults {
                     
                 for songObject:AnyObject in results {
-                    //songObject = NSManagedObject(entity: entity!, insertIntoManagedObjectContext: managedContext)
                     let songModel = songObject as! Song
                     
                     if(isRedume){
@@ -358,12 +299,7 @@ class SolPlayer {
                     
                     //アプリ上の変数も更新（基本的には１回しか通らないはず） #103
                     playlist[number].playTime = songModel.playTime as? Double
-                    //ここは曲順などが一緒になるか？？注意して確認（2016/07/30）　#103
-//                    if(mainPlaylist == subPlaylist) {
-//                        editPlaylist[number].playTime = songModel.playTime as? Double
-//                    }
                 }
-    
                 //更新（永続化処理）
                 appDelegate.saveContext()
                 
@@ -432,13 +368,6 @@ class SolPlayer {
                 for songObject:AnyObject in results {
                     let songModel = songObject as! Song
                     
-//                    if(isRedume){
-//                        //trueの場合は時間を記録
-//                        songModel.playTime = currentPlayTime()
-//                    } else {
-//                        //falseの場合は時間をリセット
-//                        songModel.playTime = 0.0
-//                    }
                     //見た目のプレイリストと中身が合っていることが前提 #103
                     let index: Int = songModel.index as! Int
                     if index == number {
@@ -658,16 +587,10 @@ class SolPlayer {
             //便宜上分かりやすく書いてみる
             let nodeTime = audioPlayerNode.lastRenderTime
             
-            //ヘッドフォンを抜き差しした（なぜかnodeTimeがnilになる）時のエラーハンドリング #75
+            //ヘッドフォンを抜き差しした（なぜかnodeTimeがnilになる）時のエラーハンドリング #74 #75 #88
             if(nodeTime == nil){
-                //stop()
-                //抜き差しされた時の時間remoteOffsetを持っておく
-                //remoteOffset = currentTime
-                //return 0
                 stopExternal()
-                //画面を更新するため（UIEventType.Motionはダミー）
-                //let event = UIEvent()
-                //event.type = UIEvent.
+                //画面を更新するため（UIEvent()はダミー）
                 appDelegate.remoteControlReceivedWithEvent(UIEvent())
                 return pausedTime
             }
@@ -704,21 +627,13 @@ class SolPlayer {
     func play() throws {
  
         if song != nil && interruptFlg {
-            /*defaultCenter.nowPlayingInfo = [
-                MPNowPlayingInfoPropertyPlaybackRate: 1.0,
-                MPNowPlayingInfoPropertyElapsedPlaybackTime: currentTime + offset
-            ]*/
-            //特に変化があるとは思えない→変化ある！！（2016/08/19）
+            //特に変化があるとは思えない→変化ある！！（2016/08/19）#74 #88
             defaultCenter.nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 1.0
             defaultCenter.nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime + offset + song.playTime!
         }
 
-
-        //初回再生時あるいは再読込時 またはヘッドフォン抜き差し時など #88
         if stopFlg {
-        //if stopFlg || interruptFlg {
-        //if stopFlg > 0 {
-        //if(!audioPlayerNode.playing){
+            //停止：初回再生時あるいは再読込時 またはヘッドフォン抜き差し時など #88
             do {
                 if playlist == nil {
                     mainPlaylist = subPlaylist
@@ -732,14 +647,11 @@ class SolPlayer {
                 //停止フラグをfalseに
                 stopFlg = false
                 
-                //TODO:interruptの場合は曲をずらす必要がある #88
+                //インターラプト時（ヘッドフォンが抜けた時など、途中で切られた場合）は曲をずらす必要がある #88
                 if interruptFlg {
-                //if stopFlg == 2 {
                     timeShift(Float(song.playTime! ?? 0.0))
                     interruptFlg = false
                 }
-                
-//                stopFlg = 0
                 
             } catch {
                 //ファイルが読み込めなかった場合
@@ -747,14 +659,11 @@ class SolPlayer {
             }
             
         } else {
-            //pause時
+            //一時停止：プレイヤー上で一時停止ボタンを押された後、再度再生す時
             //毎回やってみる！（2016/08/23）
-            //do { try audioEngine.start() } catch { }
+            do { try audioEngine.start() } catch { }
         }
-        
-        //毎回やってみる！（2016/08/23）
-        do { try audioEngine.start() } catch { }
-        
+
         //player起動
         startPlayer()
     }
@@ -769,7 +678,7 @@ class SolPlayer {
         //リモート操作されるとpauseがうまく動かないため暫定対応 #74
         if(remoteOffset != 0.0){
             
-            //TODO:ロック画面で再生時間が止まらないバグ対応（2016/07/11） #74　→未完
+            //TODO:ロック画面で再生時間が止まらないバグ対応（2016/07/11） #74
             do { try session.setActive(true) } catch {}
             
             //シーク位置（AVAudioFramePosition）取得
@@ -807,17 +716,16 @@ class SolPlayer {
             return
         }
         
-        //pausedTime = currentPlayTime()  //いる（2016/08/23）
+        //pausedTime保持（2016/08/23）
         pausedTime = Float(currentTime + offset)
         
         //画面ロックの情報を更新＆時間が勝手に進まないようにする（2016/08/23）
         defaultCenter.nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 0.0
         
-        //audioEngineはstopに（画面ロック時の再生マークを「停止」にするために必要、あとバグ対策？）
+        //audioEngineはstopに（#74 画面ロック時の再生マークを「停止」にするために必要、あとバグ対策？）
         audioEngine.stop()
         
         audioPlayerNode.pause()
-        
     }
     
     /**
@@ -826,7 +734,6 @@ class SolPlayer {
     func stop(){
         
         if !stopFlg {
-        //if stopFlg == 0 {
             //タイマーを初期化
             timer = nil
             
@@ -839,35 +746,24 @@ class SolPlayer {
 
             //停止フラグをtrueに
             stopFlg = true
-            //stopFlg = 1
-            
         }
         
     }
     
     /** 外部からの停止（ロック時操作、ヘッドフォンから止められた時） #88 */
     func stopExternal() {
-    //func audioSessionRouteChange() {
-        
-        //do { try solPlayer.saveSong(false) } catch { }
         
         //外部停止のflgをtrueに
         interruptFlg = true
-        //stopFlg = 2
         
-        //audioPlayerNodeはpauseに
-        pause() //いる（2016/08/23）一瞬巻き戻るのはこことは関係ない
+        //audioPlayerNodeはpauseに（2016/08/23） ※ロック画面の再生時間が一瞬巻き戻るのはこことは関係ない
+        pause()
         
         //画面ロックの情報を更新＆時間が勝手に進まないようにする（2016/08/14）
-        //defaultCenter.nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 0.0
         defaultCenter.nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = Double(pausedTime)
 
         //現在の再生時間を保存
         song.playTime = Double(pausedTime)
-
-        //audioEngineはstopに（画面ロック時の再生マークを「停止」にするために必要）
-        //audioEngine.stop()
-
     }
     
     /**
@@ -948,9 +844,6 @@ class SolPlayer {
         
         audioPlayerNode.play()
         
-        //画面を値に合わせる
-//        didEverySecondPassed()
-        
         //一度playしてからpauseしないと画面に反映されないため
         if !playing {
             pause()
@@ -970,10 +863,7 @@ class SolPlayer {
         //ロック画面で「停止」時に立てたフラグをリセット
         interruptFlg = false
         
-        //曲の再生時間をリセット #103
-        //if(userConfigManager.isRedume){
-            //try saveSong(false)           //ここでCoreDataを更新する必要はあるか？（2016/08/21）
-        //}
+        //曲の再生時間をリセット #103　※ここでCoreDataを更新する必要はないはず（2016/08/21）
         song.playTime = 0.0
         
         //一般の再生プレイヤーの挙動に合わせる（ある程度進んだら、「戻る」ボタンで曲のアタマへ）
@@ -1092,24 +982,8 @@ class SolPlayer {
         if !audioPlayerNode.playing {
             do { try play() } catch { }
         } else {
-            //pause()
-            
-            //ロック画面で再生時間が止まらないバグ対応 #74
-            //do { try session.setActive(false) } catch { }
-            
-            //remoteOffset
-            //audioPlayerNode.stop()    //stopしても意味ない
-            
             //2016/08/11対応版 #88
-            //pause()
             stopExternal()
-            //audioEngine.stop()
-            
-            //stop()
-            //pause()       //2016/08/14
-            
-            //audioEngine.stop()
-
         }
     }
     
@@ -1128,11 +1002,6 @@ class SolPlayer {
                 playOrPause()
                 break
             case UIEventSubtype.RemoteControlTogglePlayPause:
-                /*if !audioPlayerNode.playing {
-                    do { try play() } catch { }
-                } else {
-                    pause()
-                }*/
                 playOrPause()
                 break
             case UIEventSubtype.RemoteControlStop:
@@ -1140,7 +1009,6 @@ class SolPlayer {
                 break
             case UIEventSubtype.RemoteControlPreviousTrack:
                 do {
-                    //try prevSong(audioPlayerNode.playing)
                     try prevSong(true)
                 } catch {
                     //
@@ -1152,7 +1020,6 @@ class SolPlayer {
                     if(userConfigManager.isRedume){
                         try saveSong(true)
                     }
-                    //try nextSong(audioPlayerNode.playing)
                     try nextSong(true)
                 } catch {
                     //
@@ -1166,14 +1033,10 @@ class SolPlayer {
     
     /** 画面ロック時（NowPlayingCenter）の情報を更新する #73, #74, #88 */
     func updateNowPlayingInfoCenter(updateAll: Bool) {
-        
-        //defaultCenter = MPNowPlayingInfoCenter.defaultCenter()
-        
-        //let playbackTime:NSTimeInterval = Double(currentPlayTime())
-        //print(playbackTime)
-        
+
         if(updateAll) {
-        
+            //全更新
+            
             //ディクショナリ型で定義
             defaultCenter.nowPlayingInfo = [
                 MPMediaItemPropertyTitle: (song.title ?? "No Title"),
@@ -1181,9 +1044,7 @@ class SolPlayer {
                 MPMediaItemPropertyPlaybackDuration: (duration ?? 0.0),
                 //MPMediaItemPropertyArtwork: (song.artwork ?? MPMediaItemArtwork()),
                 MPNowPlayingInfoPropertyPlaybackRate: 1.0,
-                //MPNowPlayingInfoPropertyElapsedPlaybackTime: currentPlayTime()
-                //MPNowPlayingInfoPropertyElapsedPlaybackTime: playbackTime
-                MPNowPlayingInfoPropertyElapsedPlaybackTime: (song.playTime ?? 0.0)   //画面と合ってない。画面だと正確なのに。。（2016/08/11）→合うようになった！（2016/08/21）
+                MPNowPlayingInfoPropertyElapsedPlaybackTime: (song.playTime ?? 0.0)   //#135 ある程度合うようになった
             ]
             
             if let artwork = song.artwork {
@@ -1191,18 +1052,11 @@ class SolPlayer {
             }
             
         } else {
-            //defaultCenter.nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentPlayTime()
+            //一部更新（未使用）
             defaultCenter.nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime + offset
         }
         
     }
-    
-    
-    
-    /** ヘッドフォンが抜き差しされた時の処理→SolPlayer上じゃとれない？*/
-    /*func audioSessionRouteChange(notification: NSNotification) {
-        print("ヘッドフォンが抜き差しされた")
-    }*/
     
     /** アプリ終了時の処理 #103 */
     func applicationWillTerminate() {
@@ -1211,9 +1065,6 @@ class SolPlayer {
         //再生中のプレイリストを保存
         userConfigManager.setRedumePlaylist(mainPlaylist)
         //曲の再生時間を保存（終了時はしおり機能のOn/Offにかかわらず確実に保存する） #103
-        //if(userConfigManager.isRedume){
-        //do { try saveSong(true) } catch { }
-        //}
         do { try updatePlayTime() } catch { }
     }
 }

@@ -13,14 +13,6 @@ import CoreData
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    
-    //let solPlayer: SolPlayer! = nil
-    
-    //プレイリスト
-    //var playlist: [Song]?
-    
-    //再生中の曲番
-    //var number: Int! = 0
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
@@ -149,15 +141,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
  
     }
-    
-    /** ヘッドフォン（Bluetooth）が抜き差しされた時のイベント */
-    
-    
-    /*どうしろと。
-    func remoteControlReceivedWithEvent(receivedEvent: UIEvent){
-        SolPlayer.sharedManager.remoteControlReceivedWithEvent(receivedEvent)
-    }
-     */
 
 }
 

@@ -85,31 +85,8 @@ class UserConfigManager {
         config.setObject(_isRedume, forKey: "isRedume")
     }
     
-    /*
-    /** redumePlaylistIdをNSUserDefaultsにセットする */
-    func setRedumePlaylistId(_redumePlaylistId: String) {
-        redumePlaylistId = _redumePlaylistId
-        //NSUserDefaultsに格納する
-        config.setObject(_redumePlaylistId, forKey: "redumePlaylistId")
-    }
-
-    /** redumePlaylistIdをNSUserDefaultsから取得する */
-    func getRedumePlaylistId() -> String {
-        let defaultConfig = config.objectForKey("redumePlaylistId")
-        if(defaultConfig != nil){
-            redumePlaylistId = defaultConfig as! String
-        } else {
-            redumePlaylistId = "0"
-        }
-        return redumePlaylistId
-    }
-    */
-    
     /** アプリ終了時にプレイリストの情報をNSUserDefaultsにセットする */
     func setRedumePlaylist(_redumePlaylist: (id:String, name:String)) {
-        //配列で入れられなかったので一旦コメントアウト
-//        redumePlaylist = _redumePlaylist
-//        config.setObject(_redumePlaylist, forKey: "redumePlaylist")
         config.setObject(_redumePlaylist.id, forKey: "redumePlaylistId")
         config.setObject(_redumePlaylist.name, forKey: "redumePlaylistName")
     }
