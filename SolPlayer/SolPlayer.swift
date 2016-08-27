@@ -105,6 +105,9 @@ class SolPlayer {
     //ヘッドフォンの抜き差しなど
     var interruptFlg = false
     
+    //画面ロック時の情報を指定 #73　（2016/08/14外出し）
+    var defaultCenter: MPNowPlayingInfoCenter!
+    
     /**
      初期処理（シングルトンクラスのため外部からのアクセス禁止）
      */
@@ -120,7 +123,7 @@ class SolPlayer {
         }
         
         //画面ロック時の曲情報を持つインスタンス
-        //var defaultCenter = MPNowPlayingInfoCenter.defaultCenter()
+        defaultCenter = MPNowPlayingInfoCenter.defaultCenter()
         
         //曲順を読み込み #103
         number = userConfigManager.getRedumeNumber()
@@ -347,7 +350,7 @@ class SolPlayer {
                     if(isRedume){
                         //trueの場合は時間を記録
                         songModel.playTime = currentPlayTime()
-                        print(songModel.playTime)
+                        //print(songModel.playTime)
                     } else {
                         //falseの場合は時間をリセット
                         songModel.playTime = 0.0
@@ -603,25 +606,6 @@ class SolPlayer {
 
         //AudioEngineを初期化
         initAudioEngine()
-        
-        //画面ロック時の情報を指定 #73
-        let defaultCenter = MPNowPlayingInfoCenter.defaultCenter()
-        
-        //let playbackTime:NSTimeInterval = Double(currentPlayTime())
-        //print(playbackTime)
-        
-        //ディクショナリ型で定義
-        defaultCenter.nowPlayingInfo = [
-            MPMediaItemPropertyTitle:(song.title ?? "No Title"),
-            MPMediaItemPropertyArtist:(song.artist ?? "Unknown Artist"),
-            MPMediaItemPropertyPlaybackDuration:duration!,
-            MPNowPlayingInfoPropertyPlaybackRate:1.0,
-            //MPNowPlayingInfoPropertyElapsedPlaybackTime: playbackTime
-        ]
-        
-        if let artwork = song.artwork {
-            defaultCenter.nowPlayingInfo![MPMediaItemPropertyArtwork] = artwork
-        }
 
     }
     
@@ -676,10 +660,16 @@ class SolPlayer {
             
             //ヘッドフォンを抜き差しした（なぜかnodeTimeがnilになる）時のエラーハンドリング #75
             if(nodeTime == nil){
-                stop()
+                //stop()
                 //抜き差しされた時の時間remoteOffsetを持っておく
-                remoteOffset = currentTime
-                return 0
+                //remoteOffset = currentTime
+                //return 0
+                stopExternal()
+                //画面を更新するため（UIEventType.Motionはダミー）
+                //let event = UIEvent()
+                //event.type = UIEvent.
+                appDelegate.remoteControlReceivedWithEvent(UIEvent())
+                return pausedTime
             }
             
             //便宜上分かりやすく書いてみる
@@ -713,8 +703,20 @@ class SolPlayer {
      */
     func play() throws {
  
+        if song != nil && interruptFlg {
+            /*defaultCenter.nowPlayingInfo = [
+                MPNowPlayingInfoPropertyPlaybackRate: 1.0,
+                MPNowPlayingInfoPropertyElapsedPlaybackTime: currentTime + offset
+            ]*/
+            //特に変化があるとは思えない→変化ある！！（2016/08/19）
+            defaultCenter.nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 1.0
+            defaultCenter.nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime + offset + song.playTime!
+        }
+
+
         //初回再生時あるいは再読込時 またはヘッドフォン抜き差し時など #88
-        if stopFlg || interruptFlg {
+        if stopFlg {
+        //if stopFlg || interruptFlg {
         //if stopFlg > 0 {
         //if(!audioPlayerNode.playing){
             do {
@@ -733,7 +735,7 @@ class SolPlayer {
                 //TODO:interruptの場合は曲をずらす必要がある #88
                 if interruptFlg {
                 //if stopFlg == 2 {
-                    timeShift(Float(song.playTime!))
+                    timeShift(Float(song.playTime! ?? 0.0))
                     interruptFlg = false
                 }
                 
@@ -744,7 +746,15 @@ class SolPlayer {
                 throw AppError.CantPlayError
             }
             
+        } else {
+            //pause時
+            //毎回やってみる！（2016/08/23）
+            //do { try audioEngine.start() } catch { }
         }
+        
+        //毎回やってみる！（2016/08/23）
+        do { try audioEngine.start() } catch { }
+        
         //player起動
         startPlayer()
     }
@@ -779,6 +789,10 @@ class SolPlayer {
             remoteOffset = 0.0
         }
         
+        //画面ロック時の情報を設定 #73, #74, #88
+        //updateNowPlayingInfoCenter(stopFlg)
+        updateNowPlayingInfoCenter(true)
+        
         audioPlayerNode.play()
         
     }
@@ -793,7 +807,14 @@ class SolPlayer {
             return
         }
         
-        pausedTime = currentPlayTime()
+        //pausedTime = currentPlayTime()  //いる（2016/08/23）
+        pausedTime = Float(currentTime + offset)
+        
+        //画面ロックの情報を更新＆時間が勝手に進まないようにする（2016/08/23）
+        defaultCenter.nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 0.0
+        
+        //audioEngineはstopに（画面ロック時の再生マークを「停止」にするために必要、あとバグ対策？）
+        audioEngine.stop()
         
         audioPlayerNode.pause()
         
@@ -825,7 +846,7 @@ class SolPlayer {
     }
     
     /** 外部からの停止（ロック時操作、ヘッドフォンから止められた時） #88 */
-    func stopByExternal() {
+    func stopExternal() {
     //func audioSessionRouteChange() {
         
         //do { try solPlayer.saveSong(false) } catch { }
@@ -834,8 +855,19 @@ class SolPlayer {
         interruptFlg = true
         //stopFlg = 2
         
-        //現在の再生時間を挿入
-        song.playTime = currentTime + offset
+        //audioPlayerNodeはpauseに
+        pause() //いる（2016/08/23）一瞬巻き戻るのはこことは関係ない
+        
+        //画面ロックの情報を更新＆時間が勝手に進まないようにする（2016/08/14）
+        //defaultCenter.nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 0.0
+        defaultCenter.nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = Double(pausedTime)
+
+        //現在の再生時間を保存
+        song.playTime = Double(pausedTime)
+
+        //audioEngineはstopに（画面ロック時の再生マークを「停止」にするために必要）
+        //audioEngine.stop()
+
     }
     
     /**
@@ -935,10 +967,14 @@ class SolPlayer {
             throw AppError.NoSongError
         }
         
+        //ロック画面で「停止」時に立てたフラグをリセット
+        interruptFlg = false
+        
         //曲の再生時間をリセット #103
         //if(userConfigManager.isRedume){
-            try saveSong(false)
+            //try saveSong(false)           //ここでCoreDataを更新する必要はあるか？（2016/08/21）
         //}
+        song.playTime = 0.0
         
         //一般の再生プレイヤーの挙動に合わせる（ある程度進んだら、「戻る」ボタンで曲のアタマへ）
         if(currentPlayTime() > 3.0) {
@@ -949,7 +985,7 @@ class SolPlayer {
                 //
             }
         }
-        
+       
         //前の曲へ戻っていく（再生可能な曲に届くまで繰り返す）
         while number > 0 {
             number = number - 1
@@ -975,6 +1011,9 @@ class SolPlayer {
         if !playable() {
             throw AppError.NoSongError
         }
+        
+        //ロック画面で「停止」時に立てたフラグをリセット
+        interruptFlg = false
         
         while number < playlist.count-1 {
             number = number + 1
@@ -1062,8 +1101,14 @@ class SolPlayer {
             //audioPlayerNode.stop()    //stopしても意味ない
             
             //2016/08/11対応版 #88
-            stopByExternal()
-            stop()
+            //pause()
+            stopExternal()
+            //audioEngine.stop()
+            
+            //stop()
+            //pause()       //2016/08/14
+            
+            //audioEngine.stop()
 
         }
     }
@@ -1091,11 +1136,12 @@ class SolPlayer {
                 playOrPause()
                 break
             case UIEventSubtype.RemoteControlStop:
-                stop()
+                stopExternal()
                 break
             case UIEventSubtype.RemoteControlPreviousTrack:
                 do {
-                    try prevSong(audioPlayerNode.playing)
+                    //try prevSong(audioPlayerNode.playing)
+                    try prevSong(true)
                 } catch {
                     //
                 }
@@ -1106,7 +1152,8 @@ class SolPlayer {
                     if(userConfigManager.isRedume){
                         try saveSong(true)
                     }
-                    try nextSong(audioPlayerNode.playing)
+                    //try nextSong(audioPlayerNode.playing)
+                    try nextSong(true)
                 } catch {
                     //
                 }
@@ -1116,6 +1163,41 @@ class SolPlayer {
             }
         }
     }
+    
+    /** 画面ロック時（NowPlayingCenter）の情報を更新する #73, #74, #88 */
+    func updateNowPlayingInfoCenter(updateAll: Bool) {
+        
+        //defaultCenter = MPNowPlayingInfoCenter.defaultCenter()
+        
+        //let playbackTime:NSTimeInterval = Double(currentPlayTime())
+        //print(playbackTime)
+        
+        if(updateAll) {
+        
+            //ディクショナリ型で定義
+            defaultCenter.nowPlayingInfo = [
+                MPMediaItemPropertyTitle: (song.title ?? "No Title"),
+                MPMediaItemPropertyArtist: (song.artist ?? "Unknown Artist"),
+                MPMediaItemPropertyPlaybackDuration: (duration ?? 0.0),
+                //MPMediaItemPropertyArtwork: (song.artwork ?? MPMediaItemArtwork()),
+                MPNowPlayingInfoPropertyPlaybackRate: 1.0,
+                //MPNowPlayingInfoPropertyElapsedPlaybackTime: currentPlayTime()
+                //MPNowPlayingInfoPropertyElapsedPlaybackTime: playbackTime
+                MPNowPlayingInfoPropertyElapsedPlaybackTime: (song.playTime ?? 0.0)   //画面と合ってない。画面だと正確なのに。。（2016/08/11）→合うようになった！（2016/08/21）
+            ]
+            
+            if let artwork = song.artwork {
+                defaultCenter.nowPlayingInfo![MPMediaItemPropertyArtwork] = artwork
+            }
+            
+        } else {
+            //defaultCenter.nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentPlayTime()
+            defaultCenter.nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime + offset
+        }
+        
+    }
+    
+    
     
     /** ヘッドフォンが抜き差しされた時の処理→SolPlayer上じゃとれない？*/
     /*func audioSessionRouteChange(notification: NSNotification) {

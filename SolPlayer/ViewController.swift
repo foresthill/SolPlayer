@@ -37,7 +37,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
     var config: NSUserDefaults!
     
     //タイマー
-    var timer:NSTimer!
+    var timer: NSTimer!
     
     //SolPlayerのインスタンス（シングルトン）
     var solPlayer: SolPlayer!
@@ -109,6 +109,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
 
         //ロック・スリープ復帰時に画面を更新する
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.viewWillAppear), name: UIApplicationWillEnterForegroundNotification, object: UIApplication.sharedApplication())
+        
     }
     
     /**
@@ -247,14 +248,30 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         //SolPlayer停止処理
         solPlayer.stop()
         
+        //再生時間を初期化
+        solPlayer.song.playTime = 0.0     //2016/08/27追加（solPlayerのstop()内に入れるとnextSongなどのときも初期化されてしまうため）
+        timeSlider.value = 0.0
+        
+        //再生してすぐに止める
+        do {
+            try solPlayer.play()
+            solPlayer.pause()
+        } catch {
+            //
+        }
+        
         //停止フラグをtrueに
         //solPlayer.stopFlg = true
         
+        /*
         //スライダーを使用不可に（暫定対応）
         timeSlider.enabled = false
+        //playButton.setTitle("PLAY", forState: .Normal)
+         */
+
         //ラベル更新
         setPlayLabel(solPlayer.audioPlayerNode.playing)
-        //playButton.setTitle("PLAY", forState: .Normal)
+
     }
     
     /** 
@@ -490,6 +507,11 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         commandCenter.previousTrackCommand.addTarget(self, action: #selector(ViewController.remotePrevTrack))
     }
     */
+    
+    /** 20160814test http://stackoverflow.com/questions/20405401/mpnowplayinginfocenter-elapsed-time-keeps-counting-when-audio-paused */
+    func updateControlCenter() {
+        
+    }
  
     
     /** リモートイベント：再生・停止 */
@@ -511,7 +533,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
     func beginInterruption() {
         status = solPlayer.audioPlayerNode.playing
         if status {
-            pause()
+            self.solPlayer.stopExternal()
         }
     }
 
@@ -584,7 +606,8 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         //トリガーが確実に作動するようにする
         dispatch_async(dispatch_get_main_queue(), {
             print("ヘッドフォンが抜き差しされた in ViewController")
-            self.solPlayer.stopByExternal()
+            self.solPlayer.stopExternal()
+            self.setPlayLabel(self.solPlayer.audioPlayerNode.playing)
         })
         
     }

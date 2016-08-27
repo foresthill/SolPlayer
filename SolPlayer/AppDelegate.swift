@@ -119,17 +119,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
     
-    /** リモートイベントを処理する */
+    /** リモートイベントを処理する（ここが重さの原因？）→違った */
     override func remoteControlReceivedWithEvent(event: UIEvent?) {
         //SolPlayer内のリモートイベントを取得する
+        
         SolPlayer.sharedManager.remoteControlReceivedWithEvent(event)
         
-        //画面更新
+        //画面更新（ViewControllerのメソッドを直に呼べる方法が以下しか見つからなかった 2016/08/27）
         if let vc = window?.rootViewController?.presentationController?.presentedViewController {
-            print(vc)
+            //print(vc)
             let tabBarController = vc as! UITabBarController
             
-            print(tabBarController.viewControllers)
+            //print(tabBarController.viewControllers)
         
             //トップ画面
             if let viewController:ViewController = tabBarController.viewControllers![0] as? ViewController {
@@ -146,6 +147,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
             
         }
+ 
     }
     
     /** ヘッドフォン（Bluetooth）が抜き差しされた時のイベント */
