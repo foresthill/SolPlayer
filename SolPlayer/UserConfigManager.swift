@@ -17,7 +17,7 @@ class UserConfigManager {
     var config: NSUserDefaults!
     
     //ソルフェジオのモード（ver1:440→444Hz、ver2:440→432Hz）
-    var solMode:Int! = 1
+    var solMode: Int! = 1
     
     //ソルフェジオモードかどうか
     var isSolMode = false
@@ -26,12 +26,14 @@ class UserConfigManager {
     var isRedume = false
     
     //再生中のプレイリスト（ID）
-    //var redumePlaylist:(id: String, name: String)
-    var redumePlaylistId:String!
-    var redumePlaylistName:String!
+    var redumePlaylistId: String!
+    var redumePlaylistName: String!
     
     //再生中の曲番号
-    var redumeNumber:Int!
+    var redumeNumber: Int!
+    
+    //Web再生画面で検索したときの表示件数
+    var resultNumber: Int!
     
     /** 初期処理 */
     private init() {
@@ -114,7 +116,6 @@ class UserConfigManager {
         
     }
     
-
     /** redumeNumberをNSUserDefaultsにセットする */
     func setRedumeNumber(_redumeNumber: Int) {
         redumeNumber = _redumeNumber
@@ -128,8 +129,29 @@ class UserConfigManager {
         if(defaultConfig != nil){
             redumeNumber = defaultConfig as! Int
         } else {
+            //とりあえず先頭の曲
             redumeNumber = 0
         }
         return redumeNumber
     }
+    
+    /** redumeNumberをNSUserDefaultsにセットする */
+    func setResultNumber(_resultNumber: Int) {
+        resultNumber = _resultNumber
+        //NSUserDefaultsに格納する
+        config.setObject(_resultNumber, forKey: "resultNumber")
+    }
+    
+    /** redumePlaylistIdをNSUserDefaultsから取得する */
+    func getResultNumber() -> Int {
+        let defaultConfig = config.objectForKey("resultNumber")
+        if(defaultConfig != nil){
+            resultNumber = defaultConfig as! Int
+        } else {
+            //デフォルトの曲数
+            resultNumber = 10
+        }
+        return resultNumber
+    }
+    
 }

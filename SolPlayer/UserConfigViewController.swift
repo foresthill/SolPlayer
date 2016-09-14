@@ -10,14 +10,19 @@ import UIKit
 
 class UserConfigViewController: UIViewController {
     
+    /** SolModeのSegment */
     @IBOutlet weak var solModeSegment: UISegmentedControl!
     
-    //@IBOutlet weak var resumeSegment: UISegmentedControl!
+    /** しおり（レジューム）機能のOn/Off */
     @IBOutlet weak var resumeSwitch: UISwitch!
     
-    //UserConfigManagerクラス呼び出し（シングルトン）
+    /** 検索件数を設定するSegment */
+    @IBOutlet weak var resultNumSegment: UISegmentedControl!
+    
+    /** UserConfigManagerクラス呼び出し（シングルトン）*/
     let userConfigManager: UserConfigManager! = UserConfigManager.sharedManager
     
+    /** 初期処理 */
     override func viewDidLoad() {
 
         super.viewDidLoad()
@@ -47,6 +52,31 @@ class UserConfigViewController: UIViewController {
     @IBAction func redumeSwitchChange(sender: AnyObject) {
         //ユーザ設定に保存
         userConfigManager.setIsRedume(resumeSwitch.on)
+    }
+    
+    /** 表示件数（Web再生画面）が変更された時 */
+    @IBAction func resultNumChange(sender: AnyObject) {
+        //ユーザ設定に保存
+        print(solModeSegment.tag)
+        var resultNumber: Int!
+        switch solModeSegment.selectedSegmentIndex {
+        case 0:
+            resultNumber = 10
+            break
+        case 1:
+            resultNumber = 30
+            break
+        case 2:
+            resultNumber = 50
+            break
+        case 3:
+            resultNumber = 100
+            break
+        default:
+            resultNumber = 10
+            break
+        }
+        userConfigManager.setResultNumber(resultNumber)
     }
     
     //「戻る」ボタン押下時に呼ばれるメソッド

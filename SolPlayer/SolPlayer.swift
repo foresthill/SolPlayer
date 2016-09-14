@@ -628,8 +628,9 @@ class SolPlayer {
  
         if song != nil && interruptFlg {
             //特に変化があるとは思えない→変化ある！！（2016/08/19）#74 #88
+            let playTime = song.playTime ?? 0.0
             defaultCenter.nowPlayingInfo![MPNowPlayingInfoPropertyPlaybackRate] = 1.0
-            defaultCenter.nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime + offset + song.playTime!
+            defaultCenter.nowPlayingInfo![MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime + offset + playTime
         }
 
         if stopFlg {
@@ -649,7 +650,7 @@ class SolPlayer {
                 
                 //インターラプト時（ヘッドフォンが抜けた時など、途中で切られた場合）は曲をずらす必要がある #88
                 if interruptFlg {
-                    timeShift(Float(song.playTime! ?? 0.0))
+                    timeShift(Float(song.playTime ?? 0.0))
                     interruptFlg = false
                 }
                 

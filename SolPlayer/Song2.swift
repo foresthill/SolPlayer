@@ -35,7 +35,7 @@ class Song2 {
     var rating: String?
     /** ディスク番号 */
     var discNumber: String?
-    /** メディアの種類 */
+    /** メディアの種類（ローカル、オンライン） */
     var mediaType: String?
     /** 現在の再生時間→しおり（レジューム）機能で使用 @since ver2.0 */
     var playTime: Double?
@@ -50,6 +50,7 @@ class Song2 {
         
     }
     
+    /** インスタンス作成（読み込み） */
     init(mediaItem: MPMediaItem){
         self.persistentID = mediaItem.persistentID
         self.title = mediaItem.title
@@ -60,6 +61,17 @@ class Song2 {
         self.albumTitle = mediaItem.albumTitle
         self.artwork = mediaItem.artwork
         self.duration = getDuration()
+    }
+    
+    /** インスタンス作成（WebPlayViewControllerより） */
+    init(_persisntenceID:UInt64, _title:String, _url:String, _artist:String, _duration:Double){
+        self.persistentID = _persisntenceID
+        self.title = _title
+        //self.assetURL = mediaItem.assetURL
+        self.assetURL = NSURL(string: _url)
+        self.artist = _artist
+        //self.artwork = mediaItem.artwork  //あ〜もう
+        self.duration = _duration
     }
     
     func getDuration() -> Double {
