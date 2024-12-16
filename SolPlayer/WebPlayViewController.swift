@@ -17,6 +17,14 @@ import AVFoundation
 //#import "HCYoutubeParser"
 
 class WebPlayViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UIPickerViewDataSource, UIPickerViewDelegate {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        <#code#>
+    }
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        <#code#>
+    }
+    
 
     //@IBOutlet weak var webView: UIWebView!
     
@@ -53,7 +61,7 @@ class WebPlayViewController: UIViewController, UITableViewDataSource, UITableVie
         //初期表示のURL
         
         //Cell名の登録を行う
-        tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "Cell")
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         tableView.dataSource = self
         tableView.delegate = self
         
@@ -148,7 +156,9 @@ class WebPlayViewController: UIViewController, UITableViewDataSource, UITableVie
         
         //キーワードをURLエンコード
         //let encodeKeyword = keyword.stringByAddingPercentEscapesUsingEncoding(NSUTF8StringEncoding)
-        let encodeKeyword: String = keyword.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet())!   //左辺にStringを入れないとOptionalという文字列が入って落ちる
+        let encodeKeyword: String = keyword
+            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        //左辺にStringを入れないとOptionalという文字列が入って落ちる
         
         //検索リストを初期化
         resultList = nil
@@ -160,20 +170,26 @@ class WebPlayViewController: UIViewController, UITableViewDataSource, UITableVie
         //ネットワーク（同期処理用）フラグON
         networkingFlg = true
         
-        Alamofire.request(.GET, url).responseJSON {response in
-            if(response.result.isSuccess){
+        AF.request(url).responseData {response in
+            switch response.result{
+            case .success(let data):
                 //取得成功
-                let json = response.result.value as! NSDictionary
-                //jsonをパースする
-                self.parseJSON(json)
-            } else {
+//                let json = data as! NSDictionary
+//                //jsonをパースする
+//                self.parseJSON(json)
+                debugPrint(data)
+
+        case .failure(let error):
                 //取得失敗（アラート表示）
+                /*
                 let alert = UIAlertController(title: "検索失敗", message: "情報の取得に失敗しました。（原因：ネットワークの通信ができていない等）", preferredStyle: UIAlertControllerStyle.Alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
                     (action: UIAlertAction!) -> Void in
                     //self.presentViewController(alert, animated: true, completion: nil)
                 }))
                 self.presentViewController(alert, animated: true, completion: nil)
+                 */
+                debugPrint(error)
             }
             
             //ネットワーク（同期処理用）フラグOFF
@@ -223,7 +239,7 @@ class WebPlayViewController: UIViewController, UITableViewDataSource, UITableVie
             print(item.objectForKey("snippet")?.objectForKey("channelTitle"))
             */
             
-            let id: String = (item.objectForKey("id")?.objectForKey("videoId") ?? "")! as! String
+            let id: String = (((item as AnyObject).objectForKey("id")? as AnyObject).objectForKey("videoId") ?? "")! 
             
             //IDが存在しない場合
             if id.isEmpty {

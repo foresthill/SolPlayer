@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum AppError: ErrorType {
+enum AppError: Error {
     case NoPlayListError
     case CantReadFileError
     case CantPlayError

@@ -17,17 +17,19 @@ class DataMigration4to7Policy: NSEntityMigrationPolicy {
     }
      */
     
-    override func createDestinationInstancesForSourceInstance(sInstance: NSManagedObject, entityMapping mapping: NSEntityMapping, manager: NSMigrationManager) throws {
+    override func createDestinationInstances(forSource sInstance: NSManagedObject, in mapping: NSEntityMapping, manager: NSMigrationManager) throws {
         let context: NSManagedObjectContext = manager.destinationContext
         let entityName: String = mapping.destinationEntityName!
-        let dInstance: NSManagedObject = NSEntityDescription.insertNewObjectForEntityForName(entityName, inManagedObjectContext: context)
+        let dInstance: NSManagedObject = NSEntityDescription.insertNewObject(forEntityName: entityName, into: context)
         
         /** PlaylistエンティティのidをStringに */
         
-        let playListId = sInstance.valueForKey("id")
+        let playListId = sInstance.value(forKey: "id")
         
-        if(playListId!.isKindOfClass(NSNumber)){
-            dInstance.setValue("id", forKey: String(playListId))
+        if let playListId = playListId {
+            if playListId is NSNumber {
+                dInstance.setValue("id", forKey: String(describing: playListId))
+            }
         }
 
     }

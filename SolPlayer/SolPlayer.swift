@@ -36,7 +36,7 @@ class SolPlayer {
     var pausedTime: Float! = 0.0
     
     //タイマー
-    var timer:NSTimer!
+    var timer:Timer!
     
     //総再生時間
     var duration: Double!
@@ -80,7 +80,7 @@ class SolPlayer {
     //var stopFlg = 1   //0:再生中 1:停止中 2:外部要因からの停止（現在未使用）
     
     //appDelegate外出し
-    var appDelegate: AppDelegate! = UIApplication.sharedApplication().delegate as! AppDelegate
+    var appDelegate: AppDelegate! = UIApplication.shared.delegate as? AppDelegate
     
     //画面ロック時にも再生を続ける
     let session: AVAudioSession = AVAudioSession.sharedInstance()
@@ -115,7 +115,7 @@ class SolPlayer {
         }
         
         //画面ロック時の曲情報を持つインスタンス
-        defaultCenter = MPNowPlayingInfoCenter.defaultCenter()
+        defaultCenter = MPNowPlayingInfoCenter.default()
         
         //曲順を読み込み #103
         number = userConfigManager.getRedumeNumber()
@@ -133,7 +133,7 @@ class SolPlayer {
         }
 
         //画面ロック時のアクションを取得する
-        UIApplication.sharedApplication().beginReceivingRemoteControlEvents()
+        UIApplication.shared.beginReceivingRemoteControlEvents()
         
     }
     
@@ -143,8 +143,8 @@ class SolPlayer {
         let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
         
         do {
-            let entity = NSEntityDescription.entityForName(PLAYLIST, inManagedObjectContext: managedContext)
-            let playlistObject = NSManagedObject(entity: entity!, insertIntoManagedObjectContext: managedContext)
+            let entity = NSEntityDescription.entity(forEntityName: PLAYLIST, in: managedContext)
+            let playlistObject = NSManagedObject(entity: entity!, insertInto: managedContext)
             
             //PersistentID（曲を一意に特定するID）を代入
             let id = generateID()
@@ -168,10 +168,10 @@ class SolPlayer {
     
         let now = NSDate()
         
-        let formatter = NSDateFormatter()
+        let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMddHHmmss"
         
-        let string: String = formatter.stringFromDate(now)
+        let string: String = formatter.string(from: now as Date)
         
         return string
     }
@@ -184,18 +184,20 @@ class SolPlayer {
         
         do {
             let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
-            let fetchRequest = NSFetchRequest(entityName:PLAYLIST)
-            let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName:PLAYLIST)
+            let fetchResults = try managedContext.fetch(fetchRequest)
         
-            if let results: Array = fetchResults {
-                
+            if let results = fetchResults as? [NSManagedObject] {
+
                 for playlistObject:AnyObject in results {
                     //persistentIDを頼りに検索
-                    let id: String = playlistObject.valueForKey("id") as! String
-                    let name: String = playlistObject.valueForKey("name") as! String
-                    //読み込んだMPMediaItemをプレイリストに追加
-                    if(id != "0"){
-                        allPlaylists.append((id, name))
+                    if let id = playlistObject.value(forKey: "id") as? String,
+                       let name = playlistObject.value(forKey: "name") as? String {
+                        
+                        //読み込んだMPMediaItemをプレイリストに追加
+                        if id != "0" {
+                            allPlaylists.append((id, name))
+                        }
                     }
                 }
                 
@@ -235,25 +237,27 @@ class SolPlayer {
         do {
             let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
             //フェッチリクエストを設定
-            let fetchRequest = NSFetchRequest(entityName:SONG)
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName:SONG)
             fetchRequest.predicate = NSPredicate(format: "playlist = %@", playlistId)
             //ソート設定
             let sortDescriptor: NSSortDescriptor = NSSortDescriptor(key:"index", ascending: true)
             fetchRequest.sortDescriptors = [sortDescriptor]
             //フェッチ実行
-            let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
+            let fetchResults = try managedContext.fetch(fetchRequest)
             
-            if let results: Array = fetchResults {
-                
+            if let results = fetchResults as? [NSManagedObject] {
+
                 for songObject:AnyObject in results {
                     //persistentIDを頼りに検索
-                    let mediaItem:MPMediaItem = loadSong(songObject.valueForKey("persistentID") as! NSNumber)
+                    if let persistentID = songObject.value(forKey: "persistentID") as? NSNumber {
+                        let mediaItem = loadSong(songId: persistentID)
                     //読み込んだMPMediaItemをプレイリストに追加
-                    if(mediaItem.valueForKey("assetURL") != nil){
-                        let song2 = Song2(mediaItem: mediaItem)
-                        //現在の再生時間をセット #103
-                        song2.playTime = songObject.valueForKey("playTime") as? Double
-                        retPlaylist.append(song2)
+                        if(mediaItem.value(forKey: "assetURL") != nil){
+                            let song2 = Song2(mediaItem: mediaItem)
+                            //現在の再生時間をセット #103
+                            song2.playTime = songObject.value(forKey: "playTime") as? Double
+                            retPlaylist.append(song2)
+                        }
                     }
                 }
                 
@@ -279,18 +283,18 @@ class SolPlayer {
             //保存準備
             let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
             
-            let fetchRequest = NSFetchRequest(entityName:SONG)
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName:SONG)
             fetchRequest.predicate = NSPredicate(format: "playlist = %@ and index = %d", mainPlaylist.id, number)
 
-            let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
-            if let results: Array = fetchResults {
-                    
+            let fetchResults = try managedContext.fetch(fetchRequest)
+            if let results = fetchResults as? [Song] {
+
                 for songObject:AnyObject in results {
                     let songModel = songObject as! Song
                     
                     if(isRedume){
                         //trueの場合は時間を記録
-                        songModel.playTime = currentPlayTime()
+                        songModel.playTime = (currentPlayTime()) as NSNumber
                         //print(songModel.playTime)
                     } else {
                         //falseの場合は時間をリセット
@@ -317,15 +321,15 @@ class SolPlayer {
         let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
 
         do {
-            for (index, song) in editPlaylist.enumerate() {
-                let entity = NSEntityDescription.entityForName(SONG, inManagedObjectContext: managedContext)
-                let songObject = NSManagedObject(entity: entity!, insertIntoManagedObjectContext: managedContext)
+            for (index, song) in editPlaylist.enumerated() {
+                let entity = NSEntityDescription.entity(forEntityName: SONG, in: managedContext)
+                let songObject = NSManagedObject(entity: entity!, insertInto: managedContext)
 
                 //PersistentID（曲を一意に特定するID）を代入
                 //let songId = song.persistentID as UInt64
                 let songId = song.persistentID
                 //songObject.setValue(NSNumber(unsignedLongLong: songId), forKey: "persistentID")
-                songObject.setValue(NSNumber(unsignedLongLong: songId!), forKey: "persistentID")
+                songObject.setValue(NSNumber(value: songId!), forKey: "persistentID")
 
                 //プレイリストのIDを代入
                 songObject.setValue(playlistId, forKey: "playlist")
@@ -359,11 +363,11 @@ class SolPlayer {
             //保存準備
             let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
             
-            let fetchRequest = NSFetchRequest(entityName:SONG)
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName:SONG)
             fetchRequest.predicate = NSPredicate(format: "playlist = %@", mainPlaylist.id)
             
-            let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
-            if let results: Array = fetchResults {
+            let fetchResults = try managedContext.fetch(fetchRequest)
+            if let results: Array = fetchResults as? [Song] {
                 
                 for songObject:AnyObject in results {
                     let songModel = songObject as! Song
@@ -380,7 +384,8 @@ class SolPlayer {
 
                     }
                     //プレイリストに入っている状態を更新
-                    songModel.playTime = playlist[index].playTime
+                    songModel.playTime = playlist[index].playTime.map { NSNumber(value: $0) }
+
                     
                 }
                 
@@ -401,16 +406,16 @@ class SolPlayer {
         do {
             let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
 
-            let fetchRequest = NSFetchRequest(entityName:SONG)
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName:SONG)
             fetchRequest.predicate = NSPredicate(format: "persistentID = %d", persistentId)
 
-            let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
+            let fetchResults = try managedContext.fetch(fetchRequest)
 
-            if let results: Array = fetchResults {
+            if let results: Array = fetchResults as? [Song] {
                 
                 for songObject:AnyObject in results {
                     //削除
-                    managedContext.deleteObject(songObject as! NSManagedObject)
+                    managedContext.delete(songObject as! NSManagedObject)
                     
                 }
                 
@@ -427,16 +432,16 @@ class SolPlayer {
         do {
             let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
             
-            let fetchRequest = NSFetchRequest(entityName:SONG)
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName:SONG)
             fetchRequest.predicate = NSPredicate(format: "playlist = %@", playlistId)
             
-            let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
+            let fetchResults = try managedContext.fetch(fetchRequest)
             
-            if let results: Array = fetchResults {
+            if let results: Array = fetchResults as? [Song] {
                 
                 for songObject:AnyObject in results {
                     //削除
-                    managedContext.deleteObject(songObject as! NSManagedObject)
+                    managedContext.delete(songObject as! NSManagedObject)
                 }
                 
             }
@@ -452,22 +457,22 @@ class SolPlayer {
         
         do {
             //最初にプレイリストに入っている曲を削除
-            try removeAllSongs(playlistId)
+            try removeAllSongs(playlistId: playlistId)
             //それからプレイリストを削除
             let managedContext: NSManagedObjectContext = appDelegate.managedObjectContext
             
-            let fetchRequest = NSFetchRequest(entityName:PLAYLIST)
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName:PLAYLIST)
             //playlistId（String）を元に曲を検索
             fetchRequest.predicate = NSPredicate(format: "id = %@", playlistId)
             //検索を実行
-            let fetchResults = try managedContext.executeFetchRequest(fetchRequest)
+            let fetchResults = try managedContext.fetch(fetchRequest)
             
             
-            if let results: Array = fetchResults {
+            if let results: Array = fetchResults as? [Song] {
                 
                 for songObject:AnyObject in results {
                     //削除
-                    managedContext.deleteObject(songObject as! NSManagedObject)
+                    managedContext.delete(songObject as! NSManagedObject)
                 }
                 
             }
@@ -482,9 +487,9 @@ class SolPlayer {
     
         do {
             //全曲削除
-            try removeAllSongs(playlistId)
+            try removeAllSongs(playlistId: playlistId)
             //全曲追加
-            try savePlayList(playlistId)
+            try savePlayList(playlistId: playlistId)
             //プレイリストも更新（2016/06/26）
             if(mainPlaylist == subPlaylist){
                 playlist = editPlaylist
@@ -519,7 +524,7 @@ class SolPlayer {
         song = playlist[number]
         
         //audioFile取得
-        audioFile = try AVAudioFile(forReading: song.assetURL!)
+        audioFile = try AVAudioFile(forReading: song.assetURL! as URL)
         
         //サンプルレートの取得
         sampleRate = audioFile.fileFormat.sampleRate
@@ -527,7 +532,7 @@ class SolPlayer {
         //曲の総再生時間を取得
         duration = song.duration
         
-        if song.duration <= 0.0 {
+        if song.duration ?? 0.0 <= 0.0 {
             print("総再生時間とれてない")
             //再生時間
             duration = Double(audioFile.length) / sampleRate
@@ -555,7 +560,7 @@ class SolPlayer {
         //AVAudioEngineにアタッチ
         /*TODO:なんか綺麗にかけないのかなぁ forEachとかで。。*/
         for i in 0 ... attachList.count-1 {
-            audioEngine.attachNode(attachList[i])
+            audioEngine.attach(attachList[i])
             if(i >= 1){
                 audioEngine.connect(attachList[i-1], to:attachList[i], format:audioFile.processingFormat)
             }
@@ -577,7 +582,7 @@ class SolPlayer {
     /** 現在の再生時刻を返す */
     func currentPlayTime() -> Float {
         
-        if audioPlayerNode.playing {
+        if audioPlayerNode.isPlaying {
             
             //サンプルレートが0の時は再生時間を取得しない（というかできない）
             if(sampleRate == 0){
@@ -591,12 +596,12 @@ class SolPlayer {
             if(nodeTime == nil){
                 stopExternal()
                 //画面を更新するため（UIEvent()はダミー）
-                appDelegate.remoteControlReceivedWithEvent(UIEvent())
+                appDelegate.remoteControlReceived(with: UIEvent())
                 return pausedTime
             }
             
             //便宜上分かりやすく書いてみる
-            let playerTime = audioPlayerNode.playerTimeForNodeTime(nodeTime!)
+            let playerTime = audioPlayerNode.playerTime(forNodeTime: nodeTime!)
             let nowPlayTime = (Double(playerTime!.sampleTime) / sampleRate)
             
             //抜き差しするとcurrentTimeが0.0になってしまうため、保存用に
@@ -639,7 +644,7 @@ class SolPlayer {
                 if playlist == nil {
                     mainPlaylist = subPlaylist
                     //playlist = try loadPlayList(self.subPlaylist.id)
-                    playlist = try loadPlayList(self.mainPlaylist.id)
+                    playlist = try loadPlayList(playlistId: self.mainPlaylist.id)
                 }
                 
                 //音源ファイルを読み込む
@@ -650,7 +655,7 @@ class SolPlayer {
                 
                 //インターラプト時（ヘッドフォンが抜けた時など、途中で切られた場合）は曲をずらす必要がある #88
                 if interruptFlg {
-                    timeShift(Float(song.playTime ?? 0.0))
+                    timeShift(current: Float(song.playTime ?? 0.0))
                     interruptFlg = false
                 }
                 
@@ -674,7 +679,7 @@ class SolPlayer {
      */
     func startPlayer(){
         //再生
-        audioPlayerNode.scheduleFile(audioFile, atTime: nil, completionHandler: nil)
+        audioPlayerNode.scheduleFile(audioFile, at: nil, completionHandler: nil)
         
         //リモート操作されるとpauseがうまく動かないため暫定対応 #74
         if(remoteOffset != 0.0){
@@ -693,7 +698,7 @@ class SolPlayer {
             
             if remainFrames > 100 {
                 //指定の位置から再生するようスケジューリング
-                audioPlayerNode.scheduleSegment(audioFile, startingFrame: restartPosition, frameCount: remainFrames, atTime: nil, completionHandler: nil)
+                audioPlayerNode.scheduleSegment(audioFile, startingFrame: restartPosition, frameCount: remainFrames, at: nil, completionHandler: nil)
             }
             //remoteOffsetを初期化
             remoteOffset = 0.0
@@ -701,7 +706,7 @@ class SolPlayer {
         
         //画面ロック時の情報を設定 #73, #74, #88
         //updateNowPlayingInfoCenter(stopFlg)
-        updateNowPlayingInfoCenter(true)
+        updateNowPlayingInfoCenter(updateAll: true)
         
         audioPlayerNode.play()
         
@@ -713,7 +718,7 @@ class SolPlayer {
     func pause(){
         
         //二度押し対策？
-        if !audioPlayerNode.playing {
+        if !audioPlayerNode.isPlaying {
             return
         }
         
@@ -773,7 +778,7 @@ class SolPlayer {
     func reverb() {
         //リバーブを準備する
         //let reverbEffect = AVAudioUnitReverb()
-        reverbEffect.loadFactoryPreset(AVAudioUnitReverbPreset.LargeHall2)
+        reverbEffect.loadFactoryPreset(AVAudioUnitReverbPreset.largeHall2)
         reverbEffect.wetDryMix = 50
         
         //return reverbEffect
@@ -825,7 +830,7 @@ class SolPlayer {
         offset = Double(current)
         
         //pause状態でseekbarを動かした場合→動かした後もpause状態を維持する（最後につじつま合わせる）
-        let playing = audioPlayerNode.playing
+        let playing = audioPlayerNode.isPlaying
         
         //シーク位置（AVAudioFramePosition）取得
         let restartPosition = AVAudioFramePosition(Float(sampleRate) * current)
@@ -840,7 +845,7 @@ class SolPlayer {
         
         if remainFrames > 100 {
             //指定の位置から再生するようスケジューリング
-            audioPlayerNode.scheduleSegment(audioFile, startingFrame: restartPosition, frameCount: remainFrames, atTime: nil, completionHandler: nil)
+            audioPlayerNode.scheduleSegment(audioFile, startingFrame: restartPosition, frameCount: remainFrames, at: nil, completionHandler: nil)
         }
         
         audioPlayerNode.play()
@@ -870,7 +875,7 @@ class SolPlayer {
         //一般の再生プレイヤーの挙動に合わせる（ある程度進んだら、「戻る」ボタンで曲のアタマへ）
         if(currentPlayTime() > 3.0) {
             do {
-                try redumePlay(status)
+                try redumePlay(status: status)
                 return
             } catch {
                 //
@@ -881,7 +886,7 @@ class SolPlayer {
         while number > 0 {
             number = number - 1
             do {
-                try redumePlay(status)
+                try redumePlay(status: status)
                 return
             } catch {
                 //
@@ -909,7 +914,7 @@ class SolPlayer {
         while number < playlist.count-1 {
             number = number + 1
             do {
-                try redumePlay(status)
+                try redumePlay(status: status)
                 return
             } catch {
                 //
@@ -922,7 +927,7 @@ class SolPlayer {
         if(repeatAll){
             number = 0
             do {
-                try redumePlay(status)
+                try redumePlay(status: status)
                 return
             } catch {
                 //
@@ -960,7 +965,7 @@ class SolPlayer {
             if userConfigManager.isRedume || interruptFlg {
             //if userConfigManager.isRedume || stopFlg == 2 {
                 if let playtime = song.playTime {
-                    timeShift(Float(playtime))
+                    timeShift(current: Float(playtime))
                 }
                 //intteruptFlgを初期化
                 //interruptFlg = false
@@ -980,7 +985,7 @@ class SolPlayer {
     /** 再生/停止イベント（主にリモートイベントで使用） */
     //func remotePlayOrPause(event: MPRemoteCommandEvent) {
     func playOrPause() {
-        if !audioPlayerNode.playing {
+        if !audioPlayerNode.isPlaying {
             do { try play() } catch { }
         } else {
             //2016/08/11対応版 #88
@@ -994,34 +999,34 @@ class SolPlayer {
     //override func remoteControlReceivedWithEvent(event: UIEvent?) {
     func remoteControlReceivedWithEvent(event: UIEvent?) {
         
-        if event?.type == UIEventType.RemoteControl {
+        if event?.type == UIEventType.remoteControl {
             switch event!.subtype {
-            case UIEventSubtype.RemoteControlPlay:
+            case UIEventSubtype.remoteControlPlay:
                 playOrPause()
                 break
-            case UIEventSubtype.RemoteControlPause:
+            case UIEventSubtype.remoteControlPause:
                 playOrPause()
                 break
-            case UIEventSubtype.RemoteControlTogglePlayPause:
+            case UIEventSubtype.remoteControlTogglePlayPause:
                 playOrPause()
                 break
-            case UIEventSubtype.RemoteControlStop:
+            case UIEventSubtype.remoteControlStop:
                 stopExternal()
                 break
-            case UIEventSubtype.RemoteControlPreviousTrack:
+            case UIEventSubtype.remoteControlPreviousTrack:
                 do {
-                    try prevSong(true)
+                    try prevSong(status: true)
                 } catch {
                     //
                 }
                 break
-            case UIEventSubtype.RemoteControlNextTrack:
+            case UIEventSubtype.remoteControlNextTrack:
                 do {
                     //曲の再生時間を保存 #103
                     if(userConfigManager.isRedume){
-                        try saveSong(true)
+                        try saveSong(isRedume: true)
                     }
-                    try nextSong(true)
+                    try nextSong(status: true)
                 } catch {
                     //
                 }
@@ -1062,9 +1067,9 @@ class SolPlayer {
     /** アプリ終了時の処理 #103 */
     func applicationWillTerminate() {
         //曲順を保存
-        userConfigManager.setRedumeNumber(number)
+        userConfigManager.setRedumeNumber(_redumeNumber: number)
         //再生中のプレイリストを保存
-        userConfigManager.setRedumePlaylist(mainPlaylist)
+        userConfigManager.setRedumePlaylist(_redumePlaylist: mainPlaylist)
         //曲の再生時間を保存（終了時はしおり機能のOn/Offにかかわらず確実に保存する） #103
         do { try updatePlayTime() } catch { }
     }

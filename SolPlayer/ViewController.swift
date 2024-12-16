@@ -11,7 +11,7 @@ import AVKit
 import AVFoundation
 import MediaPlayer
 
-class ViewController: UIViewController, AVAudioSessionDelegate {
+class ViewController: UIViewController {
 
     @IBOutlet weak var playButton: UIButton!
     @IBOutlet weak var stopButton: UIButton!
@@ -34,10 +34,10 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
     @IBOutlet weak var playlistLabel: UILabel!
     
     //ユーザ設定値
-    var config: NSUserDefaults!
+    var config: UserDefaults!
     
     //タイマー
-    var timer: NSTimer!
+    var timer: Timer!
     
     //SolPlayerのインスタンス（シングルトン）
     var solPlayer: SolPlayer!
@@ -70,7 +70,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
             try play()
             //初回時はしおり機能のOn/Offにかかわらず確実に読みこむ
             if let playtime = solPlayer.song.playTime {
-                solPlayer.timeShift(Float(playtime))
+                solPlayer.timeShift(current: Float(playtime))
             }
             pause()
          } catch {
@@ -82,13 +82,16 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         
         
         //割り込みが入った時の処理（現状うまく行っているのでコメントアウト）
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.audioSessionRouteChange), name: AVAudioSessionInterruptionNotification, object: UIApplication.sharedApplication())
+        NotificationCenter.default.addObserver(self, selector: #selector(ViewController.audioSessionRouteChange), name: NSNotification.Name.AVAudioSessionInterruption, object: UIApplication.shared)
 
         //ヘッドフォンが抜き差しされた時のイベントを取得する
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.audioSessionRouteChange), name: AVAudioEngineConfigurationChangeNotification, object: solPlayer.audioEngine)
+        NotificationCenter.default.addObserver(self, selector: #selector(ViewController.audioSessionRouteChange), name: NSNotification.Name.AVAudioEngineConfigurationChange, object: solPlayer.audioEngine)
 
         //ロック・スリープ復帰時に画面を更新する
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.viewWillAppear), name: UIApplicationWillEnterForegroundNotification, object: UIApplication.sharedApplication())
+        NotificationCenter.default.addObserver(self, selector: #selector(ViewController.viewWillAppear(_:)), name: NSNotification.Name.UIApplicationWillEnterForeground, object: UIApplication.shared)
+        
+        //リソースを監視
+        setupAudioSessionNotifications()
     }
     
     /**
@@ -102,15 +105,15 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         do {
             //再生処理
             try solPlayer.play()
-            setPlayLabel(solPlayer.audioPlayerNode.playing)
+            setPlayLabel(playing: solPlayer.audioPlayerNode.isPlaying)
             
             if stopFlg {  //停止→再生（あるいは初回再生時）
             //if stopFlg > 0 {
                 //タイマーを新規で設定（2016/07/27→SolPlayerクラスに移動→戻し）
-                timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: #selector(ViewController.didEverySecondPassed), userInfo: nil, repeats: true)
-                setScreen(true)
+                timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(ViewController.didEverySecondPassed), userInfo: nil, repeats: true)
+                setScreen(values: true)
                 //画面と再生箇所を同期をとる（停止時にいじられてもOKにする）
-                timeSlider.enabled = true
+                timeSlider.isEnabled = true
                 timeSlider.value = 0.0
 
             } else {    //一時停止→再生
@@ -120,7 +123,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
 
         } catch {
             //うまく再生処理が開始できなかった場合は
-            setScreen(false)
+            setScreen(values: false)
             throw AppError.CantPlayError
         }
             
@@ -138,12 +141,12 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
             if let song = solPlayer.song {
                 titleLabel.text = song.title ?? "Untitled"
                 artistLabel.text = song.artist ?? "Unknown Artist"
-                endTimeLabel.text = formatTimeString(Float(solPlayer.duration)) ?? "-99:99:99"
-                artworkImage.image = song.artwork?.imageWithSize(CGSize.init(width: 50, height: 50)) ?? nil
+                endTimeLabel.text = formatTimeString(time: Float(solPlayer.duration)) ?? "-99:99:99"
+                artworkImage.image = song.artwork?.image(at: CGSize.init(width: 50, height: 50)) ?? nil
             }
             
             //スライダーを操作可能に #72
-            timeSlider.enabled = true
+            timeSlider.isEnabled = true
             timeSlider.maximumValue = Float(solPlayer.duration)
             
             //プレイリスト情報を更新
@@ -157,12 +160,16 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
             artistLabel.text = "Unknown Artist"
             nowTimeLabel.text = "00:00:00"
             endTimeLabel.text = "-99:99:99"
-            artworkImage.image = ImageUtil.makeBoxWithColor(UIColor.init(colorLiteralRed: 0.67, green: 0.67, blue: 0.67, alpha: 1.0), width: 40.0, height: 40.0)
+            artworkImage.image = ImageUtil.makeBoxWithColor(
+                color: UIColor(red: 0.67, green: 0.67, blue: 0.67, alpha: 1.0),
+                width: 40.0,
+                height: 40.0
+            )
             //playButton.setTitle("PLAY", forState: .Normal)
             
             //timeSliderを0に固定していじらせない #72
             timeSlider.value = 0
-            timeSlider.enabled = false
+            timeSlider.isEnabled = false
             
             //プレイリスト情報を更新
             playlistLabel.text = solPlayer.mainPlaylist.name
@@ -170,7 +177,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         }
         
         //再生・一時再生ボタンをセット
-        setPlayLabel(solPlayer.audioPlayerNode.playing)
+        setPlayLabel(playing: solPlayer.audioPlayerNode.isPlaying)
         
     }
     
@@ -185,11 +192,11 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
      - returns: 文字列（hh:mm:ss）
      */
     func formatTimeString(time: Float) -> String {
-        let s: Int = Int(time % 60)
-        let m: Int = Int((time - Float(s)) / 60 % 60)
-        let h: Int = Int((time - Float(m) - Float(s)) / 3600 % 3600)
-        let str = String(format: "%02d:%02d:%02d", h, m, s)
-        return str
+        let totalSeconds = Int(time)
+        let hours = totalSeconds / 3600
+        let minutes = (totalSeconds % 3600) / 60
+        let seconds = totalSeconds % 60
+        return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
     }
     
     /**
@@ -199,14 +206,14 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         solPlayer.pause()
         timer = nil //意外と壊れてない？だがロック画面の変化はなし
         //timer.invalidate()    //ここでinvalidateするとTimerが壊れてしまう。ロック画面の変化もなし。
-        setPlayLabel(solPlayer.audioPlayerNode.playing)
+        setPlayLabel(playing: solPlayer.audioPlayerNode.isPlaying)
     }
     
     /**
      再生・一時停止判定
      */
     func playOrPause(){
-        if solPlayer.audioPlayerNode.playing {
+        if solPlayer.audioPlayerNode.isPlaying {
             pause() //再生→一時停止処理
         } else {
             do{
@@ -231,10 +238,10 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         solPlayer.stopFlg = true
         
         //スライダーを使用不可に（暫定対応）
-        timeSlider.enabled = false
+        timeSlider.isEnabled = false
 
         //ラベル更新
-        setPlayLabel(solPlayer.audioPlayerNode.playing)
+        setPlayLabel(playing: solPlayer.audioPlayerNode.isPlaying)
     }
     
     /** 
@@ -244,9 +251,9 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         
         do {
             //前の曲へ
-            try solPlayer.prevSong(true)
+            try solPlayer.prevSong(status: true)
             //画面に反映する
-            setScreen(true)
+            setScreen(values: true)
 
         } catch {
             //setScreen(false)
@@ -261,12 +268,12 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         do {
             //曲の再生時間を保存 #103
             if(userConfigManager.isRedume){
-                try solPlayer.saveSong(true)
+                try solPlayer.saveSong(isRedume: true)
             }
             //次の曲へ（いったんtrueで）
-            try solPlayer.nextSong(true)
+            try solPlayer.nextSong(status: true)
             //画面に反映する
-            setScreen(true)
+            setScreen(values: true)
         } catch {
             //setScreen(false)
         }
@@ -276,23 +283,23 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
      再生できる曲が無い場合にアラートを表示する
      */
     func alert(){
-        let alertController = UIAlertController(title: "info", message: "再生できる曲がありません", preferredStyle: .Alert)
+        let alertController = UIAlertController(title: "info", message: "再生できる曲がありません", preferredStyle: .alert)
         
-        let defaultAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
+        let defaultAction = UIAlertAction(title: "OK", style: .default, handler: nil)
         alertController.addAction(defaultAction)
         
-        presentViewController(alertController, animated: true, completion: nil)
+        present(alertController, animated: true, completion: nil)
     }
 
     /**
      毎秒ごとに行われる処理（timerで管理）
      */
-    func didEverySecondPassed(){
+    @objc func didEverySecondPassed(){
         
         let current = solPlayer.currentPlayTime()
         
-        nowTimeLabel.text = formatTimeString(current)
-        endTimeLabel.text = "-" + formatTimeString(Float(solPlayer.duration) - current)
+        nowTimeLabel.text = formatTimeString(time: current)
+        endTimeLabel.text = "-" + formatTimeString(time: Float(solPlayer.duration) - current)
         
         //timeSlider.value = current / Float(duration)
         timeSlider.value = current
@@ -302,14 +309,14 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
             
             //曲の再生時間をリセット #103
             if(userConfigManager.isRedume){
-                do { try solPlayer.saveSong(false) } catch { }
+                do { try solPlayer.saveSong(isRedume: false) } catch { }
             }
             
             //曲を停止する
             stop()
             
             //リピート処理
-            if(repeatButton.selected){
+            if(repeatButton.isSelected){
                 do { try play() } catch { }
                 return
             }
@@ -317,10 +324,10 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
             //通常時処理
             do {
                 //この時点でaudioPlayernode.playingはfalseとなるため、左記で判定せず次の曲を確実に再生させる
-                try solPlayer.nextSong(true)
+                try solPlayer.nextSong(status: true)
                 
                 //画面を更新する
-                setScreen(true)
+                setScreen(values: true)
                 
                 //PlaylistViewControllerのテーブルも更新する（もっと効率よいやりかたあればおしえて。）※navigationControllerやめようかな
                 let navigationController:UINavigationController = self.tabBarController?.viewControllers![1] as! UINavigationController
@@ -347,22 +354,22 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
      */
     func setPlayLabel(playing: Bool){
         if playing {
-            playButton.setImage(UIImage(named: "pause64.png"), forState: .Normal)
+            playButton.setImage(UIImage(named: "pause64.png"), for: .normal)
         } else {
-            playButton.setImage(UIImage(named: "play64.png"), forState: .Normal)
+            playButton.setImage(UIImage(named: "play64.png"), for: .normal)
         }
     }
 
     /** solSwitchを切り替える処理 */
     func solModeChange() {
         //ON/OFF切り替え
-        solButton.selected = !solButton.selected
+        solButton.isSelected = !solButton.isSelected
         //音源処理
-        solPlayer.pitchChange(solButton.selected)
+        solPlayer.pitchChange(solSwitch: solButton.isSelected)
         //画像を差し替え
-        solButton.setImage(UIImage(named: "solSwitch1_on\(userConfigManager.solMode).png"), forState: UIControlState.Selected)
+        solButton.setImage(UIImage(named: "solSwitch1_on\(String(describing: userConfigManager.solMode)).png"), for: UIControlState.selected)
         //UserDefaultsに保存
-        userConfigManager.setIsSolMode(solButton.selected)
+        userConfigManager.setIsSolMode(_isSolMode: solButton.isSelected)
     }
     
     /**
@@ -394,7 +401,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
      - parameter sender: UISlider
      */
     @IBAction func timeSliderAction(sender: UISlider) {
-        solPlayer.timeShift(timeSlider.value)
+        solPlayer.timeShift(current: timeSlider.value)
     }
     
     /**
@@ -402,7 +409,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
      - parameter sender: UISlider
      */
     @IBAction func speedSliderAction(sender: UISlider) {
-        solPlayer.speedChange(speedSlider.value)
+        solPlayer.speedChange(speedSliderValue: speedSlider.value)
         speedLabel.text = "x \((round(speedSlider.value*10)/10))"
     }
     
@@ -434,13 +441,13 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
         //ラベルを書き換える
         speedLabel.text = "x \((round(speedSlider.value*10)/10))"
         //プレイヤーに速度処理変更
-        solPlayer.speedChange(speedSlider.value)
+        solPlayer.speedChange(speedSliderValue: speedSlider.value)
     }
     
     /** リピート（繰り返し）再生ボタン */
     @IBAction func repeatButtonAction(sender: UIButton) {
         //ON/OFF切り替え
-        repeatButton.selected = !repeatButton.selected
+        repeatButton.isSelected = !repeatButton.isSelected
         
     }
 
@@ -461,7 +468,7 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
     
     /** 他のアプリから割り込みがあった場合 */
     func beginInterruption() {
-        status = solPlayer.audioPlayerNode.playing
+        status = solPlayer.audioPlayerNode.isPlaying
         if status {
             self.solPlayer.stopExternal()
         }
@@ -479,23 +486,46 @@ class ViewController: UIViewController, AVAudioSessionDelegate {
     }
 
     /** ヘッドフォンが抜き差しされた時の処理 #88 */
-    func audioSessionRouteChange(notification: NSNotification) {
+    @objc func audioSessionRouteChange(notification: NSNotification) {
         //トリガーが確実に作動するようにする
-        dispatch_async(dispatch_get_main_queue(), {
-            self.solPlayer.stopExternal()
-            self.setPlayLabel(self.solPlayer.audioPlayerNode.playing)
-        })
+        // メインスレッドでの実行を保証
+            DispatchQueue.main.async { [weak self] in
+            self?.solPlayer.stopExternal()
+                self?.setPlayLabel(playing: self?.solPlayer.audioPlayerNode.isPlaying ?? false)
+        }
         
     }
     
     /** この画面が表示される時に項目を更新する*/
-    override func viewWillAppear(animated: Bool) {
-        setScreen(!solPlayer.stopFlg)
+    override func viewWillAppear(_ animated: Bool) {
+        setScreen(values: !solPlayer.stopFlg)
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
+    
+    /* NotificationCenterを使用して監視する */
+    private func setupAudioSessionNotifications() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleRouteChange),
+            name: .AVAudioSessionRouteChange,
+            object: nil
+        )
+    }
+
+    @objc private func handleRouteChange(_ notification: Notification) {
+        DispatchQueue.main.async { [weak self] in
+            self?.solPlayer.stopExternal()
+            self?.setPlayLabel(playing: self?.solPlayer.audioPlayerNode.isPlaying ?? false)
+        }
+    }
+
+
+       deinit {
+           NotificationCenter.default.removeObserver(self)
+       }
 
 
 }

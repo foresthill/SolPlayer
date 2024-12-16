@@ -14,6 +14,22 @@ import MediaPlayer
  * ※プレイリストのCoreDataを更新するトリガーは（１）切替時（２）画面が消えるタイミング
  */
 class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate, UITableViewDataSource, UITableViewDelegate, UIPickerViewDataSource, UIPickerViewDelegate {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        // 1. セルの再利用
+            let cell = tableView.dequeueReusableCell(withIdentifier: "CellIdentifier", for: indexPath)
+            
+            // 2. セルの設定
+            cell.textLabel?.text = "アイテム \(indexPath.row)"
+            cell.detailTextLabel?.text = "詳細情報"
+            
+            // 3. セルを返す
+            return cell
+    }
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1  // 単一の列の場合
+    }
+    
     
     @IBOutlet weak var tableView: UITableView!
     
@@ -40,7 +56,7 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         solPlayer = SolPlayer.sharedManager
         
         //Cell名の登録を行う
-        tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "Cell")
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         
         //DataSourceの設定をする
         tableView.dataSource = self
@@ -54,19 +70,19 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         self.navigationController?.navigationBar.backgroundColor = UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.2)
 
         //プレイリスト追加ボタン
-        let addPlaylistButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Add, target: self, action: #selector(PlaylistViewController.addPlaylist))
-        self.navigationItem.setLeftBarButtonItem(addPlaylistButton, animated: true)
+        let addPlaylistButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.add, target: self, action: #selector(PlaylistViewController.addPlaylist))
+        self.navigationItem.setLeftBarButton(addPlaylistButton, animated: true)
         
         //プレイリスト削除ボタン
-        let removePlaylistButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.Trash, target: self, action: #selector(PlaylistViewController.removePlaylist))
-        self.navigationItem.setRightBarButtonItem(removePlaylistButton, animated: true)
+        let removePlaylistButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.trash, target: self, action: #selector(PlaylistViewController.removePlaylist))
+        self.navigationItem.setRightBarButton(removePlaylistButton, animated: true)
         
 
         //プレイリスト（メインとサブを分けたことにより）
         //solPlayer.editPlaylist = Array<MPMediaItem>()
         solPlayer.editPlaylist = Array<Song2>()
         do {
-            solPlayer.editPlaylist = try self.solPlayer.loadPlayList(solPlayer.subPlaylist.id)
+            solPlayer.editPlaylist = try self.solPlayer.loadPlayList(playlistId: solPlayer.subPlaylist.id)
         } catch {
         }
         
@@ -75,7 +91,7 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         playListPicker.dataSource = self
         
         //NSUserDefaultからとってきたID選択 #103
-        for (index, element) in solPlayer.allPlaylists.enumerate() {
+        for (index, element) in solPlayer.allPlaylists.enumerated() {
             if solPlayer.subPlaylist.id == element.id {
                 self.playListPicker.selectRow(index, inComponent: 0, animated: true)
                 break
@@ -85,59 +101,60 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     }
     
     /** 「新規プレイリスト追加」（＋マーク）をクリックした時の処理 */
-    func addPlaylist() {
+    @objc func addPlaylist() {
         //アラートを作成
-        var alert = UIAlertController(title: "プレイリストを作成", message: "新規作成するプレイリスト名を入力してください", preferredStyle: UIAlertControllerStyle.Alert)
+        var alert = UIAlertController(title: "プレイリストを作成", message: "新規作成するプレイリスト名を入力してください", preferredStyle: UIAlertControllerStyle.alert)
         
         //新規作成時のアクション
-        let addAction = UIAlertAction(title: "作成", style: .Default){(action: UIAlertAction!) -> Void in
+        let addAction = UIAlertAction(title: "作成", style: .default){(action: UIAlertAction!) -> Void in
             //入力したテキストをコンソールに表示
             let textField = alert.textFields![0] as UITextField
             
-            if(textField.text?.lengthOfBytesUsingEncoding(NSUTF8StringEncoding) > 0){
+            
+            if let text = textField.text, !text.isEmpty {
                 //永続化処理
                 do {
                     //新規作成されたプレイリストをCoreDataに保存
                     let name = textField.text
-                    let id:String = try self.solPlayer.newPlayList(name!)
+                    let id:String = try self.solPlayer.newPlayList(name: name!)
                     
                     //プレイリスト一覧に追加
                     self.solPlayer.allPlaylists.append((id, name!))
                     
-                    alert = UIAlertController(title: "作成完了", message: "プレイリストを作成しました。", preferredStyle: UIAlertControllerStyle.Alert)
+                    alert = UIAlertController(title: "作成完了", message: "プレイリストを作成しました。", preferredStyle: UIAlertControllerStyle.alert)
                     
                     //再読込処理
                     self.playListPicker.reloadAllComponents()
                     
                 } catch {
-                    alert = UIAlertController(title: "作成失敗", message: "プレイリストの作成に失敗しました。", preferredStyle: UIAlertControllerStyle.Alert)
+                    alert = UIAlertController(title: "作成失敗", message: "プレイリストの作成に失敗しました。", preferredStyle: UIAlertControllerStyle.alert)
                 }
                 
-                alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: {
                     (action: UIAlertAction!) -> Void in
                     //
                 }))
                 
-                self.presentViewController(alert, animated: true, completion: nil)
+                self.present(alert, animated: true, completion: nil)
                 
             } else {
-                alert = UIAlertController(title: "作成失敗", message: "プレイリスト名を入力してください。", preferredStyle: UIAlertControllerStyle.Alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
+                alert = UIAlertController(title: "作成失敗", message: "プレイリスト名を入力してください。", preferredStyle: UIAlertControllerStyle.alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: {
                     (action: UIAlertAction!) -> Void in
                     //
                 }))
-                self.presentViewController(alert, animated: true, completion: nil)
+                self.present(alert, animated: true, completion: nil)
             }
             
         }
         
         //キャンセル時のアクション
-        let cancelAction = UIAlertAction(title: "キャンセル", style: .Default){(action: UIAlertAction!) -> Void in
+        let cancelAction = UIAlertAction(title: "キャンセル", style: .default){(action: UIAlertAction!) -> Void in
             //
         }
         
         //UIAlertControllerにtextFieldを追加
-        alert.addTextFieldWithConfigurationHandler{(textField:UITextField) -> Void in
+        alert.addTextField{(textField:UITextField) -> Void in
             //
         }
         
@@ -146,21 +163,21 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         alert.addAction(cancelAction)
         
         //表示
-        presentViewController(alert, animated: true, completion: nil)
+        present(alert, animated: true, completion: nil)
 
 
     }
     
     /** 「プレイリストを削除」（ゴミ箱マーク）をクリックした時の処理 */
-    func removePlaylist() {
+    @objc func removePlaylist() {
         //アラートを作成
-        var alert = UIAlertController(title: "プレイリストを削除", message: "このプレイリストを削除してもよろしいですか？（復元できません）", preferredStyle: UIAlertControllerStyle.Alert)
+        var alert = UIAlertController(title: "プレイリストを削除", message: "このプレイリストを削除してもよろしいですか？（復元できません）", preferredStyle: UIAlertControllerStyle.alert)
         
         //新規作成時のアクション
-        let removeAction = UIAlertAction(title: "削除する", style: .Default){(action: UIAlertAction!) -> Void in
+        let removeAction = UIAlertAction(title: "削除する", style: .default){(action: UIAlertAction!) -> Void in
   
             //let selectedRow = self.playListPicker.selectedRowInComponent(0) as! UInt
-            let selectedRow = self.playListPicker.selectedRowInComponent(0)
+            let selectedRow = self.playListPicker.selectedRow(inComponent: 0)
             
             let playlistId = self.solPlayer.subPlaylist.id
             
@@ -168,14 +185,14 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
                 //削除処理
                 do {
                     //CoreDataのデータを削除
-                    try self.solPlayer.removePlaylist(playlistId)
+                    try self.solPlayer.removePlaylist(playlistId: playlistId)
                     //表示されているプレイリストを削除
-                    self.solPlayer.allPlaylists.removeAtIndex(selectedRow)
+                    self.solPlayer.allPlaylists.remove(at: selectedRow)
                     
-                    alert = UIAlertController(title: "削除完了", message: "プレイリストを削除しました。", preferredStyle: UIAlertControllerStyle.Alert)
+                    alert = UIAlertController(title: "削除完了", message: "プレイリストを削除しました。", preferredStyle: UIAlertControllerStyle.alert)
 
                     //再読込処理
-                    do { self.solPlayer.editPlaylist = try self.solPlayer.loadPlayList("0") } catch { }
+                    do { self.solPlayer.editPlaylist = try self.solPlayer.loadPlayList(playlistId: "0") } catch { }
                     self.solPlayer.subPlaylist = ("0", "default")
                     
                     //pickerViewを更新
@@ -188,25 +205,25 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
                     self.tableView.reloadData()
                     
                 } catch {
-                    alert = UIAlertController(title: "作成失敗", message: "プレイリストの削除に失敗しました。", preferredStyle: UIAlertControllerStyle.Alert)
+                    alert = UIAlertController(title: "作成失敗", message: "プレイリストの削除に失敗しました。", preferredStyle: UIAlertControllerStyle.alert)
                 }
                 
             } else {
-                alert = UIAlertController(title: "作成失敗", message: "defaultのプレイリストは削除できません。", preferredStyle: UIAlertControllerStyle.Alert)
+                alert = UIAlertController(title: "作成失敗", message: "defaultのプレイリストは削除できません。", preferredStyle: UIAlertControllerStyle.alert)
             
             }
             
-            alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: {
                 (action: UIAlertAction!) -> Void in
                 //
             }))
             
-            self.presentViewController(alert, animated: true, completion: nil)
+            self.present(alert, animated: true, completion: nil)
 
         }
         
         //キャンセル時のアクション
-        let cancelAction = UIAlertAction(title: "キャンセル", style: .Default){(action: UIAlertAction!) -> Void in
+        let cancelAction = UIAlertAction(title: "キャンセル", style: .default){(action: UIAlertAction!) -> Void in
             //
         }
         
@@ -215,7 +232,7 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         alert.addAction(cancelAction)
         
         //表示
-        presentViewController(alert, animated: true, completion: nil)
+        present(alert, animated: true, completion: nil)
         
     }
     
@@ -233,35 +250,35 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         //CloudItemsもAssetURLが読み込めないので表示しない
         picker.showsCloudItems = false
         //ピッカーを表示する
-        presentViewController(picker, animated:true, completion: nil)
+        present(picker, animated:true, completion: nil)
     }
     
     /** 「編集」ボタンをクリックした時の処理 */
     @IBAction func editPlaylist(sender: UIButton) {
-        if(!self.tableView.editing){
+        if(!self.tableView.isEditing){
             //編集を開始する
             setEditing(true, animated: true)
-            editButton.setTitle("完了", forState: .Normal)
+            editButton.setTitle("完了", for: .normal)
         } else {
             setEditing(false, animated: true)
-            editButton.setTitle("編集", forState: .Normal)
+            editButton.setTitle("編集", for: .normal)
         }
     }
     
     /** 「全曲をクリア」をクリックした時の処理 **/
     @IBAction func clearButtonAction(sender: UIButton) {
         //アラートを作成
-        let alert = UIAlertController(title: "全曲クリア", message: "曲をクリア（削除）してもよろしいですか？（復元できません）", preferredStyle: UIAlertControllerStyle.Alert)
+        let alert = UIAlertController(title: "全曲クリア", message: "曲をクリア（削除）してもよろしいですか？（復元できません）", preferredStyle: UIAlertControllerStyle.alert)
         
         //クリア時のアクション
-        let clearAction = UIAlertAction(title: "クリア", style: .Default){(action: UIAlertAction!) -> Void in
+        let clearAction = UIAlertAction(title: "クリア", style: .default){(action: UIAlertAction!) -> Void in
             self.solPlayer.editPlaylist.removeAll()
             self.tableView.reloadData()
 
         }
         
         //キャンセル時のアクション
-        let cancelAction = UIAlertAction(title: "キャンセル", style: .Default){(action: UIAlertAction!) -> Void in
+        let cancelAction = UIAlertAction(title: "キャンセル", style: .default){(action: UIAlertAction!) -> Void in
             //
         }
         
@@ -270,16 +287,16 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         alert.addAction(cancelAction)
         
         //表示
-        presentViewController(alert, animated: true, completion: nil)
+        present(alert, animated: true, completion: nil)
         
     }
 
     /** 全曲リピートボタンを押した時の処理 */
     @IBAction func repeatAllButtonAction(sender: UIButton) {
         //画面上でのON/OFF切り替え
-        repeatAllButton.selected = !repeatAllButton.selected
+        repeatAllButton.isSelected = !repeatAllButton.isSelected
         //SolPlayer上でのフラグ管理
-        solPlayer.repeatAll = repeatAllButton.selected
+        solPlayer.repeatAll = repeatAllButton.isSelected
     }
     
     //メディアアイテムピッカーでアイテムを選択完了した時に呼び出される（必須）
@@ -293,7 +310,7 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         }
         
         //ピッカーを閉じ、破棄する
-        self.dismissViewControllerAnimated(true, completion: nil)
+        self.dismiss(animated: true, completion: nil)
         
         //tableviewの更新
         tableView.reloadData()
@@ -303,13 +320,13 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     //メディアアイテムピッカーでキャンセルした時に呼び出される（必須）
     func mediaPickerDidCancel(mediaPicker: MPMediaPickerController) {
         //ピッカーを閉じ、破棄する
-        self.dismissViewControllerAnimated(true, completion: nil)
+        self.dismiss(animated: true, completion: nil)
     }
     
     /** 
      tableView用メソッド（1.セルの行数）
      */
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return solPlayer.editPlaylist.count
     }
     
@@ -319,24 +336,24 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
         //表示設定
-        let cell: UITableViewCell = UITableViewCell(style: UITableViewCellStyle.Subtitle, reuseIdentifier: "Cell")
+        let cell: UITableViewCell = UITableViewCell(style: UITableViewCellStyle.subtitle, reuseIdentifier: "Cell")
         cell.textLabel?.numberOfLines = 2
         cell.detailTextLabel?.numberOfLines = 0 //0にすると制限なし（「…」とならない）
-        cell.backgroundColor = UIColor.clearColor() //背景色を透明に
+        cell.backgroundColor = UIColor.clear //背景色を透明に
         
         //フォント
         var font: UIFont = UIFont(name: "Helvetica Neue", size: 16.0)!
-        font = UIFont.systemFontOfSize(16.0, weight: UIFontWeightLight)
+        font = UIFont.systemFont(ofSize: 16.0, weight: UIFont.Weight.light)
         
         cell.textLabel?.font = font
         
         font = UIFont(name: "Helvetica Neue", size: 11.0)!
-        font = UIFont.systemFontOfSize(11.0, weight: UIFontWeightLight)
+        font = UIFont.systemFont(ofSize: 11.0, weight: UIFont.Weight.light)
         
         cell.detailTextLabel?.font = font
         
-        cell.textLabel?.textColor = UIColor.whiteColor()    //tintColorではなくテキストカラー？
-        cell.detailTextLabel?.textColor = UIColor.darkGrayColor()
+        cell.textLabel?.textColor = UIColor.white    //tintColorではなくテキストカラー？
+        cell.detailTextLabel?.textColor = UIColor.darkGray
         
         //表示内容
         cell.textLabel?.text = solPlayer.editPlaylist![indexPath.row].title ?? "Untitled"
@@ -352,10 +369,14 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     
             if let artwork = solPlayer.editPlaylist![indexPath.row].artwork {
                 //アートワークを表示
-                cell.imageView?.image = artwork.imageWithSize(CGSize.init(width: 50, height: 50))
+                cell.imageView?.image = artwork.image(at: CGSize.init(width: 50, height: 50))
             } else {
                 //ダミー画像を表示
-                cell.imageView?.image = ImageUtil.makeBoxWithColor(UIColor.init(colorLiteralRed: 0.67, green: 0.67, blue: 0.67, alpha: 1.0), width: 50.0, height: 50.0)
+                cell.imageView?.image = ImageUtil.makeBoxWithColor(
+                    color: UIColor(red: 0.67, green: 0.67, blue: 0.67, alpha: 1.0),
+                    width: 50.0,
+                    height: 50.0
+                )
             }
         }
 
@@ -379,12 +400,12 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         do {
 //            solPlayer.stop()
 //            try solPlayer.play()
-            try solPlayer.redumePlay(true)
+            try solPlayer.redumePlay(status: true)
         } catch {
             
         }
         //選択を解除しておく
-        tableView.deselectRowAtIndexPath(indexPath, animated: true)
+        tableView.deselectRow(at: indexPath as IndexPath, animated: true)
         
         //tableViewを更新
         tableView.reloadData()
@@ -393,9 +414,9 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     /**
      tableView用メソッド（4.編集モードに入る）
      */
-    override func setEditing(editing: Bool, animated: Bool) {
+    override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
-        tableView.editing = editing
+        tableView.isEditing = editing
     }
 
     /**
@@ -411,18 +432,18 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         
         //tableViewで使っているのデータを更新する
-        solPlayer.editPlaylist?.removeAtIndex(indexPath.row)   //これがないと、絶対にエラーが出る
+        solPlayer.editPlaylist?.remove(at: indexPath.row)   //これがないと、絶対にエラーが出る
         
         //現在のプレイリストに適用（なんか違う？） #64, #81
         if(solPlayer.mainPlaylist == solPlayer.subPlaylist){
-            solPlayer.playlist?.removeAtIndex(indexPath.row)
+            solPlayer.playlist?.remove(at: indexPath.row)
             //曲順と見た目を合わせる #101
             if indexPath.row < solPlayer.number {
                 solPlayer.number = solPlayer.number - 1
             }
         }
         //それからテーブルの更新
-        tableView.deleteRowsAtIndexPaths([NSIndexPath(forRow: indexPath.row, inSection: 0)], withRowAnimation: UITableViewRowAnimation.Fade)
+        tableView.deleteRows(at: [IndexPath(row: indexPath.row, section: 0)], with: .fade)
     }
     
     /**
@@ -439,13 +460,13 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         let targetSong = solPlayer.editPlaylist![sourceIndexPath.row]
         
         //並び替え処理（削除→更新）
-        solPlayer.editPlaylist?.removeAtIndex(sourceIndexPath.row)
-        solPlayer.editPlaylist?.insert(targetSong, atIndex: destinationIndexPath.row)
+        solPlayer.editPlaylist?.remove(at: sourceIndexPath.row)
+        solPlayer.editPlaylist?.insert(targetSong, at: destinationIndexPath.row)
         
         //現在のプレイリストに適用（なんか違う？） #64, #81
         if solPlayer.mainPlaylist == solPlayer.subPlaylist {
-            solPlayer.playlist?.removeAtIndex(sourceIndexPath.row)
-            solPlayer.playlist?.insert(targetSong, atIndex: destinationIndexPath.row)
+            solPlayer.playlist?.remove(at: sourceIndexPath.row)
+            solPlayer.playlist?.insert(targetSong, at: destinationIndexPath.row)
             
             //曲順の管理 #101
             //solPlayer.playlist = solPlayer.editPlaylist
@@ -477,7 +498,7 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     /**
      UIPicker用メソッド（2.表示個数）
      */
-    func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         return solPlayer.allPlaylists.count
     }
     
@@ -493,11 +514,11 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         
         //フォント
         var font: UIFont = UIFont(name: "Helvetica Neue", size: 18.0)!
-        font = UIFont.systemFontOfSize(18.0, weight: UIFontWeightLight)
+        font = UIFont.systemFont(ofSize: 18.0, weight: UIFont.Weight.light)
         pickerLabel.font = font
         
         //表示位置
-        pickerLabel.textAlignment = NSTextAlignment.Center
+        pickerLabel.textAlignment = NSTextAlignment.center
         
         return pickerLabel
     }
@@ -505,13 +526,13 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     /**
      UIPicker用メソッド（4.選択時）
      */
-    func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         //TODO:プレイリスト読み込み処理
         do {
             //現在の状態を保存
-            try solPlayer.updatePlayList(solPlayer.subPlaylist.id)
+            try solPlayer.updatePlayList(playlistId: solPlayer.subPlaylist.id)
             //選択されたプレイリストを読込
-            solPlayer.editPlaylist = try solPlayer.loadPlayList(solPlayer.allPlaylists[row].id)
+            solPlayer.editPlaylist = try solPlayer.loadPlayList(playlistId: solPlayer.allPlaylists[row].id)
             //待機中（サブ）のプレイリストを最新状態に変更　※再生中（メイン）のプレイリストへは「停止」時に読み込み
             solPlayer.subPlaylist = solPlayer.allPlaylists[row]
             //TableViewを更新する
@@ -519,30 +540,30 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
 
         } catch {
             
-            let alert = UIAlertController(title: "プレイリストを読込", message: "プレイリストの読み込みに失敗しました", preferredStyle: UIAlertControllerStyle.Alert)
+            let alert = UIAlertController(title: "プレイリストを読込", message: "プレイリストの読み込みに失敗しました", preferredStyle: UIAlertControllerStyle.alert)
             
-            alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: {
                 (action: UIAlertAction!) -> Void in
                 //
             }))
             
             //表示
-            presentViewController(alert, animated: true, completion: nil)
+            present(alert, animated: true, completion: nil)
             
         }
         
     }
     
     /** この画面が表示された時にTableviewを更新する*/
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         tableView.reloadData()
     }
     
     /** この画面が非表示になった時にCoreDataを更新する */
-    override func viewDidDisappear(animated: Bool) {
+    override func viewDidDisappear(_ animated: Bool) {
         do {
             //現在の状態をCoreDataに保存
-            try solPlayer.updatePlayList(solPlayer.allPlaylists[playListPicker.selectedRowInComponent(0)].id)
+            try solPlayer.updatePlayList(playlistId: solPlayer.allPlaylists[playListPicker.selectedRow(inComponent: 0)].id)
         } catch {
            //
         }

@@ -31,7 +31,7 @@ class UserConfigViewController: UIViewController {
         solModeSegment.selectedSegmentIndex = userConfigManager.solMode - 1
         
         //しおりMode
-        resumeSwitch.on = userConfigManager.isRedume
+        resumeSwitch.isOn = userConfigManager.isRedume
         
         //タイトルの設定
         self.navigationItem.title = "設定"
@@ -45,13 +45,13 @@ class UserConfigViewController: UIViewController {
     /** ソルフェジオモードが変更された時 */
     @IBAction func solModeChange(sender: UISegmentedControl) {
         //ユーザ設定に保存
-        userConfigManager.setSolMode(solModeSegment.selectedSegmentIndex + 1)
+        userConfigManager.setSolMode(_solMode: solModeSegment.selectedSegmentIndex + 1)
     }
 
     /** しおり（レジューム機能）が変更された時 */
     @IBAction func redumeSwitchChange(sender: AnyObject) {
         //ユーザ設定に保存
-        userConfigManager.setIsRedume(resumeSwitch.on)
+        userConfigManager.setIsRedume(_isRedume: resumeSwitch.isOn)
     }
     
     /** 表示件数（Web再生画面）が変更された時 */
@@ -76,11 +76,11 @@ class UserConfigViewController: UIViewController {
             resultNumber = 10
             break
         }
-        userConfigManager.setResultNumber(resultNumber)
+        userConfigManager.setResultNumber(_resultNumber: resultNumber)
     }
     
     //「戻る」ボタン押下時に呼ばれるメソッド
-    override func viewWillDisappear(animated: Bool) {
+    override func viewWillDisappear(_ animated: Bool) {
         //
     }
 

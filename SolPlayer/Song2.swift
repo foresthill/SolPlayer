@@ -55,7 +55,7 @@ class Song2 {
         self.persistentID = mediaItem.persistentID
         self.title = mediaItem.title
         //self.assetURL = mediaItem.assetURL
-        self.assetURL = mediaItem.valueForProperty(MPMediaItemPropertyAssetURL) as? NSURL
+        self.assetURL = mediaItem.value(forProperty: MPMediaItemPropertyAssetURL) as? NSURL
         self.artist = mediaItem.artist
         self.albumArtist = mediaItem.albumArtist
         self.albumTitle = mediaItem.albumTitle
@@ -78,7 +78,7 @@ class Song2 {
         
         if self.assetURL != nil {
             do {
-                let audioFile = try AVAudioFile(forReading: assetURL!)
+                let audioFile = try AVAudioFile(forReading: assetURL! as URL)
                 
                 //サンプルレートの取得
                 let sampleRate = audioFile.fileFormat.sampleRate
@@ -103,7 +103,7 @@ class Song2 {
         //assetURLが存在する場合
         if assetURL != nil {
             do {
-                let audioFile = try AVAudioFile(forReading: assetURL!)
+                let audioFile = try AVAudioFile(forReading: assetURL! as URL)
                 
                 //サンプルレートの取得
                 let sampleRate = audioFile.fileFormat.sampleRate

@@ -14,7 +14,7 @@ class UserConfigManager {
     static let sharedManager = UserConfigManager()
     
     //ユーザ設定値
-    var config: NSUserDefaults!
+    var config: UserDefaults!
     
     //ソルフェジオのモード（ver1:440→444Hz、ver2:440→432Hz）
     var solMode: Int! = 1
@@ -38,17 +38,17 @@ class UserConfigManager {
     /** 初期処理 */
     private init() {
         //設定値を取得する
-        config = NSUserDefaults.standardUserDefaults()
+        config = UserDefaults.standard
         
         /* NSUserDefaultsに格納された情報を呼び出す */
         //ソルフェジオモード
-        var defaultConfig = config.objectForKey("solMode")
+        var defaultConfig = config.object(forKey: "solMode")
         if(defaultConfig != nil){
             solMode = defaultConfig as! Int
         }
         
         //しおり機能
-        defaultConfig = config.objectForKey("isRedume")
+        defaultConfig = config.object(forKey: "isRedume")
         if(defaultConfig != nil){
             isRedume = defaultConfig as! Bool
         }
@@ -59,20 +59,20 @@ class UserConfigManager {
     func setSolMode(_solMode: Int) {
         solMode = _solMode
         //NSUserDefaultsに格納する
-        config.setObject(_solMode, forKey: "solMode")
+        config.set(_solMode, forKey: "solMode")
     }
     
     /** solModeかどうかをNSUserDefaultsにセットする */
     func setIsSolMode(_isSolMode: Bool) {
         isSolMode = _isSolMode
         //NSUserDefaultsに格納する
-        config.setObject(_isSolMode, forKey: "isSolMode")
+        config.set(_isSolMode, forKey: "isSolMode")
     }
     
     /** solModeかどうかをNSUserDefaultsから取得する */
     func getIsSolMode() -> Bool {
         //プレイリスト名を取得
-        if let defaultConfig = config.objectForKey("isSolMode") {
+        if let defaultConfig = config.object(forKey: "isSolMode") {
             isSolMode = defaultConfig as! Bool
         } else {
             isSolMode = false
@@ -84,13 +84,13 @@ class UserConfigManager {
     func setIsRedume(_isRedume: Bool) {
         isRedume = _isRedume
         //NSUserDefaultsに格納する
-        config.setObject(_isRedume, forKey: "isRedume")
+        config.set(_isRedume, forKey: "isRedume")
     }
     
     /** アプリ終了時にプレイリストの情報をNSUserDefaultsにセットする */
     func setRedumePlaylist(_redumePlaylist: (id:String, name:String)) {
-        config.setObject(_redumePlaylist.id, forKey: "redumePlaylistId")
-        config.setObject(_redumePlaylist.name, forKey: "redumePlaylistName")
+        config.set(_redumePlaylist.id, forKey: "redumePlaylistId")
+        config.set(_redumePlaylist.name, forKey: "redumePlaylistName")
     }
     
     /** アプリ開始時にプレイリストの情報をNSUserDefaultsから取得する */
@@ -99,14 +99,14 @@ class UserConfigManager {
         var redumePlaylistName: String
         
         //プレイリストIDを取得
-        if let defaultConfig = config.objectForKey("redumePlaylistId") {
+        if let defaultConfig = config.object(forKey: "redumePlaylistId") {
             redumePlaylistId = defaultConfig as! String
         } else {
             redumePlaylistId = "0"
         }
         
         //プレイリスト名を取得
-        if let defaultConfig = config.objectForKey("redumePlaylistName") {
+        if let defaultConfig = config.object(forKey: "redumePlaylistName") {
             redumePlaylistName = defaultConfig as! String
         } else {
             redumePlaylistName = "default"
@@ -120,12 +120,12 @@ class UserConfigManager {
     func setRedumeNumber(_redumeNumber: Int) {
         redumeNumber = _redumeNumber
         //NSUserDefaultsに格納する
-        config.setObject(_redumeNumber, forKey: "redumeNumber")
+        config.set(_redumeNumber, forKey: "redumeNumber")
     }
 
     /** redumePlaylistIdをNSUserDefaultsから取得する */
     func getRedumeNumber() -> Int {
-        let defaultConfig = config.objectForKey("redumeNumber")
+        let defaultConfig = config.object(forKey: "redumeNumber")
         if(defaultConfig != nil){
             redumeNumber = defaultConfig as! Int
         } else {
@@ -139,12 +139,12 @@ class UserConfigManager {
     func setResultNumber(_resultNumber: Int) {
         resultNumber = _resultNumber
         //NSUserDefaultsに格納する
-        config.setObject(_resultNumber, forKey: "resultNumber")
+        config.set(_resultNumber, forKey: "resultNumber")
     }
     
     /** redumePlaylistIdをNSUserDefaultsから取得する */
     func getResultNumber() -> Int {
-        let defaultConfig = config.objectForKey("resultNumber")
+        let defaultConfig = config.object(forKey: "resultNumber")
         if(defaultConfig != nil){
             resultNumber = defaultConfig as! Int
         } else {
