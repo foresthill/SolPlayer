@@ -1,0 +1,73 @@
+# Xcode
+.DS_Store
+*/build/*
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata
+profile
+*.moved-aside
+DerivedData
+.idea/
+*.hmap
+*.xccheckout
+*.xcuserstate
+
+# Obj-C/Swift specific
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# CocoaPods
+Pods/
+*.xcworkspace
+!default.xcworkspace
+
+# Carthage
+Carthage/Build/
+
+# Swift Package Manager
+.build/
+Package.resolved
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Code Injection
+injected_container.swift
+
+# その他
+.env
+*.log
+*.swp
+*~.nib
+
+# プロジェクト固有の一時ファイル
+timeline.xctimeline
+playground.xcworkspace
+
+# バックアップファイル
+*.backup
+*.bak
+*.tmp
+
+# AppCode
+.idea/
+
+# Exported Files
+*.ipa
+*.app.dSYM.zip
+
+# ユーザ固有の設定ファイル
+xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
