@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		6E1EAB3E2D1087DD00D51F31 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 6E1EAB3D2D1087D600D51F31 /* .gitignore */; };
+		6EDF9B012D4A4CFD00735712 /* WebPlayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB4FFC8D1D71DA550045B4DF /* WebPlayViewController.swift */; };
 		BB22FF7C1D330F2A00810BA5 /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB22FF7B1D330F2A00810BA5 /* CustomButton.swift */; };
 		BB2C635D1D0F0ECB002CCFB2 /* pause_white.png in Resources */ = {isa = PBXBuildFile; fileRef = BB2C635C1D0F0ECB002CCFB2 /* pause_white.png */; };
 		BB2C635F1D0F0ED8002CCFB2 /* pause_white@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BB2C635E1D0F0ED8002CCFB2 /* pause_white@2x.png */; };
@@ -579,6 +580,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6EDF9B012D4A4CFD00735712 /* WebPlayViewController.swift in Sources */,
 				BB7855A31D03F61200FB0914 /* Song2.swift in Sources */,
 				BBC6329E1CFB2AD3006407C9 /* ViewController.swift in Sources */,
 				BB66AF8E1D076DE9007CA80A /* PlaylistViewController.swift in Sources */,

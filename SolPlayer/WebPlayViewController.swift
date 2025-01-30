@@ -10,19 +10,31 @@
 //
 
 import UIKit
-import Alamofire
 import AVKit
 import AVFoundation
 
 //#import "HCYoutubeParser"
 
 class WebPlayViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UIPickerViewDataSource, UIPickerViewDelegate {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        //
+        return 0
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        //
+        return 0
+    }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        <#code#>
+        //
+        let cell : UITableViewCell = UITableViewCell()
+        return cell
     }
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        <#code#>
+        //
+        return 0
     }
     
 
@@ -69,93 +81,12 @@ class WebPlayViewController: UIViewController, UITableViewDataSource, UITableVie
         sitePicker.dataSource = self
         sitePicker.delegate = self
         
-                //api
-//      let apiUrl = "https://www.googleapis.com/youtube/v3/videos?id=\(self.videoId)&key=\(self.apiKey)&fields=items(id,snippet(channelTitle,title,thumbnails),statistics)&part=snippet,contentDetails,statistics"
-        /*
-        // create request object
-        var requestUrl: NSURL = NSURL(string: apiUrl)!
-        var request: NSURLRequest = NSURLRequest(URL: requestUrl)
-        
-        // request to api
-        var data: NSData
-        do {
-          data = try NSURLConnection.sendSynchronousRequest(request, returningResponse: nil)
-        }
-         */
-        
-        //var urlRequest = NSURLRequest(URL: NSURL(string: url)!)
-        
-                //responseDataからキー値resultsを取り出す
-                
-//                var player = AVPlayer()
-//                
-//                //let playerItem = AVPlayerItem(URL: NSURL( string: "https://www.youtube.com/watch?v=\(self.videoId)")!)
-//                let playerItem = AVPlayerItem(URL: NSURL( string: "http://www.youtube.com/get_video_info?video_id=\(self.videoId)")!)
-//                player = AVPlayer(playerItem: playerItem)
-//                player.rate = 1.0
-//                player.play()
-        
-                /*
-                //audioFile取得
-                var audioFile: AVAudioFile = AVAudioFile()
-                do {
-                     audioFile = try AVAudioFile(forReading: NSURL(fileURLWithPath: "https://www.youtube.com/watch?v=\(self.videoId)"))
-                    
-                } catch {
-                    
-                }
-                
-                //AVAudioEngineの生成
-                let audioEngine = AVAudioEngine()
-                
-                //AVPlayerNodeの生成
-                let audioPlayerNode = AVAudioPlayerNode()
-                
-                //アタッチリスト
-                //var attachList:Array<AVAudioNode> = [audioPlayerNode]
-                
-                //AVAudioEngineにアタッチ
-                /*TODO:なんか綺麗にかけないのかなぁ forEachとかで。。
-                for i in 0 ... attachList.count-1 {
-                    audioEngine.attachNode(attachList[i])
-                    if(i >= 1){
-                        audioEngine.connect(attachList[i-1], to:attachList[i], format:audioFile.processingFormat)
-                    }
-                }
- */
-                //ミキサー出力（ここで落ちてしまう） ERROR:    [0x19ee14000] AVAudioFile.mm:32: AVAudioFileImpl: error 2003334207
-                audioEngine.connect(audioPlayerNode, to:audioEngine.mainMixerNode, format:audioFile.processingFormat)
-                
-                //AVAudioEngineの開始
-                audioEngine.prepare()
-                do {
-                    try audioEngine.start()
-                } catch {
-                    
-                }
-                
-                audioPlayerNode.play()
-                */
-        
-        
-        //}
-        
-        //let videoURL = NSURL(string: "https://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4")
-//        let url = "http://r8---sn-3qqp-3pmy.googlevideo.com/videoplayback?id=o-AOak3e1glugoDzT9_X9ivASCa0djBKfAzYV-iu6KjkhI&dur=359.444&source=youtube&ip=106.161.130.163&itag=22&lmt=1472054523595677&ipbits=0&ratebypass=yes&expire=1473744490&upn=OaW-HP-dO5M&sparams=dur,expire,gcr,id,initcwndbps,ip,ipbits,ipbypass,itag,lmt,mime,mm,mn,ms,mv,nh,pcm2cms,pl,ratebypass,source,upn&sver=3&mime=video%2Fmp4&gcr=jp&pl=21&signature=3661702E9BBBE7A2448A3A57E724F039EBA0780B.798A7613F83A85BF37F92FF4F03CC47244C39486&key=cms1&redirect_counter=1&req_id=af7bc1ee244ba3ee&cms_redirect=yes&ipbypass=yes&mm=31&mn=sn-3qqp-3pmy&ms=au&mt=1473722563&mv=m&pcm2cms=yes&ir=1&rr=12"
-//        let videoURL = NSURL(string: url)
-//        let player = AVPlayer(URL: videoURL!)
-//        let playerLayer = AVPlayerLayer(player: player)
-//        playerLayer.frame = self.view.bounds
-//        self.view.layer.addSublayer(playerLayer)
-//        player.play()
-        
     }
     
     /** キーワード検索してtableViewに表示するメソッド */
     func search(keyword: String) {
         
         //キーワードをURLエンコード
-        //let encodeKeyword = keyword.stringByAddingPercentEscapesUsingEncoding(NSUTF8StringEncoding)
         let encodeKeyword: String = keyword
             .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
         //左辺にStringを入れないとOptionalという文字列が入って落ちる
@@ -165,11 +96,11 @@ class WebPlayViewController: UIViewController, UITableViewDataSource, UITableVie
         
         //
         let url = "\(apiUrl)&key=\(apiKey)&q=\(encodeKeyword)&maxResults=\(userConfigManager.getResultNumber())&type=\(type)"
-        //let url = "https://www.googleapis.com/youtube/v3/videos?id=\(self.videoId)&key=\(self.apiKey)&fields=items(id,snippet(channelTitle,title,thumbnails),statistics)&part=snippet,contentDetails,statistics"
         
         //ネットワーク（同期処理用）フラグON
         networkingFlg = true
-        
+
+        /*
         AF.request(url).responseData {response in
             switch response.result{
             case .success(let data):
@@ -195,6 +126,7 @@ class WebPlayViewController: UIViewController, UITableViewDataSource, UITableVie
             //ネットワーク（同期処理用）フラグOFF
             self.networkingFlg = false
         }
+         */
         
         
     }
@@ -205,41 +137,18 @@ class WebPlayViewController: UIViewController, UITableViewDataSource, UITableVie
     func parseJSON(json: NSDictionary) {
         
         let itemArray = NSMutableArray()
-        //let itemArray = NSDictionary()
-        //var dict = NSDictionary()
         
         //レスポンスのデータ型を確認
-//        if let items = json.objectForKey("items") as Array {
-//            dataArray.addObject(items[0])
-//        }
-        itemArray.addObject(json.objectForKey("items")!)
-//        print("データ数：\(dataArray.count)")
-        //print("dataArray[0]=\(itemArray[0])")
-//        print("dataArray[1]=\(dataArray[1])")
-        
+        itemArray.add(json.object(forKey: "items")!)
         let items:NSArray = itemArray[0] as! NSArray
-        
-        //let itemsArray: NSArray = json.objectForKey("items") as! NSArray
-        //let items: NSDictionary = itemsArray[0] as! NSDictionary
-        
+                
         print(items.count)
         
-        //resultList: [(url:NSURL, title:String, detail:String, thumbnail:UIImage)]!
-
         resultList = Array()
         
         for item in items {
             /*
-            print(item)
-            print(item.objectForKey("title"))
-            print(item.objectForKey("id"))
-            print(item.objectForKey("id")?.objectForKey("videoId"))
-            print(item.objectForKey("snippet")?.objectForKey("publishedAt"))
-            print(item.objectForKey("snippet")?.objectForKey("description"))
-            print(item.objectForKey("snippet")?.objectForKey("channelTitle"))
-            */
-            
-            let id: String = (((item as AnyObject).objectForKey("id")? as AnyObject).objectForKey("videoId") ?? "")! 
+            let id: String = (((item as AnyObject).objectForKey("id")? as AnyObject).objectForKey("videoId") ?? "")!
             
             //IDが存在しない場合
             if id.isEmpty {
@@ -276,31 +185,8 @@ class WebPlayViewController: UIViewController, UITableViewDataSource, UITableVie
             resultList.append((id:id, url:"", title:title, description:description, thumbUrl:thumbUrl, viewCount:"", lengthSeconds:""))
             
             //var image: UIImage = UIImage(data: NSData(contentsOfURL: NSURL(string: imageUrl as String)!)!)!
+             */
         }
-        
-        /*
-        let itemsArray: NSArray = json.objectForKey("items") as! NSArray
-        let items: NSDictionary = itemsArray[0] as! NSDictionary
-        let snippet: NSDictionary = items.objectForKey("snippet") as! NSDictionary
-        
-        //title
-        let title: NSString = snippet.objectForKey("title") as! NSString
-        //self.title = title
-        print(title)
-        
-        //channel title
-        let channelTitle: NSString = snippet.objectForKey("channelTitle") as! NSString
-        print(channelTitle)
-        
-        //thumbnail image
-        
-        let thumbnails: NSDictionary = snippet.objectForKey("thumbnails") as! NSDictionary
-        let resolution: NSDictionary = thumbnails.objectForKey("high") as! NSDictionary
-        let imageUrl: NSString = resolution.objectForKey("url") as! NSString
-        
-        //イメージ表示
-        var image: UIImage = UIImage(data: NSData(contentsOfURL: NSURL(string: imageUrl as String)!)!)!
-         */
         
     }
     
@@ -309,20 +195,13 @@ class WebPlayViewController: UIViewController, UITableViewDataSource, UITableVie
      http://blog.muuny-blue.info/0a7d83f084ec258aefd128569dda03d7.html
      */
     func getVideoInfo() {
-//    func getVideoInfo(_resultList: [(id:String, url: String, title:String, description:String, thumbUrl:String, viewCount: String, lengthSeconds: String)]) -> [(id:String, url: String, title:String, description:String, thumbUrl:String, viewCount: String, lengthSeconds: String)] {
-        //func getVideoInfo(id: String) -> (url:String, viewCount:String, lengthSeconds:String) {
-        /*
-        if _resultList == nil {
-            return
-        }*/
+
         //ネットワーク（同期処理用）フラグON
         networkingFlg = true
         
-//        //う〜〜ん（2016/09/11）
-//        var videoList:[(id:String, url: String, title:String, description:String, thumbUrl:String, viewCount: String, lengthSeconds: String)] = Array()
-    
         //for video in resultList {
         //純粋なfor-in文だと、各要素に値が代入できないっぽいので。
+        /*
         for (index,element) in resultList.enumerate() {
             
             //IDが格納されていない場合は飛ばす
@@ -412,65 +291,9 @@ class WebPlayViewController: UIViewController, UITableViewDataSource, UITableVie
                 
             })
             task.resume()
+         */
             
-            
-            
-            
-            //非同期処理のため、通信終了後のメソッドはここに書かない
 
-            /*
-            Alamofire.request(.GET, url).responseJSON {response in
-                if(response.result.isSuccess){
-                    //取得成功
-                    let result:String = response.result.value as! String
-                    //GETしたレスポンスをパース
-                    var parameters: Dictionary = [String: String]()
-                    //for key_val in split(result, {$0 == "&"}) {
-                    //result.characters.split{$0 == "&"}.map {key_val in  //$0 == "&"
-                    result.componentsSeparatedByString("&").map { key_val in
-                        //let key_val_array = split(key_val, { $0 == "=" })
-                        //let key_val_array = key_val.split("=")
-                        let key_val_array = key_val.componentsSeparatedByString("=")
-                        let key = key_val_array[0]
-                        print("key=\(key)¥n")
-                        let val = key_val_array[1].stringByRemovingPercentEncoding
-                        print("val=\(val)")
-                        parameters[key] = val
-                    }
-                    
-                    let url:String = parameters["url_encoded_fmt_stream_map"]!
-                    let viewCount:String = parameters["view_count"]!
-                    let lengthSeconds:String = parameters["length_seconds"]!
-                    
-                    print("url=\(url)")
-                    
-                    
-                    //これで入る？→letだからダメとか言われるので
-                    self.resultList[index].url = url
-                    self.resultList[index].viewCount = viewCount
-                    self.resultList[index].lengthSeconds = lengthSeconds
-                    
-                } else {
-                    //取得失敗（アラート表示）
-                    /*
-                    let alert = UIAlertController(title: "検索失敗", message: "情報の取得に失敗しました。ネットワークの通信ができていない等）", preferredStyle: UIAlertControllerStyle.Alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
-                        (action: UIAlertAction!) -> Void in
-                        //self.presentViewController(alert, animated: true, completion: nil)
-                    }))
-                    self.presentViewController(alert, animated: true, completion: nil)
-                    */
-                    
-                }
-                
-                //resultListの最後の要素（この処理はAlamosfire内に入れないとダメ。同期処理にならない）
-                if index == self.resultList.count - 1 {
-                    //ネットワーク（同期処理用）フラグOFF
-                    self.networkingFlg = false
-                }
-                
-            }
-            */
         }
         
 //        return []
@@ -480,13 +303,15 @@ class WebPlayViewController: UIViewController, UITableViewDataSource, UITableVie
      http://qiita.com/kazuhirox/items/9ecb25bc238ad2d47ff0*/
     func networkingSynchronous() {
         
+        /*
         //ロックが解除されるまで待つ
-        let runLoop = NSRunLoop.currentRunLoop()
+        let runLoop = NSRunLoop.currentRunLoop
         while networkingFlg &&
             runLoop.runMode(NSDefaultRunLoopMode, beforeDate: NSDate(timeIntervalSinceNow: 0.1)) {
                 // 0.1秒毎の処理なので、処理が止まらない
                 print("待ってます")
         }
+         */
     }
     
     /** 秒をHH:mm:ss形式に直す */
@@ -501,6 +326,7 @@ class WebPlayViewController: UIViewController, UITableViewDataSource, UITableVie
     
     /** SSYoutubeParser（ライブラリ）のセットアップ */
     func setupVideo(videoId: String) {
+        /*
         SSYoutubeParser.h264videosWithYoutubeID(videoId) { (videoDictionary) -> Void in
             //let videoSmallURL = videoDictionary["small"]
             let videoMediumURL = videoDictionary["medium"]
@@ -520,6 +346,7 @@ class WebPlayViewController: UIViewController, UITableViewDataSource, UITableVie
                 }
             }
         }
+         */
     }
     
     /**
@@ -527,7 +354,8 @@ class WebPlayViewController: UIViewController, UITableViewDataSource, UITableVie
      */
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         /*return solPlayer.editPlaylist.count*/
-        return resultList.count
+//        return resultList.count
+        return 0
     }
     
     /**
@@ -536,26 +364,27 @@ class WebPlayViewController: UIViewController, UITableViewDataSource, UITableVie
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
         //表示設定
-        let cell: UITableViewCell = UITableViewCell(style: UITableViewCellStyle.Subtitle, reuseIdentifier: "Cell")
+        let cell: UITableViewCell = UITableViewCell(style: UITableViewCellStyle.subtitle, reuseIdentifier: "Cell")
         cell.textLabel?.numberOfLines = 4
         cell.detailTextLabel?.numberOfLines = 0 //0にすると制限なし（「…」とならない）
-        cell.backgroundColor = UIColor.clearColor() //背景色を透明に
+        cell.backgroundColor = UIColor.clear //背景色を透明に
         
         //フォント（タイトル）
         var font: UIFont = UIFont(name: "Helvetica Neue", size: 16.0)!
-        font = UIFont.systemFontOfSize(16.0, weight: UIFontWeightLight)
+        font = UIFont.systemFont(ofSize: 16.0, weight: UIFont.Weight.light)
         
         cell.textLabel?.font = font
         
         font = UIFont(name: "Helvetica Neue", size: 11.0)!
-        font = UIFont.systemFontOfSize(11.0, weight: UIFontWeightLight)
+        font = UIFont.systemFont(ofSize: 11.0, weight: UIFont.Weight.light)
         
         cell.detailTextLabel?.font = font
         
-        cell.textLabel?.textColor = UIColor.whiteColor()    //tintColorではなくテキストカラー？
-        cell.detailTextLabel?.textColor = UIColor.darkGrayColor()
+        cell.textLabel?.textColor = UIColor.white    //tintColorではなくテキストカラー？
+        cell.detailTextLabel?.textColor = UIColor.darkGray
         
         
+        /*
         //表示内容
         cell.textLabel?.text = resultList[indexPath.row].title ?? "Untitled"
         //cell.detailTextLabel?.text = resultList[indexPath.row].description ?? "Unknown Artist"
@@ -572,6 +401,8 @@ class WebPlayViewController: UIViewController, UITableViewDataSource, UITableVie
             cell.imageView?.image = ImageUtil.makeBoxWithColor(UIColor.init(colorLiteralRed: 0.67, green: 0.67, blue: 0.67, alpha: 1.0), width: 50.0, height: 50.0)
         }
         
+         */
+        
         return cell
     }
     
@@ -579,24 +410,6 @@ class WebPlayViewController: UIViewController, UITableViewDataSource, UITableVie
      tableView用メソッド（3.タップ時のメソッド）
      */
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        
-        
-        //print("再生する曲はこちら→\(resultList[indexPath.row].url)")
-        print("再生する曲はこちら→\(resultList[indexPath.row].id)")
-        setupVideo(resultList[indexPath.row].id)
-        
-        /*
-        let video = resultList[indexPath.row]
-        
-        solPlayer.playlist.append(Song2(_persisntenceID: UInt64(solPlayer.generateID())!,
-            _title:video.title, _url:video.url, _artist:"youtube", _duration:Double(video.lengthSeconds)!))
-        */
-        
-        //選択を解除しておく
-        tableView.deselectRowAtIndexPath(indexPath, animated: true)
-        
-        //tableViewを更新
-        //tableView.reloadData()
         
     }
     
@@ -614,7 +427,8 @@ class WebPlayViewController: UIViewController, UITableViewDataSource, UITableVie
      UIPicker用メソッド（2.表示個数）
      */
     func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return siteList.count
+//        return siteList.count
+        return 0
     }
     
     /**
@@ -625,15 +439,16 @@ class WebPlayViewController: UIViewController, UITableViewDataSource, UITableVie
         let pickerLabel: UILabel = UILabel()
         
         //表示内容
-        pickerLabel.text = siteList[row].name
-        
+//        pickerLabel.text = siteList[row].name
+        pickerLabel.text = ""
+
         //フォント
         var font: UIFont = UIFont(name: "Helvetica Neue", size: 18.0)!
-        font = UIFont.systemFontOfSize(18.0, weight: UIFontWeightLight)
+        font = UIFont.systemFont(ofSize: 18.0, weight: UIFont.Weight.light)
         pickerLabel.font = font
         
         //表示位置
-        pickerLabel.textAlignment = NSTextAlignment.Center
+        pickerLabel.textAlignment = NSTextAlignment.center
         
         return pickerLabel
     }
@@ -646,11 +461,15 @@ class WebPlayViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     /** TextFieldが選択解除された時に呼ばれるメソッド（Did End On Exit→Editing Did End→やっぱDid End On Exit） */
-    @IBAction func getText(sender: AnyObject) {
+func getText(sender: AnyObject) {
+        //
+        print("test")
     }
     
     /** 検索ボタンを押された時に呼ばれるメソッド */
-    @IBAction func searchButtonAction(sender: CustomButton) {
+func searchButtonAction(sender: CustomButton) {
+    print(sender)
+    /*
         if !(textField.text?.isEmpty)! && textField.text != "" {
             //検索メソッドを呼び出す
             search(textField.text!)
@@ -681,11 +500,8 @@ class WebPlayViewController: UIViewController, UITableViewDataSource, UITableVie
             }))
             self.presentViewController(alert, animated: true, completion: nil)
         }
+     */
     }
     
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-    
-}
+
+
