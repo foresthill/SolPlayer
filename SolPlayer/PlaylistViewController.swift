@@ -56,8 +56,8 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         solPlayer = SolPlayer.sharedManager
         
         //Cell名の登録を行う
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
-        
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "CellIdentifier")
+
         //DataSourceの設定をする
         tableView.dataSource = self
         
@@ -239,8 +239,25 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     
     /** 「新規追加」ボタンをクリックした時の処理 */
     @IBAction func addSong(sender: UIButton) {
+        // 認証状態を先にチェック
+        let authStatus = MPMediaLibrary.authorizationStatus()
+        
+        if authStatus != .authorized {
+            MPMediaLibrary.requestAuthorization { status in
+                if status == .authorized {
+                    DispatchQueue.main.async {
+                        self.showMediaPicker()
+                    }
+                }
+            }
+        } else {
+            showMediaPicker()
+        }
+    }
+
+    func showMediaPicker() {
         //MPMediaPickerControllerのインスタンス作成
-        let picker = MPMediaPickerController()
+        let picker = MPMediaPickerController(mediaTypes: .music)
         //pickerのデリゲートを設定
         picker.delegate = self
         //複数選択を可にする（true/falseで設定）
@@ -249,6 +266,12 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         picker.showsItemsWithProtectedAssets = false
         //CloudItemsもAssetURLが読み込めないので表示しない
         picker.showsCloudItems = false
+        
+        // 明示的にストアアイテムを無効化（重要）
+        if #available(iOS 10.1, *) {
+            picker.showsItemsWithProtectedAssets = false
+        }
+        
         //ピッカーを表示する
         present(picker, animated:true, completion: nil)
     }
@@ -299,31 +322,40 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
         solPlayer.repeatAll = repeatAllButton.isSelected
     }
     
-    //メディアアイテムピッカーでアイテムを選択完了した時に呼び出される（必須）
-    func mediaPicker(mediaPicker: MPMediaPickerController, didPickMediaItems mediaItemCollection: MPMediaItemCollection) {
-        
-        //playlistにmediaItemを追加
+    //メディアアイテムピッカーでアイテムを選択完了した時に呼び出される（必須）→新しいデリゲートメソッド形式に変更（Swift 3以降）
+    func mediaPicker(_ mediaPicker: MPMediaPickerController, didPickMediaItems mediaItemCollection: MPMediaItemCollection) {
+        // 処理内容はそのまま
         mediaItemCollection.items.forEach { (mediaItem) in
-            //solPlayer.playlist?.append(Song(mediaItem: mediaItem))
-            //solPlayer.editPlaylist.append(mediaItem)
             solPlayer.editPlaylist.append(Song2(mediaItem: mediaItem))
         }
         
-        //ピッカーを閉じ、破棄する
+        // ピッカーを閉じる
         self.dismiss(animated: true, completion: nil)
         
-        //tableviewの更新
+        // tableviewの更新
         tableView.reloadData()
-        
     }
-    
+
     //メディアアイテムピッカーでキャンセルした時に呼び出される（必須）
-    func mediaPickerDidCancel(mediaPicker: MPMediaPickerController) {
-        //ピッカーを閉じ、破棄する
+    func mediaPickerDidCancel(_ mediaPicker: MPMediaPickerController) {
+        // ピッカーを閉じる
         self.dismiss(animated: true, completion: nil)
     }
+   
+    // MPMediaQueryにフィルタを追加する方法（参考）
+    func getLocalMediaItems() -> [MPMediaItem] {
+        let query = MPMediaQuery.songs()
+        let cloudFilter = MPMediaPropertyPredicate(
+            value: false,
+            forProperty: MPMediaItemPropertyIsCloudItem,
+            comparisonType: .equalTo
+        )
+        query.addFilterPredicate(cloudFilter)
+        
+        return query.items ?? []
+    }
     
-    /** 
+    /**
      tableView用メソッド（1.セルの行数）
      */
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
