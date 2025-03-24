@@ -60,18 +60,24 @@ class ViewController: UIViewController {
         
         /* 初期化処理 */
 
-        // デフォルトの画像設定
+        // デフォルトの画像設定（OFF状態）
         solButton.setImage(UIImage(named: "solSwitch1"), for: .normal)
         
         // solSwitchを初期化
         if userConfigManager.getIsSolMode() {
-            // userConfigManagerから現在のsolModeを取得
-            let solMode = userConfigManager.solMode
-            // 対応する画像を設定
-            let imageName = "solSwitch\(String(describing: solMode))_on"
+            // 現在のモードに基づいた画像名を作成（nil合体演算子を使用）
+            let solMode = userConfigManager.solMode ?? 1
+            let imageName = "solSwitch1_on\(solMode)"
+            
+            // 画像を.selected状態に設定
             solButton.setImage(UIImage(named: imageName), for: .selected)
+            // ボタンを選択状態に
             solButton.isSelected = true
+            // 音源処理
             solPlayer.pitchChange(solSwitch: true)
+        } else {
+            // 選択されていない状態に設定
+            solButton.isSelected = false
         }
         
         //曲情報を読み込む（一瞬だけ曲を再生して停止する） #103
@@ -382,7 +388,7 @@ class ViewController: UIViewController {
             // ONの状態 - モードに応じた画像を設定
             let solMode = userConfigManager.solMode ?? 1  // デフォルト値として1を使用
             let imageName = "solSwitch1_on\(solMode)"
-            print("Setting ON image: \(imageName)")
+//            print("Setting ON image: \(imageName)")
             solButton.setImage(UIImage(named: imageName), for: .selected)
         } else {
             // OFFの状態 - デフォルト画像
