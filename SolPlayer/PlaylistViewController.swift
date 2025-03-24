@@ -389,26 +389,23 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     /**
      tableView用メソッド（3.タップ時のメソッド）
      */
-    private func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        
-        //現在の再生状態を保存する #103
-        //do { try solPlayer.saveSong(UserConfigManager.sharedManager.isRedume) } catch { }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        //現在の再生状態を保存する
         do { try solPlayer.updatePlayTime() } catch { }
         
-        //タップされた曲を再生する @since v1.1
+        //タップされた曲を再生する
         solPlayer.mainPlaylist = solPlayer.subPlaylist
         solPlayer.playlist = solPlayer.editPlaylist
         solPlayer.number = indexPath.row
         
         do {
-//            solPlayer.stop()
-//            try solPlayer.play()
             try solPlayer.redumePlay(status: true)
         } catch {
-            
+            print("再生エラー: \(error)")
         }
+        
         //選択を解除しておく
-        tableView.deselectRow(at: indexPath as IndexPath, animated: true)
+        tableView.deselectRow(at: indexPath, animated: true)
         
         //tableViewを更新
         tableView.reloadData()
