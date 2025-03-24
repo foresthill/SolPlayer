@@ -14,23 +14,6 @@ import MediaPlayer
  * ※プレイリストのCoreDataを更新するトリガーは（１）切替時（２）画面が消えるタイミング
  */
 class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate, UITableViewDataSource, UITableViewDelegate, UIPickerViewDataSource, UIPickerViewDelegate {
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        // 1. セルの再利用
-            let cell = tableView.dequeueReusableCell(withIdentifier: "CellIdentifier", for: indexPath)
-            
-            // 2. セルの設定
-            cell.textLabel?.text = "アイテム \(indexPath.row)"
-            cell.detailTextLabel?.text = "詳細情報"
-            
-            // 3. セルを返す
-            return cell
-    }
-    
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1  // 単一の列の場合
-    }
-    
-    
     @IBOutlet weak var tableView: UITableView!
     
     @IBOutlet weak var playListPicker: UIPickerView!
@@ -365,45 +348,34 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     /**
      tableView用メソッド（2.セルの内容）
      */
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        
-        //表示設定
-        let cell: UITableViewCell = UITableViewCell(style: UITableViewCellStyle.subtitle, reuseIdentifier: "Cell")
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        // 表示設定
+        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "Cell")
         cell.textLabel?.numberOfLines = 2
-        cell.detailTextLabel?.numberOfLines = 0 //0にすると制限なし（「…」とならない）
-        cell.backgroundColor = UIColor.clear //背景色を透明に
+        cell.detailTextLabel?.numberOfLines = 0
+        cell.backgroundColor = UIColor.clear
         
-        //フォント
-        var font: UIFont = UIFont(name: "Helvetica Neue", size: 16.0)!
-        font = UIFont.systemFont(ofSize: 16.0, weight: UIFont.Weight.light)
+        // フォント設定
+        cell.textLabel?.font = UIFont.systemFont(ofSize: 16.0, weight: .light)
+        cell.detailTextLabel?.font = UIFont.systemFont(ofSize: 11.0, weight: .light)
         
-        cell.textLabel?.font = font
-        
-        font = UIFont(name: "Helvetica Neue", size: 11.0)!
-        font = UIFont.systemFont(ofSize: 11.0, weight: UIFont.Weight.light)
-        
-        cell.detailTextLabel?.font = font
-        
-        cell.textLabel?.textColor = UIColor.white    //tintColorではなくテキストカラー？
+        cell.textLabel?.textColor = UIColor.white
         cell.detailTextLabel?.textColor = UIColor.darkGray
         
-        //表示内容
-        cell.textLabel?.text = solPlayer.editPlaylist![indexPath.row].title ?? "Untitled"
-        cell.detailTextLabel?.text = solPlayer.editPlaylist![indexPath.row].artist ?? "Unknown Artist"
+        // 表示内容
+        cell.textLabel?.text = solPlayer.editPlaylist[indexPath.row].title ?? "Untitled"
+        cell.detailTextLabel?.text = solPlayer.editPlaylist[indexPath.row].artist ?? "Unknown Artist"
         
-        //画像を表示
-            
+        // 画像表示
         if (indexPath.row == solPlayer.number) && solPlayer.mainPlaylist == solPlayer.subPlaylist {
-            //再生中の場合はアイコン表示
+            // 再生中の場合はアイコン表示
             cell.imageView?.image = UIImage(named: "speeker.png")
-            
         } else {
-    
-            if let artwork = solPlayer.editPlaylist![indexPath.row].artwork {
-                //アートワークを表示
-                cell.imageView?.image = artwork.image(at: CGSize.init(width: 50, height: 50))
+            if let artwork = solPlayer.editPlaylist[indexPath.row].artwork {
+                // アートワークを表示
+                cell.imageView?.image = artwork.image(at: CGSize(width: 50, height: 50))
             } else {
-                //ダミー画像を表示
+                // ダミー画像を表示
                 cell.imageView?.image = ImageUtil.makeBoxWithColor(
                     color: UIColor(red: 0.67, green: 0.67, blue: 0.67, alpha: 1.0),
                     width: 50.0,
@@ -411,14 +383,13 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
                 )
             }
         }
-
         return cell
     }
     
     /**
      tableView用メソッド（3.タップ時のメソッド）
      */
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    private func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         
         //現在の再生状態を保存する #103
         //do { try solPlayer.saveSong(UserConfigManager.sharedManager.isRedume) } catch { }
@@ -523,8 +494,8 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     /**
      UIPicker用メソッド（1.表示列）
      */
-    func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {
-        return 1
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1  // 単一の列の場合
     }
     
     /**
@@ -537,20 +508,18 @@ class PlaylistViewController: UIViewController, MPMediaPickerControllerDelegate,
     /**
      UIPicker用メソッド（3.表示内容＋デザイン）
      */
-    func pickerView(pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusingView view: UIView?) -> UIView {
+    func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
+        let pickerLabel = UILabel()
         
-        let pickerLabel: UILabel = UILabel()
+        // タプルの場合は直接アクセス
+        let playlistName = solPlayer.allPlaylists[row].name
+        pickerLabel.text = playlistName
+                
+        // フォント
+        pickerLabel.font = UIFont.systemFont(ofSize: 18.0, weight: .light)
         
-        //表示内容
-        pickerLabel.text = solPlayer.allPlaylists[row].name
-        
-        //フォント
-        var font: UIFont = UIFont(name: "Helvetica Neue", size: 18.0)!
-        font = UIFont.systemFont(ofSize: 18.0, weight: UIFont.Weight.light)
-        pickerLabel.font = font
-        
-        //表示位置
-        pickerLabel.textAlignment = NSTextAlignment.center
+        // 表示位置
+        pickerLabel.textAlignment = .center
         
         return pickerLabel
     }
