@@ -1,11 +1,13 @@
 {
   "images" : [
     {
+      "filename" : "solPlayer_iconのコピー_40x40.png",
       "idiom" : "iphone",
       "scale" : "2x",
       "size" : "20x20"
     },
     {
+      "filename" : "solPlayer_icon_60x60.png",
       "idiom" : "iphone",
       "scale" : "3x",
       "size" : "20x20"
@@ -47,6 +49,7 @@
       "size" : "60x60"
     },
     {
+      "filename" : "solPlayer_icon.png",
       "idiom" : "ios-marketing",
       "scale" : "1x",
       "size" : "1024x1024"
