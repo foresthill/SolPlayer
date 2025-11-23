@@ -8,6 +8,15 @@
 
 /* Begin PBXBuildFile section */
 		6E1EAB3E2D1087DD00D51F31 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 6E1EAB3D2D1087D600D51F31 /* .gitignore */; };
+		6E4AE3062D941BAE00D1FF56 /* AudioExtractionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4AE3052D941BAD00D1FF56 /* AudioExtractionService.swift */; };
+		6E4AE3082D941BC300D1FF56 /* YouTubeDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4AE3072D941BBF00D1FF56 /* YouTubeDataManager.swift */; };
+		6E4AE30A2D941BCC00D1FF56 /* YouTubeSearchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4AE3092D941BCA00D1FF56 /* YouTubeSearchResult.swift */; };
+		6E4AE30C2D941E0600D1FF56 /* AudioProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4AE30B2D941E0000D1FF56 /* AudioProcessor.swift */; };
+		6E4AE30E2D941E1000D1FF56 /* AudioEffects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4AE30D2D941E0B00D1FF56 /* AudioEffects.swift */; };
+		6E4AE3102D941E1900D1FF56 /* ErrorHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4AE30F2D941E1600D1FF56 /* ErrorHandling.swift */; };
+		6E4AE3132D941E2B00D1FF56 /* FormatUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E4AE3122D941E2200D1FF56 /* FormatUtilities.swift */; };
+		6E4AE3152D942F6200D1FF56 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 6E4AE3142D942F6200D1FF56 /* Alamofire */; };
+		6E4AE3172D942F6200D1FF56 /* AlamofireDynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 6E4AE3162D942F6200D1FF56 /* AlamofireDynamic */; };
 		6EDF9B012D4A4CFD00735712 /* WebPlayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB4FFC8D1D71DA550045B4DF /* WebPlayViewController.swift */; };
 		BB22FF7C1D330F2A00810BA5 /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB22FF7B1D330F2A00810BA5 /* CustomButton.swift */; };
 		BB2C635D1D0F0ECB002CCFB2 /* pause_white.png in Resources */ = {isa = PBXBuildFile; fileRef = BB2C635C1D0F0ECB002CCFB2 /* pause_white.png */; };
@@ -121,6 +130,13 @@
 
 /* Begin PBXFileReference section */
 		6E1EAB3D2D1087D600D51F31 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		6E4AE3052D941BAD00D1FF56 /* AudioExtractionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioExtractionService.swift; sourceTree = "<group>"; };
+		6E4AE3072D941BBF00D1FF56 /* YouTubeDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeDataManager.swift; sourceTree = "<group>"; };
+		6E4AE3092D941BCA00D1FF56 /* YouTubeSearchResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeSearchResult.swift; sourceTree = "<group>"; };
+		6E4AE30B2D941E0000D1FF56 /* AudioProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioProcessor.swift; sourceTree = "<group>"; };
+		6E4AE30D2D941E0B00D1FF56 /* AudioEffects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEffects.swift; sourceTree = "<group>"; };
+		6E4AE30F2D941E1600D1FF56 /* ErrorHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorHandling.swift; sourceTree = "<group>"; };
+		6E4AE3122D941E2200D1FF56 /* FormatUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatUtilities.swift; sourceTree = "<group>"; };
 		BB22FF7B1D330F2A00810BA5 /* CustomButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
 		BB2C635C1D0F0ECB002CCFB2 /* pause_white.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pause_white.png; sourceTree = "<group>"; };
 		BB2C635E1D0F0ED8002CCFB2 /* pause_white@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pause_white@2x.png"; sourceTree = "<group>"; };
@@ -223,6 +239,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E4AE3152D942F6200D1FF56 /* Alamofire in Frameworks */,
+				6E4AE3172D942F6200D1FF56 /* AlamofireDynamic in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -243,6 +261,41 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6E4AE3012D941B2B00D1FF56 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				6E4AE3092D941BCA00D1FF56 /* YouTubeSearchResult.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		6E4AE3022D941B6A00D1FF56 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				6E4AE3072D941BBF00D1FF56 /* YouTubeDataManager.swift */,
+				6E4AE3052D941BAD00D1FF56 /* AudioExtractionService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		6E4AE3032D941B7000D1FF56 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				6E4AE30D2D941E0B00D1FF56 /* AudioEffects.swift */,
+				6E4AE30B2D941E0000D1FF56 /* AudioProcessor.swift */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
+		6E4AE3042D941B7800D1FF56 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				6E4AE3122D941E2200D1FF56 /* FormatUtilities.swift */,
+				6E4AE30F2D941E1600D1FF56 /* ErrorHandling.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
 		BB66AF911D0BA009007CA80A /* images */ = {
 			isa = PBXGroup;
 			children = (
@@ -336,6 +389,10 @@
 		BBC6329A1CFB2AD3006407C9 /* SolPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				6E4AE3042D941B7800D1FF56 /* Utilities */,
+				6E4AE3032D941B7000D1FF56 /* Audio */,
+				6E4AE3022D941B6A00D1FF56 /* Services */,
+				6E4AE3012D941B2B00D1FF56 /* Models */,
 				BBC6329B1CFB2AD3006407C9 /* AppDelegate.swift */,
 				BB66AF961D0BB879007CA80A /* SolPlayer.swift */,
 				BB66AF911D0BA009007CA80A /* images */,
@@ -579,14 +636,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E4AE30E2D941E1000D1FF56 /* AudioEffects.swift in Sources */,
+				6E4AE3082D941BC300D1FF56 /* YouTubeDataManager.swift in Sources */,
 				6EDF9B012D4A4CFD00735712 /* WebPlayViewController.swift in Sources */,
 				BB7855A31D03F61200FB0914 /* Song2.swift in Sources */,
+				6E4AE3102D941E1900D1FF56 /* ErrorHandling.swift in Sources */,
 				BBC6329E1CFB2AD3006407C9 /* ViewController.swift in Sources */,
 				BB66AF8E1D076DE9007CA80A /* PlaylistViewController.swift in Sources */,
 				BBC6329C1CFB2AD3006407C9 /* AppDelegate.swift in Sources */,
+				6E4AE3062D941BAE00D1FF56 /* AudioExtractionService.swift in Sources */,
 				BB5509761D44931900E404A7 /* UserConfigManager.swift in Sources */,
 				BB22FF7C1D330F2A00810BA5 /* CustomButton.swift in Sources */,
 				BB83E2181D28AB7A00921085 /* DataMigration4to7Policy.swift in Sources */,
+				6E4AE30A2D941BCC00D1FF56 /* YouTubeSearchResult.swift in Sources */,
+				6E4AE30C2D941E0600D1FF56 /* AudioProcessor.swift in Sources */,
 				BBF5C2B61D164D9F00DE7CBA /* Song.swift in Sources */,
 				BB9FC60F1D1E28C6004CB9F4 /* ImageUtil.swift in Sources */,
 				BB66AF971D0BB879007CA80A /* SolPlayer.swift in Sources */,
@@ -594,6 +657,7 @@
 				BBF5C2B51D164D9F00DE7CBA /* Song+CoreDataProperties.swift in Sources */,
 				BB6B85401D18A66B00816498 /* Playlist+CoreDataProperties.swift in Sources */,
 				BBF5C2B21D164C2F00DE7CBA /* SongModel.xcdatamodeld in Sources */,
+				6E4AE3132D941E2B00D1FF56 /* FormatUtilities.swift in Sources */,
 				BB659A751D04ED3C005535FC /* AppError.swift in Sources */,
 				BB6B85411D18A66B00816498 /* Playlist.swift in Sources */,
 			);
@@ -901,6 +965,17 @@
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		6E4AE3142D942F6200D1FF56 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Alamofire;
+		};
+		6E4AE3162D942F6200D1FF56 /* AlamofireDynamic */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AlamofireDynamic;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		BBF5C2B01D164C2F00DE7CBA /* SongModel.xcdatamodeld */ = {
