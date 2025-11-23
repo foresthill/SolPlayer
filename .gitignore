@@ -1,5 +1,31 @@
-# Xcode
+# Dependencies
+node_modules
+
+# Build outputs
+.next
+.turbo
+dist
+.build/
+
+# Environment
+.env*
+!.env.example
+
+# Logs
+*.log
+
+# IDE
+.idea/
+.vscode
+*.swp
+
+# OS
 .DS_Store
+
+# Prisma
+prisma/*.db
+
+# Xcode
 */build/*
 *.pbxuser
 !default.pbxuser
@@ -9,31 +35,30 @@
 !default.mode2v3
 *.perspectivev3
 !default.perspectivev3
-xcuserdata
+xcuserdata/
 profile
 *.moved-aside
-DerivedData
-.idea/
+DerivedData/
 *.hmap
 *.xccheckout
 *.xcuserstate
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
 
-# Obj-C/Swift specific
-*.hmap
+# iOS artifacts
 *.ipa
 *.dSYM.zip
 *.dSYM
+*.xcworkspace
+!default.xcworkspace
 
 # CocoaPods
 Pods/
-*.xcworkspace
-!default.xcworkspace
 
 # Carthage
 Carthage/Build/
 
 # Swift Package Manager
-.build/
 Package.resolved
 
 # fastlane
@@ -42,32 +67,11 @@ fastlane/Preview.html
 fastlane/screenshots
 fastlane/test_output
 
-# Code Injection
-injected_container.swift
-
-# その他
-.env
-*.log
-*.swp
+# Misc
 *~.nib
-
-# プロジェクト固有の一時ファイル
 timeline.xctimeline
 playground.xcworkspace
-
-# バックアップファイル
 *.backup
 *.bak
 *.tmp
-
-# AppCode
-.idea/
-
-# Exported Files
-*.ipa
-*.app.dSYM.zip
-
-# ユーザ固有の設定ファイル
-xcuserdata/
-*.xcodeproj/project.xcworkspace/xcuserdata/
-*.xcodeproj/xcuserdata/
+injected_container.swift

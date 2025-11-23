@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  name      String?
+  image     String?
+  playlists Playlist[]
+  tracks    Track[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Playlist {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  coverImage  String?
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tracks      Track[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Track {
+  id            String     @id @default(cuid())
+  title         String
+  artist        String
+  album         String?
+  duration      Int // 秒
+
+  sourceType    SourceType
+  sourceUrl     String?
+  sourceId      String?
+  audioFileUrl  String?
+
+  frequency     Int        @default(440)
+  playbackSpeed Float      @default(1.0)
+
+  playlistId    String?
+  playlist      Playlist?  @relation(fields: [playlistId], references: [id], onDelete: SetNull)
+
+  userId        String
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@index([userId])
+  @@index([playlistId])
+}
+
+enum SourceType {
+  LOCAL
+  YOUTUBE
+  SPOTIFY
+  APPLE_MUSIC
+}
