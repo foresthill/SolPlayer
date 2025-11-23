@@ -15,493 +15,410 @@ import AVFoundation
 
 //#import "HCYoutubeParser"
 
-class WebPlayViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UIPickerViewDataSource, UIPickerViewDelegate {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        //
-        return 0
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        //
-        return 0
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        //
-        let cell : UITableViewCell = UITableViewCell()
-        return cell
-    }
-    
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        //
-        return 0
-    }
-    
+import UIKit
+import AVFoundation
 
-    //@IBOutlet weak var webView: UIWebView!
+class WebPlayViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UIPickerViewDataSource, UIPickerViewDelegate {
     
-    /** シングルトンクラス */
-    let solPlayer: SolPlayer = SolPlayer.sharedManager
-    let userConfigManager: UserConfigManager = UserConfigManager.sharedManager
-    
-    //Picker
+    // MARK: - Outlets
     @IBOutlet weak var sitePicker: UIPickerView!
-    //表示するURL
     @IBOutlet weak var tableView: UITableView!
-    
     @IBOutlet weak var textField: UITextField!
     
-    /** サイトにアクセスするために必要な情報 */
-    var apiUrl: String! = "https://www.googleapis.com/youtube/v3/search?part=snippet"
-    var videoId :String! = "PqJNc9KVIZE"
-    let apiKey: String! = "AIzaSyAYOvVDMjjzKZ8cfIhZZxrBMHQSyVGoVcA"
-    let type: String! = "video"
+    // MARK: - Properties
+    private let apiKey = "YOUR_API_KEY"
+    private var youtubeDataManager: YouTubeDataManager!
+    private var audioExtractionService: AudioExtractionService!
+    private var audioProcessor: AudioProcessor!
     
-    /** 検索対象となるサイトのリスト */
-    let siteList: [(id: String, name: String)] = [("0", "youtube"), ("1", "ニコニコ動画"), ("2", "vimeo")]
-
-    /** 検索結果リスト */
-    var resultList: [(id:String, url: String, title:String, description:String, thumbUrl:String, viewCount: String, lengthSeconds: String)]! = Array()
+    private var searchResults: [YouTubeSearchResult] = []
+    private var siteList: [(id: String, name: String)] = [("0", "YouTube"), ("1", "ニコニコ動画"), ("2", "Vimeo")]
     
-    /** AlamoFire同期処理のためのロック（通信処理完了まで待つためのフラグ）*/
-    var networkingFlg = false
-
-    /** 初期処理 */
+    // MARK: - Audio Control UI Elements
+    private var audioControlsView: UIView?
+    private var pitchSlider: UISlider?
+    private var rateSlider: UISlider?
+    private var playButton: UIButton?
+    private var timeLabel: UILabel?
+    private var progressSlider: UISlider?
+    private var waveformView: UIView?
+    
+    // MARK: - Lifecycle Methods
     override func viewDidLoad() {
-        
         super.viewDidLoad()
-        //初期表示のURL
         
-        //Cell名の登録を行う
+        setupServices()
+        setupUI()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        if audioProcessor?.isPlaying() ?? false {
+            audioProcessor.stop()
+        }
+    }
+    
+    // MARK: - Setup Methods
+    private func setupServices() {
+        youtubeDataManager = YouTubeDataManager(apiKey: apiKey)
+        audioExtractionService = AudioExtractionService(apiKey: apiKey)
+        audioProcessor = AudioProcessor()
+    }
+    
+    private func setupUI() {
+        // TableView setup
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         tableView.dataSource = self
         tableView.delegate = self
         
-        //PickerView表示
+        // PickerView setup
         sitePicker.dataSource = self
         sitePicker.delegate = self
         
+        // TextField setup
+        textField.returnKeyType = .search
+        textField.delegate = self
     }
     
-    /** キーワード検索してtableViewに表示するメソッド */
-    func search(keyword: String) {
-        
-        //キーワードをURLエンコード
-        let encodeKeyword: String = keyword
-            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        //左辺にStringを入れないとOptionalという文字列が入って落ちる
-        
-        //検索リストを初期化
-        resultList = nil
-        
-        //
-        let url = "\(apiUrl)&key=\(apiKey)&q=\(encodeKeyword)&maxResults=\(userConfigManager.getResultNumber())&type=\(type)"
-        
-        //ネットワーク（同期処理用）フラグON
-        networkingFlg = true
-
-        /*
-        AF.request(url).responseData {response in
-            switch response.result{
-            case .success(let data):
-                //取得成功
-//                let json = data as! NSDictionary
-//                //jsonをパースする
-//                self.parseJSON(json)
-                debugPrint(data)
-
-        case .failure(let error):
-                //取得失敗（アラート表示）
-                /*
-                let alert = UIAlertController(title: "検索失敗", message: "情報の取得に失敗しました。（原因：ネットワークの通信ができていない等）", preferredStyle: UIAlertControllerStyle.Alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
-                    (action: UIAlertAction!) -> Void in
-                    //self.presentViewController(alert, animated: true, completion: nil)
-                }))
-                self.presentViewController(alert, animated: true, completion: nil)
-                 */
-                debugPrint(error)
-            }
-            
-            //ネットワーク（同期処理用）フラグOFF
-            self.networkingFlg = false
+    // MARK: - Actions
+    @IBAction func searchButtonTapped(_ sender: UIButton) {
+        performSearch()
+    }
+    
+    private func performSearch() {
+        guard let query = textField.text, !query.isEmpty else {
+            showAlert(title: "入力エラー", message: "キーワードを入力してください。")
+            return
         }
-         */
         
+        // キーボードを閉じる
+        textField.resignFirstResponder()
         
-    }
-    
-    /** json形式の情報をパースするメソッド ※NSArrayタイプの可能性もあるみたい。どうする？
-     https://teratail.com/questions/23273
-     */
-    func parseJSON(json: NSDictionary) {
+        // インジケータ表示
+        let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .medium)
+        activityIndicator.center = view.center
+        view.addSubview(activityIndicator)
+        activityIndicator.startAnimating()
         
-        let itemArray = NSMutableArray()
-        
-        //レスポンスのデータ型を確認
-        itemArray.add(json.object(forKey: "items")!)
-        let items:NSArray = itemArray[0] as! NSArray
+        youtubeDataManager.searchVideos(query: query) { [weak self] results, error in
+            guard let self = self else { return }
+            
+            DispatchQueue.main.async {
+                activityIndicator.stopAnimating()
+                activityIndicator.removeFromSuperview()
                 
-        print(items.count)
-        
-        resultList = Array()
-        
-        for item in items {
-            /*
-            let id: String = (((item as AnyObject).objectForKey("id")? as AnyObject).objectForKey("videoId") ?? "")!
-            
-            //IDが存在しない場合
-            if id.isEmpty {
-                continue
-            }
-            
-            var title: String = (item.objectForKey("snippet")?.objectForKey("title") ?? "") as! String
-            var description: String = (item.objectForKey("snippet")?.objectForKey("description") ?? "") as! String
-            
-            //文字数を制限する（Index xx out of bounds エラーが発生する）
-            if title.lengthOfBytesUsingEncoding(NSUTF8StringEncoding) > 52 {
-                title = (title as NSString).substringToIndex(13)
-            }
-            
-            if description.lengthOfBytesUsingEncoding(NSUTF8StringEncoding) > 144 {
-                description = (description as NSString).substringToIndex(36) + "…"
-            }
-            
-            //サムネイルURL取得
-            var thumbUrl: String = ""
-            if let thumbnails: NSDictionary = item.objectForKey("snippet")?.objectForKey("thumbnails") as? NSDictionary {
-                if let resolution: NSDictionary = thumbnails.objectForKey("high") as? NSDictionary {
-                    thumbUrl = resolution.objectForKey("url") as! String
+                if let error = error {
+                    ErrorHandler.handle(error, in: self)
+                    return
+                }
+                
+                if let results = results {
+                    self.searchResults = results
+                    self.tableView.reloadData()
                 }
             }
-            
-            //ビデオの情報を取得
-            //getVideoInfo(id)
-            
-            
-            // var resultList: [(id:String, url: String, title:String, description:String, thumbUrl:String, viewCount: String, lengthSeconds: String)]! = Array()
-
-            //リストに追加
-            resultList.append((id:id, url:"", title:title, description:description, thumbUrl:thumbUrl, viewCount:"", lengthSeconds:""))
-            
-            //var image: UIImage = UIImage(data: NSData(contentsOfURL: NSURL(string: imageUrl as String)!)!)!
-             */
         }
-        
     }
     
-    /**
-     VideoIDからいろいろな情報を取得する
-     http://blog.muuny-blue.info/0a7d83f084ec258aefd128569dda03d7.html
-     */
-    func getVideoInfo() {
-
-        //ネットワーク（同期処理用）フラグON
-        networkingFlg = true
+    // MARK: - Audio Processing
+    private func processAudio(for videoId: String) {
+        // インジケータ表示
+        let activityIndicator = UIActivityIndicatorView(style: .large)
+        activityIndicator.center = view.center
+        view.addSubview(activityIndicator)
+        activityIndicator.startAnimating()
         
-        //for video in resultList {
-        //純粋なfor-in文だと、各要素に値が代入できないっぽいので。
-        /*
-        for (index,element) in resultList.enumerate() {
+        audioExtractionService.extractAudioFromYouTube(videoId: videoId) { [weak self] url, error in
+            guard let self = self else { return }
             
-            //IDが格納されていない場合は飛ばす
-            if element.id == "" {
-                print("ん？")
-                continue
-            }
-
-
-            let url = "http://www.youtube.com/get_video_info?video_id=\(element.id)"
-            
-            var req = NSMutableURLRequest(URL: NSURL(string: url)!)
-            req.HTTPMethod = "GET"
-            var task = NSURLSession.sharedSession().dataTaskWithRequest(req, completionHandler: {data, response, error in
-                if (error == nil) {
-                    var result = NSString(data: data!, encoding: NSUTF8StringEncoding)!
-                    print(result)
-                    //GETしたレスポンスをパース
-                    var parameters: Dictionary = [String: String]()
-                    //for key_val in split(result, {$0 == "&"}) {
-                    //result.characters.split{$0 == "&"}.map {key_val in  //$0 == "&"
-                    result.componentsSeparatedByString("&").map { key_val in
-                        //let key_val_array = split(key_val, { $0 == "=" })
-                        //let key_val_array = key_val.split("=")
-                        let key_val_array = key_val.componentsSeparatedByString("=")
-                        let key = key_val_array[0]
-                        print("key=\(key)¥n")
-                        let val = key_val_array[1].stringByRemovingPercentEncoding
-                        print("val=\(val)")
-                        parameters[key] = val
+            DispatchQueue.main.async {
+                activityIndicator.stopAnimating()
+                activityIndicator.removeFromSuperview()
+                
+                if let error = error {
+                    ErrorHandler.handle(error, in: self)
+                    return
+                }
+                
+                if let url = url {
+                    let success = self.audioProcessor.loadAudio(from: url)
+                    if success {
+                        // デフォルト設定
+                        self.audioProcessor.setPitch(0.0)
+                        self.audioProcessor.setRate(1.0)
                         
-                    }
-                    //何らかの情報が取得できなかった場合（動画の所有者が他サイトでの公開を禁止していた場合など）
-                    if(String(parameters["status"]) != "fail") {
+                        // 音声コントロールUIを表示
+                        self.showAudioControls()
                         
-                        //URL取得
-                        if let urlEncodedMap:String = parameters["url_encoded_fmt_stream_map"] {
-                            var parametersInMap: Dictionary = [String: String]()
-                            urlEncodedMap.componentsSeparatedByString("&").map { key_val in
-                                //キー値が存在する かつ 最初のURLだけとる
-                                if key_val.characters.count > 5 && parametersInMap["url"] == nil {
-                                    let key_val_array = key_val.componentsSeparatedByString("=")
-                                    let key = key_val_array[0]
-                                    print("key2=\(key)¥n")
-                                    let val = key_val_array[1].stringByRemovingPercentEncoding
-                                    print("val2=\(val)")
-                                    parametersInMap[key] = val
-                                }
-                            }
-                            //URLをセット
-                            if let url = parametersInMap["url"] {
-                                self.resultList[index].url = parametersInMap["url"]!
-                                self.resultList[index].viewCount = parameters["view_count"]!
-                                self.resultList[index].lengthSeconds = parameters["length_seconds"]!
-                                //videoList.append(self.resultList[index])
-                            } else {
-                                //URLが取得できなければ削除
-                                //self.resultList.removeAtIndex(index)
-                            }
-                        }
+                        // 再生開始
+                        self.audioProcessor.play()
+                        self.updatePlayButtonState()
                         
-                        //let url:String = parameters["url_encoded_fmt_stream_map"]!
-                        //let viewCount:String = parameters["view_count"]!
-                        //let lengthSeconds:String = parameters["length_seconds"]!
+                        // 波形表示
+                        self.loadWaveformData()
                         
-                        //これで入る？→letだからダメとか言われるので
-                        //self.resultList[index].url = url
-                        
-//                        self.resultList[index].viewCount = parameters["view_count"]!
-//                        self.resultList[index].lengthSeconds = parameters["length_seconds"]!
-
+                        // 再生時間更新タイマー
+                        self.startPlaybackTimeUpdates()
                     } else {
-                        //再生できないのでリストから削除
-                        //self.resultList.removeAtIndex(index)
+                        self.showAlert(title: "音声読み込み失敗", message: "音声ファイルの読み込みに失敗しました")
                     }
-
-                } else {
-                    print(error)
-                }
-                
-                //resultListの最後の要素の場合、フラグをOFFにする（この処理はAlamosfire内に入れないとダメ。同期処理にならない）
-                if index == self.resultList.count - 1 {
-                    //ネットワーク（同期処理用）フラグOFF
-                    self.networkingFlg = false
-                    print("通信終了！")
-                }
-                
-            })
-            task.resume()
-         */
-            
-
-        }
-        
-//        return []
-    }
-    
-    /** AlamoFire同期処理のためのメソッド。非同期処理→同期処理に（通信処理完了まで待つ）
-     http://qiita.com/kazuhirox/items/9ecb25bc238ad2d47ff0*/
-    func networkingSynchronous() {
-        
-        /*
-        //ロックが解除されるまで待つ
-        let runLoop = NSRunLoop.currentRunLoop
-        while networkingFlg &&
-            runLoop.runMode(NSDefaultRunLoopMode, beforeDate: NSDate(timeIntervalSinceNow: 0.1)) {
-                // 0.1秒毎の処理なので、処理が止まらない
-                print("待ってます")
-        }
-         */
-    }
-    
-    /** 秒をHH:mm:ss形式に直す */
-    func formatHHmmss(seconds: String) -> String {
-        let sec = Int(seconds)
-        let s = Int(sec! % 60)
-        let m = Int(((sec! - s) / 60) % 60)
-        let h = Int(((sec! - m - s) / 3600) % 3600)
-        let str = String(format: "%02d:%02d:%02d", h, m, s)
-        return str
-    }
-    
-    /** SSYoutubeParser（ライブラリ）のセットアップ */
-    func setupVideo(videoId: String) {
-        /*
-        SSYoutubeParser.h264videosWithYoutubeID(videoId) { (videoDictionary) -> Void in
-            //let videoSmallURL = videoDictionary["small"]
-            let videoMediumURL = videoDictionary["medium"]
-            //let videoHD720URL = videoDictionary["hd720"]
-            
-            if let urlStr = videoMediumURL {
-                if let playerItem:AVPlayerItem = AVPlayerItem(URL: NSURL(string: urlStr)!) {
-//                    var player = AVPlayer()
-//                    player = AVPlayer(playerItem: playerItem)
-//                    player.rate = 1.0
-//                    player.play()
-                            let player = AVPlayer(playerItem: playerItem)
-                            let playerLayer = AVPlayerLayer(player: player)
-                            playerLayer.frame = self.view.bounds
-                            self.view.layer.addSublayer(playerLayer)
-                            player.play()
                 }
             }
         }
-         */
     }
     
-    /**
-     tableView用メソッド（1.セルの行数）
-     */
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        /*return solPlayer.editPlaylist.count*/
-//        return resultList.count
-        return 0
+    // MARK: - Audio Controls UI
+    private func showAudioControls() {
+        // 既存のコントロールを削除
+        audioControlsView?.removeFromSuperview()
+        
+        // コントロールビューを作成
+        let controlsView = UIView(frame: CGRect(x: 0, y: view.bounds.height - 250, width: view.bounds.width, height: 250))
+        controlsView.backgroundColor = UIColor(white: 0.1, alpha: 0.9)
+        controlsView.layer.cornerRadius = 20
+        controlsView.clipsToBounds = true
+        view.addSubview(controlsView)
+        audioControlsView = controlsView
+        
+        // タイトルラベル
+        let titleLabel = UILabel(frame: CGRect(x: 20, y: 20, width: controlsView.bounds.width - 40, height: 30))
+        titleLabel.textColor = .white
+        titleLabel.font = UIFont.systemFont(ofSize: 18, weight: .medium)
+        titleLabel.text = "音声処理コントロール"
+        controlsView.addSubview(titleLabel)
+        
+        // 波形表示エリア
+        let waveformArea = UIView(frame: CGRect(x: 20, y: 60, width: controlsView.bounds.width - 40, height: 40))
+        waveformArea.backgroundColor = UIColor(white: 0.2, alpha: 1.0)
+        waveformArea.layer.cornerRadius = 5
+        controlsView.addSubview(waveformArea)
+        waveformView = waveformArea
+        
+        // 再生時間表示
+        let timeLabel = UILabel(frame: CGRect(x: 20, y: 105, width: 100, height: 20))
+        timeLabel.textColor = .white
+        timeLabel.font = UIFont.systemFont(ofSize: 12)
+        timeLabel.text = "00:00 / 00:00"
+        controlsView.addSubview(timeLabel)
+        self.timeLabel = timeLabel
+        
+        // シークバー
+        let progressSlider = UISlider(frame: CGRect(x: 120, y: 105, width: controlsView.bounds.width - 140, height: 20))
+        progressSlider.minimumValue = 0
+        progressSlider.maximumValue = 1
+        progressSlider.value = 0
+        progressSlider.addTarget(self, action: #selector(progressChanged(_:)), for: .valueChanged)
+        controlsView.addSubview(progressSlider)
+        self.progressSlider = progressSlider
+        
+        // ピッチスライダー
+        let pitchLabel = UILabel(frame: CGRect(x: 20, y: 135, width: 100, height: 30))
+        pitchLabel.textColor = .white
+        pitchLabel.text = "ピッチ"
+        controlsView.addSubview(pitchLabel)
+        
+        let pitchSlider = UISlider(frame: CGRect(x: 120, y: 135, width: controlsView.bounds.width - 140, height: 30))
+        pitchSlider.minimumValue = -2400 // -24半音
+        pitchSlider.maximumValue = 2400  // +24半音
+        pitchSlider.value = 0            // デフォルト値
+        pitchSlider.addTarget(self, action: #selector(pitchChanged(_:)), for: .valueChanged)
+        controlsView.addSubview(pitchSlider)
+        self.pitchSlider = pitchSlider
+        
+        // 再生速度スライダー
+        let rateLabel = UILabel(frame: CGRect(x: 20, y: 175, width: 100, height: 30))
+        rateLabel.textColor = .white
+        rateLabel.text = "再生速度"
+        controlsView.addSubview(rateLabel)
+        
+        let rateSlider = UISlider(frame: CGRect(x: 120, y: 175, width: controlsView.bounds.width - 140, height: 30))
+        rateSlider.minimumValue = 0.5  // 0.5倍速
+        rateSlider.maximumValue = 2.0  // 2倍速
+        rateSlider.value = 1.0         // デフォルト値
+        rateSlider.addTarget(self, action: #selector(rateChanged(_:)), for: .valueChanged)
+        controlsView.addSubview(rateSlider)
+        self.rateSlider = rateSlider
+        
+        // 再生/停止ボタン
+        let playButton = UIButton(frame: CGRect(x: (controlsView.bounds.width - 100) / 2, y: 210, width: 100, height: 30))
+        playButton.setTitle("停止", for: .normal)
+        playButton.backgroundColor = UIColor(red: 0.0, green: 0.5, blue: 1.0, alpha: 1.0)
+        playButton.layer.cornerRadius = 15
+        playButton.addTarget(self, action: #selector(playButtonTapped(_:)), for: .touchUpInside)
+        controlsView.addSubview(playButton)
+        self.playButton = playButton
     }
     
-    /**
-     tableView用メソッド（2.セルの内容）
-     */
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        
-        //表示設定
-        let cell: UITableViewCell = UITableViewCell(style: UITableViewCellStyle.subtitle, reuseIdentifier: "Cell")
-        cell.textLabel?.numberOfLines = 4
-        cell.detailTextLabel?.numberOfLines = 0 //0にすると制限なし（「…」とならない）
-        cell.backgroundColor = UIColor.clear //背景色を透明に
-        
-        //フォント（タイトル）
-        var font: UIFont = UIFont(name: "Helvetica Neue", size: 16.0)!
-        font = UIFont.systemFont(ofSize: 16.0, weight: UIFont.Weight.light)
-        
-        cell.textLabel?.font = font
-        
-        font = UIFont(name: "Helvetica Neue", size: 11.0)!
-        font = UIFont.systemFont(ofSize: 11.0, weight: UIFont.Weight.light)
-        
-        cell.detailTextLabel?.font = font
-        
-        cell.textLabel?.textColor = UIColor.white    //tintColorではなくテキストカラー？
-        cell.detailTextLabel?.textColor = UIColor.darkGray
-        
-        
-        /*
-        //表示内容
-        cell.textLabel?.text = resultList[indexPath.row].title ?? "Untitled"
-        //cell.detailTextLabel?.text = resultList[indexPath.row].description ?? "Unknown Artist"
-        cell.detailTextLabel?.text = "再生時間：\(formatHHmmss(resultList[indexPath.row].lengthSeconds)) 再生回数：\(resultList[indexPath.row].viewCount)"
-        
-        //画像を表示
-        
-        if !resultList[indexPath.row].thumbUrl.isEmpty {
-            //サムネイルが存在する場合は表示
-            cell.imageView?.image = UIImage(data: NSData(contentsOfURL: NSURL(string: resultList[indexPath.row].thumbUrl)!)!)!
+    private func loadWaveformData() {
+        audioProcessor.getWaveformData { [weak self] waveformData in
+            guard let self = self, let waveformData = waveformData, let waveformView = self.waveformView else { return }
             
-        } else {
-            //存在しない場合はダミー
-            cell.imageView?.image = ImageUtil.makeBoxWithColor(UIColor.init(colorLiteralRed: 0.67, green: 0.67, blue: 0.67, alpha: 1.0), width: 50.0, height: 50.0)
+            DispatchQueue.main.async {
+                // 既存の波形表示をクリア
+                for subview in waveformView.subviews {
+                    subview.removeFromSuperview()
+                }
+                
+                // 波形を描画
+                let width = waveformView.bounds.width
+                let height = waveformView.bounds.height
+                let barWidth: CGFloat = width / CGFloat(min(waveformData.count, 100))
+                let barSpacing: CGFloat = 1
+                
+                // データを間引く
+                let stride = waveformData.count / 100
+                let sampledData = stride > 0 ? stride(from: 0, to: waveformData.count, by: stride).map { waveformData[$0] } : waveformData
+                
+                for (index, amplitude) in sampledData.enumerated() {
+                    if index >= 100 { break }
+                    
+                    let barHeight = CGFloat(amplitude) * height
+                    let bar = UIView(frame: CGRect(
+                        x: CGFloat(index) * (barWidth + barSpacing),
+                        y: (height - barHeight) / 2,
+                        width: barWidth,
+                        height: max(barHeight, 2)
+                    ))
+                    bar.backgroundColor = UIColor(red: 0.0, green: 0.8, blue: 1.0, alpha: 1.0)
+                    bar.layer.cornerRadius = 1
+                    waveformView.addSubview(bar)
+                }
+            }
         }
+    }
+    
+    private func startPlaybackTimeUpdates() {
+        // 既存のタイマーを停止
+        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(updatePlaybackTime), object: nil)
         
-         */
+        // 新しいタイマーを開始
+        perform(#selector(updatePlaybackTime), with: nil, afterDelay: 0.1)
+    }
+    
+    @objc private func updatePlaybackTime() {
+        guard let duration = audioProcessor.getDuration() else { return }
+        
+        let currentTime = audioProcessor.getCurrentTime()
+        let currentTimeFormatted = formatTime(currentTime)
+        let durationFormatted = formatTime(duration)
+        
+        timeLabel?.text = "\(currentTimeFormatted) / \(durationFormatted)"
+        progressSlider?.value = Float(currentTime / duration)
+        
+        // 再生中なら更新を継続
+        if audioProcessor.isPlaying() {
+            perform(#selector(updatePlaybackTime), with: nil, afterDelay: 0.1)
+        }
+    }
+    
+    private func formatTime(_ time: TimeInterval) -> String {
+        let minutes = Int(time) / 60
+        let seconds = Int(time) % 60
+        return String(format: "%02d:%02d", minutes, seconds)
+    }
+    
+    private func updatePlayButtonState() {
+        if audioProcessor.isPlaying() {
+            playButton?.setTitle("停止", for: .normal)
+        } else {
+            playButton?.setTitle("再生", for: .normal)
+        }
+    }
+    
+    // MARK: - Control Actions
+    @objc func pitchChanged(_ slider: UISlider) {
+        audioProcessor.setPitch(slider.value)
+    }
+    
+    @objc func rateChanged(_ slider: UISlider) {
+        audioProcessor.setRate(slider.value)
+    }
+    
+    @objc func playButtonTapped(_ button: UIButton) {
+        if audioProcessor.isPlaying() {
+            audioProcessor.stop()
+        } else {
+            audioProcessor.play()
+            startPlaybackTimeUpdates()
+        }
+        updatePlayButtonState()
+    }
+    
+    @objc func progressChanged(_ slider: UISlider) {
+        guard let duration = audioProcessor.getDuration() else { return }
+        let targetTime = Double(slider.value) * duration
+        audioProcessor.seek(to: targetTime)
+        updatePlaybackTime()
+    }
+    
+    // MARK: - Helper Methods
+    private func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+    
+    // MARK: - UITableViewDataSource
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return searchResults.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        
+        let result = searchResults[indexPath.row]
+        
+        cell.textLabel?.text = result.title
+        cell.detailTextLabel?.text = "再生時間: \(result.formattedDuration()) 再生回数: \(result.formattedViewCount())"
+        
+        // サムネイル画像を非同期で読み込み
+        DispatchQueue.global().async {
+            if let imageData = try? Data(contentsOf: result.thumbnailURL),
+               let image = UIImage(data: imageData) {
+                DispatchQueue.main.async {
+                    if let currentCell = tableView.cellForRow(at: indexPath) {
+                        currentCell.imageView?.image = image
+                        currentCell.setNeedsLayout()
+                    }
+                }
+            }
+        }
         
         return cell
     }
     
-    /**
-     tableView用メソッド（3.タップ時のメソッド）
-     */
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        
+    // MARK: - UITableViewDelegate
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selectedVideo = searchResults[indexPath.row]
+        processAudio(for: selectedVideo.videoId)
     }
     
-    //_persisntenceID:UInt64, _title:String, _url:String, _artist:String, _duration:Double)
-
-    
-    /**
-     UIPicker用メソッド（1.表示列）
-     */
-    func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {
+    // MARK: - UIPickerViewDataSource
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
     }
     
-    /**
-     UIPicker用メソッド（2.表示個数）
-     */
-    func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-//        return siteList.count
-        return 0
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return siteList.count
     }
     
-    /**
-     UIPicker用メソッド（3.表示内容＋デザイン）
-     */
-    func pickerView(pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusingView view: UIView?) -> UIView {
-        
-        let pickerLabel: UILabel = UILabel()
-        
-        //表示内容
-//        pickerLabel.text = siteList[row].name
-        pickerLabel.text = ""
+    // MARK: - UIPickerViewDelegate
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return siteList[row].name
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        // サイト選択時の処理
+        // 現在は YouTube のみ実装
+    }
+}
 
-        //フォント
-        var font: UIFont = UIFont(name: "Helvetica Neue", size: 18.0)!
-        font = UIFont.systemFont(ofSize: 18.0, weight: UIFont.Weight.light)
-        pickerLabel.font = font
-        
-        //表示位置
-        pickerLabel.textAlignment = NSTextAlignment.center
-        
-        return pickerLabel
+// MARK: - UITextFieldDelegate
+extension WebPlayViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        performSearch()
+        return true
     }
-    
-    /**
-     UIPicker用メソッド（4.選択時）
-     */
-    func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        
-    }
-    
-    /** TextFieldが選択解除された時に呼ばれるメソッド（Did End On Exit→Editing Did End→やっぱDid End On Exit） */
-func getText(sender: AnyObject) {
-        //
-        print("test")
-    }
-    
-    /** 検索ボタンを押された時に呼ばれるメソッド */
-func searchButtonAction(sender: CustomButton) {
-    print(sender)
-    /*
-        if !(textField.text?.isEmpty)! && textField.text != "" {
-            //検索メソッドを呼び出す
-            search(textField.text!)
-            //検索終了まで待つ
-            networkingSynchronous()
-            
-            if resultList != nil {
-                print("getVideoInfoはじまるよー")
-                //詳細情報を取得する
-                getVideoInfo()
-                //情報取得終了まで待つ
-                networkingSynchronous()
-                //おそうじ（URLが格納されていないものは削除する）
-                resultList = resultList.filter{ $0.url != "" }
-                print("getVideoInfoおしまい")
-                print(resultList)
-            }
-            
-            //tableView更新
-            tableView.reloadData()
-            
-        } else {
-            //アラートを作成
-            let alert = UIAlertController(title: "入力エラー", message: "キーワードを入力してください。", preferredStyle: UIAlertControllerStyle.Alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: {
-                        (action: UIAlertAction!) -> Void in
-                //self.presentViewController(alert, animated: true, completion: nil)
-            }))
-            self.presentViewController(alert, animated: true, completion: nil)
-        }
-     */
-    }
-    
-
+}
 
