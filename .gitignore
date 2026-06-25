@@ -75,3 +75,6 @@ playground.xcworkspace
 *.bak
 *.tmp
 injected_container.swift
+
+# TypeScript incremental build info
+*.tsbuildinfo

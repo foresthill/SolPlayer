@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/use-audio-player';
 import { FrequencySelector } from './frequency-selector';
 import { PlaybackControls } from './playback-controls';
@@ -16,6 +17,7 @@ export function AudioPlayer() {
     volume,
     frequency,
     playbackSpeed,
+    trackTitle,
     play,
     pause,
     stop,
@@ -23,20 +25,44 @@ export function AudioPlayer() {
     setVolume,
     setFrequency,
     setPlaybackSpeed,
-    loadTrack
+    loadFile
   } = useAudioPlayer();
 
-  // デモ用: サンプル音声をロード
-  const handleLoadDemo = async () => {
-    await loadTrack('/audio/sample.mp3');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      await loadFile(file);
+    }
+    // 同じファイルを再選択できるよう値をリセット
+    e.target.value = '';
   };
+
+  const hasTrack = trackTitle !== null;
 
   return (
     <div className="w-full max-w-2xl mx-auto p-6 space-y-6">
+      {/* ファイル選択 */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="audio/*"
+        onChange={handleFileChange}
+        className="hidden"
+      />
+      <Button
+        variant="outline"
+        onClick={() => fileInputRef.current?.click()}
+        className="w-full"
+      >
+        🎵 音声ファイルを選択
+      </Button>
+
       {/* トラック情報 */}
       <TrackInfo
-        title="Sample Track"
-        artist="Artist Name"
+        title={trackTitle ?? 'トラック未選択'}
+        artist={hasTrack ? 'ローカルファイル' : '上のボタンから音声ファイルを読み込んでください'}
       />
 
       {/* 周波数選択 */}
@@ -71,6 +97,7 @@ export function AudioPlayer() {
       {/* 再生コントロール */}
       <PlaybackControls
         isPlaying={isPlaying}
+        disabled={!hasTrack}
         onPlay={play}
         onPause={pause}
         onStop={stop}
@@ -81,11 +108,6 @@ export function AudioPlayer() {
         volume={volume}
         onChange={setVolume}
       />
-
-      {/* デモボタン */}
-      <Button onClick={handleLoadDemo} className="w-full">
-        サンプル音声をロード
-      </Button>
     </div>
   );
 }

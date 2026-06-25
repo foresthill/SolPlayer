@@ -65,6 +65,10 @@ importers:
         version: 5.9.3
 
   packages/audio-core:
+    dependencies:
+      tone:
+        specifier: ^15.0.4
+        version: 15.1.22
     devDependencies:
       tsup:
         specifier: ^8.0.0
