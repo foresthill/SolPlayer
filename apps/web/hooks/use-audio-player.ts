@@ -11,6 +11,7 @@ export interface UseAudioPlayerReturn {
   volume: number;
   frequency: number;
   playbackSpeed: number;
+  trackTitle: string | null;
 
   play: () => Promise<void>;
   pause: () => void;
@@ -19,7 +20,8 @@ export interface UseAudioPlayerReturn {
   setVolume: (volume: number) => void;
   setFrequency: (hz: number) => void;
   setPlaybackSpeed: (speed: number) => void;
-  loadTrack: (url: string) => Promise<void>;
+  loadTrack: (url: string, title?: string) => Promise<void>;
+  loadFile: (file: File) => Promise<void>;
 }
 
 export function useAudioPlayer(): UseAudioPlayerReturn {
@@ -29,16 +31,29 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
   const [volume, setVolumeState] = useState(0.8);
   const [frequency, setFrequencyState] = useState(440);
   const [playbackSpeed, setPlaybackSpeedState] = useState(1.0);
+  const [trackTitle, setTrackTitle] = useState<string | null>(null);
 
   const processorRef = useRef<AudioProcessor | null>(null);
-  const animationFrameRef = useRef<number>();
+  const animationFrameRef = useRef<number | undefined>(undefined);
+  // ObjectURLを破棄するために直近のURLを保持
+  const objectUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
-    processorRef.current = getAudioProcessor();
+    const processor = getAudioProcessor();
+    processorRef.current = processor;
+    // トラックが最後まで再生されたらUIを停止状態に戻す
+    processor.setOnEnded(() => {
+      setIsPlaying(false);
+      setCurrentTime(0);
+    });
 
     return () => {
+      processor.setOnEnded(null);
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
+      }
+      if (objectUrlRef.current) {
+        URL.revokeObjectURL(objectUrlRef.current);
       }
     };
   }, []);
@@ -66,7 +81,7 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     };
   }, [isPlaying]);
 
-  const loadTrack = useCallback(async (url: string) => {
+  const loadTrack = useCallback(async (url: string, title?: string) => {
     if (!processorRef.current) return;
 
     await processorRef.current.initialize();
@@ -74,7 +89,20 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     setDuration(processorRef.current.getDuration());
     setCurrentTime(0);
     setIsPlaying(false);
+    if (title !== undefined) {
+      setTrackTitle(title);
+    }
   }, []);
+
+  const loadFile = useCallback(async (file: File) => {
+    // 直前のObjectURLを破棄してリーク防止
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current);
+    }
+    const url = URL.createObjectURL(file);
+    objectUrlRef.current = url;
+    await loadTrack(url, file.name);
+  }, [loadTrack]);
 
   const play = useCallback(async () => {
     if (!processorRef.current) return;
@@ -133,6 +161,7 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     volume,
     frequency,
     playbackSpeed,
+    trackTitle,
     play,
     pause,
     stop,
@@ -140,6 +169,7 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     setVolume,
     setFrequency,
     setPlaybackSpeed,
-    loadTrack
+    loadTrack,
+    loadFile
   };
 }
