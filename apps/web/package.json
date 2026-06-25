@@ -16,7 +16,7 @@
     "@prisma/client": "^6.0.0",
     "@solplayer/audio-core": "workspace:*",
     "@solplayer/shared-types": "workspace:*",
-    "next": "^15.1.0",
+    "next": "^15.5.19",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tone": "^15.0.4",
