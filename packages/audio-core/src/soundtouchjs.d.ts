@@ -34,7 +34,10 @@ declare module 'soundtouchjs' {
     timePlayed: number;
     sourcePosition: number;
 
-    /** 再生位置（0-100）。setするとシークになる。 */
+    /**
+     * 再生位置。getは0-100(%)を返すが、setは0-1(分数)を期待する
+     * （soundtouchjs 0.3.0 の非対称仕様）。setするとシークになる。
+     */
     percentagePlayed: number;
 
     /** ピッチ倍率（1.0=変化なし） */

@@ -199,7 +199,9 @@ export class AudioProcessor {
     }
 
     if (this.shifter) {
-      this.shifter.percentagePlayed = (clamped / this.duration) * 100;
+      // 注意: soundtouchjsのpercentagePlayedはgetterが0-100だが
+      // setterは0-1(分数)を期待するという非対称仕様。分数を渡す。
+      this.shifter.percentagePlayed = clamped / this.duration;
     }
     this.currentTime = clamped;
   }
