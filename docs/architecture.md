@@ -21,7 +21,17 @@ solplayer/
 - Tailwind CSS v4
 - Zustand (状態管理)
 - Prisma 6 + PostgreSQL
-- Tone.js 15 (Web Audio)
+- SoundTouchJS (Web Audio / タイムストレッチ)
+
+### 音声処理方針
+
+テンポとピッチを独立して制御する（iOSの `AVAudioUnitTimePitch` と同様）:
+
+- 周波数変換(432Hz等) → `pitchSemitones`（テンポ維持）
+- 倍速再生            → `tempo`（ピッチ維持）
+
+グラニュラー方式(旧Tone.PitchShift)で発生していた小シフト時のうねり／音痴を解消し、
+再生位置は SoundTouch の `play` イベント(`timePlayed`)で正確に追従する。
 
 ### iOS版
 - Swift
