@@ -1,13 +1,14 @@
 'use client';
 
-import { useRef } from 'react';
 import { useAudioPlayer } from '@/hooks/use-audio-player';
 import { FrequencySelector } from './frequency-selector';
 import { PlaybackControls } from './playback-controls';
 import { ProgressBar } from './progress-bar';
 import { VolumeControl } from './volume-control';
+import { SpeedControl } from './speed-control';
 import { TrackInfo } from './track-info';
-import { Button } from '@/components/ui/button';
+import { PlaylistPanel } from './playlist-panel';
+import { StopIcon } from './icons';
 
 export function AudioPlayer() {
   const {
@@ -18,6 +19,10 @@ export function AudioPlayer() {
     frequency,
     playbackSpeed,
     trackTitle,
+    playlist,
+    currentIndex,
+    repeatMode,
+    isShuffle,
     play,
     pause,
     stop,
@@ -25,89 +30,86 @@ export function AudioPlayer() {
     setVolume,
     setFrequency,
     setPlaybackSpeed,
-    loadFile
+    addFiles,
+    selectTrack,
+    removeTrack,
+    next,
+    previous,
+    cycleRepeatMode,
+    toggleShuffle,
   } = useAudioPlayer();
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      await loadFile(file);
-    }
-    // 同じファイルを再選択できるよう値をリセット
-    e.target.value = '';
-  };
-
   const hasTrack = trackTitle !== null;
+  const canPlay = hasTrack || playlist.length > 0;
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-6 space-y-6">
-      {/* ファイル選択 */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="audio/*"
-        onChange={handleFileChange}
-        className="hidden"
-      />
-      <Button
-        variant="outline"
-        onClick={() => fileInputRef.current?.click()}
-        className="w-full"
-      >
-        🎵 音声ファイルを選択
-      </Button>
-
-      {/* トラック情報 */}
-      <TrackInfo
-        title={trackTitle ?? 'トラック未選択'}
-        artist={hasTrack ? 'ローカルファイル' : '上のボタンから音声ファイルを読み込んでください'}
-      />
-
-      {/* 周波数選択 */}
-      <FrequencySelector
-        frequency={frequency}
-        onChange={setFrequency}
-      />
-
-      {/* 倍速選択 */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium">
-          倍速: {playbackSpeed.toFixed(1)}x
-        </label>
-        <input
-          type="range"
-          min="0.5"
-          max="2.0"
-          step="0.1"
-          value={playbackSpeed}
-          onChange={(e) => setPlaybackSpeed(parseFloat(e.target.value))}
-          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+    <div className="mx-auto grid w-full max-w-md gap-6 lg:max-w-5xl lg:grid-cols-[1.1fr_1fr] lg:items-start">
+      {/* メインプレイヤー */}
+      <section className="glass-panel space-y-7 p-7 sm:p-9">
+        <TrackInfo
+          title={trackTitle ?? 'トラック未選択'}
+          artist={
+            hasTrack ? 'ローカルファイル' : 'プレイリストに曲を追加してください'
+          }
+          isPlaying={isPlaying}
         />
+
+        <ProgressBar
+          currentTime={currentTime}
+          duration={duration}
+          onSeek={seek}
+        />
+
+        <PlaybackControls
+          isPlaying={isPlaying}
+          disabled={!canPlay}
+          repeatMode={repeatMode}
+          isShuffle={isShuffle}
+          onPlay={play}
+          onPause={pause}
+          onNext={next}
+          onPrevious={previous}
+          onCycleRepeat={cycleRepeatMode}
+          onToggleShuffle={toggleShuffle}
+        />
+
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              className="glass-btn h-8 w-8 shrink-0"
+              onClick={stop}
+              disabled={!hasTrack}
+              aria-label="停止"
+              title="停止"
+            >
+              <StopIcon className="h-3.5 w-3.5" />
+            </button>
+            <div className="min-w-0 flex-1">
+              <VolumeControl volume={volume} onChange={setVolume} />
+            </div>
+          </div>
+          <SpeedControl speed={playbackSpeed} onChange={setPlaybackSpeed} />
+        </div>
+      </section>
+
+      {/* 周波数 & プレイリスト */}
+      <div className="space-y-6">
+        <section className="glass-panel p-6 sm:p-7">
+          <FrequencySelector frequency={frequency} onChange={setFrequency} />
+        </section>
+
+        <section className="glass-panel p-6 sm:p-7">
+          <PlaylistPanel
+            playlist={playlist}
+            currentIndex={currentIndex}
+            isPlaying={isPlaying}
+            onSelectTrack={(index) => void selectTrack(index)}
+            onRemoveTrack={removeTrack}
+            onAddFiles={(files) => void addFiles(files)}
+          />
+        </section>
       </div>
-
-      {/* プログレスバー */}
-      <ProgressBar
-        currentTime={currentTime}
-        duration={duration}
-        onSeek={seek}
-      />
-
-      {/* 再生コントロール */}
-      <PlaybackControls
-        isPlaying={isPlaying}
-        disabled={!hasTrack}
-        onPlay={play}
-        onPause={pause}
-        onStop={stop}
-      />
-
-      {/* ボリュームコントロール */}
-      <VolumeControl
-        volume={volume}
-        onChange={setVolume}
-      />
     </div>
   );
 }

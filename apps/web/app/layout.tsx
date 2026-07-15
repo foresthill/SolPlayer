@@ -13,14 +13,19 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
-      <body className="min-h-screen bg-gray-950 text-white antialiased">
+      <body className="min-h-screen antialiased">
+        {/* 淡いパステルのオーロラ背景 */}
+        <div className="aurora" aria-hidden="true" />
+
         <div className="flex min-h-screen flex-col">
-          <header className="border-b border-gray-800 px-6 py-4">
-            <h1 className="text-xl font-bold">SolPlayer</h1>
+          <header className="px-6 pt-6 pb-2">
+            <h1 className="text-lg font-semibold tracking-[0.2em] text-ink-soft">
+              SolPlayer
+            </h1>
           </header>
-          <main className="flex-1 p-6">{children}</main>
-          <footer className="border-t border-gray-800 px-6 py-4 text-center text-sm text-gray-500">
-            SolPlayer - 周波数変換音楽プレイヤー
+          <main className="flex-1 px-4 py-6 sm:px-6">{children}</main>
+          <footer className="px-6 py-5 text-center text-xs text-ink-faint">
+            SolPlayer — 周波数変換音楽プレイヤー
           </footer>
         </div>
       </body>
