@@ -6,6 +6,8 @@ node_modules
 .turbo
 dist
 .build/
+# Next.js 静的エクスポート（Capacitor用 pnpm build:mobile の出力）
+apps/web/out/
 
 # Environment
 .env*
