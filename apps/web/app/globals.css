@@ -1,1 +1,362 @@
 @import "tailwindcss";
+
+/* ============================================================
+   デザイントークン
+   淡いパステルのオーロラ背景 + グラスモーフィズム。
+   ライト/ダークは prefers-color-scheme で自動切替。
+   ============================================================ */
+
+:root {
+  color-scheme: light dark;
+
+  --bg-base: #faf9ff;
+
+  /* オーロラ（背景グラデーション）の色 */
+  --aurora-pink: rgba(255, 178, 214, 0.6);
+  --aurora-blue: rgba(165, 204, 255, 0.55);
+  --aurora-green: rgba(178, 236, 206, 0.55);
+  --aurora-lilac: rgba(213, 197, 255, 0.45);
+
+  /* テキスト */
+  --ink: #414059;
+  --ink-soft: rgba(65, 64, 89, 0.58);
+  --ink-faint: rgba(65, 64, 89, 0.36);
+
+  /* ガラス面 */
+  --glass-bg: rgba(255, 255, 255, 0.36);
+  --glass-bg-strong: rgba(255, 255, 255, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.6);
+  --glass-shadow: 0 24px 48px -20px rgba(118, 100, 160, 0.35);
+
+  /* スライダー・バー */
+  --track-bg: rgba(255, 255, 255, 0.45);
+  --track-fill: rgba(255, 255, 255, 0.95);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-base: #141220;
+
+    --aurora-pink: rgba(233, 110, 183, 0.22);
+    --aurora-blue: rgba(96, 149, 235, 0.22);
+    --aurora-green: rgba(88, 200, 148, 0.16);
+    --aurora-lilac: rgba(158, 128, 245, 0.18);
+
+    --ink: #edebf7;
+    --ink-soft: rgba(237, 235, 247, 0.6);
+    --ink-faint: rgba(237, 235, 247, 0.34);
+
+    --glass-bg: rgba(255, 255, 255, 0.07);
+    --glass-bg-strong: rgba(255, 255, 255, 0.13);
+    --glass-border: rgba(255, 255, 255, 0.14);
+    --glass-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.6);
+
+    --track-bg: rgba(255, 255, 255, 0.14);
+    --track-fill: rgba(255, 255, 255, 0.9);
+  }
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--ink);
+}
+
+/* ============================================================
+   オーロラ背景
+   radial-gradient を重ねてぼかし、ゆっくり漂わせる。
+   ============================================================ */
+
+.aurora {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.aurora::before,
+.aurora::after {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  filter: blur(60px) saturate(1.15);
+}
+
+.aurora::before {
+  background:
+    radial-gradient(42% 38% at 20% 24%, var(--aurora-pink), transparent 70%),
+    radial-gradient(46% 42% at 82% 26%, var(--aurora-blue), transparent 70%),
+    radial-gradient(50% 44% at 48% 86%, var(--aurora-green), transparent 72%);
+  animation: aurora-drift 36s ease-in-out infinite alternate;
+}
+
+.aurora::after {
+  background:
+    radial-gradient(36% 32% at 66% 68%, var(--aurora-lilac), transparent 70%),
+    radial-gradient(30% 28% at 28% 62%, var(--aurora-blue), transparent 70%);
+  animation: aurora-drift 48s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes aurora-drift {
+  from {
+    transform: translate3d(-3%, -2%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(3%, 3%, 0) scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora::before,
+  .aurora::after {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   ガラス部品
+   ============================================================ */
+
+.glass-panel {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 1.75rem;
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+}
+
+/* 丸いアイコンボタン（シャッフル・前後・リピート等） */
+.glass-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  color: var(--ink-soft);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.glass-btn:hover:not(:disabled) {
+  background: var(--glass-bg-strong);
+  border-color: var(--glass-border);
+  color: var(--ink);
+}
+
+.glass-btn:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.glass-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* トグルON状態（シャッフル・リピート） */
+.glass-btn[data-active="true"] {
+  background: var(--glass-bg-strong);
+  border-color: var(--glass-border);
+  color: var(--ink);
+  box-shadow: 0 6px 18px -8px rgba(120, 100, 160, 0.5);
+}
+
+/* 中央の白い半透明再生ボタン */
+.play-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  color: #414059;
+  background: var(--track-fill);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    0 18px 38px -14px rgba(120, 100, 160, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    opacity 0.2s ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  .play-btn {
+    color: #1d1b2c;
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+.play-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow:
+    0 22px 44px -14px rgba(120, 100, 160, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.play-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.play-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* 周波数プリセット等のピル */
+.glass-chip {
+  border-radius: 1.1rem;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+}
+
+.glass-chip:hover {
+  background: var(--glass-bg-strong);
+  color: var(--ink);
+}
+
+.glass-chip:active {
+  transform: scale(0.97);
+}
+
+.glass-chip[data-active="true"] {
+  background: var(--track-fill);
+  color: #414059;
+  box-shadow: 0 10px 24px -12px rgba(120, 100, 160, 0.55);
+}
+
+@media (prefers-color-scheme: dark) {
+  .glass-chip[data-active="true"] {
+    color: #1d1b2c;
+  }
+}
+
+/* テキスト/数値入力 */
+.glass-input {
+  border-radius: 1rem;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  color: var(--ink);
+  padding: 0.5rem 0.9rem;
+  outline: none;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.glass-input::placeholder {
+  color: var(--ink-faint);
+}
+
+.glass-input:focus {
+  background: var(--glass-bg-strong);
+  border-color: var(--track-fill);
+}
+
+/* ============================================================
+   レンジスライダー（音量・倍速）
+   ============================================================ */
+
+.glass-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 0.375rem;
+  border-radius: 9999px;
+  background: var(--track-bg);
+  outline: none;
+  cursor: pointer;
+}
+
+.glass-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 9999px;
+  background: var(--track-fill);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 12px -3px rgba(100, 85, 140, 0.5);
+  transition: transform 0.15s ease;
+}
+
+.glass-range::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.glass-range::-moz-range-thumb {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 9999px;
+  background: var(--track-fill);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 12px -3px rgba(100, 85, 140, 0.5);
+  transition: transform 0.15s ease;
+}
+
+.glass-range::-moz-range-track {
+  height: 0.375rem;
+  border-radius: 9999px;
+  background: var(--track-bg);
+}
+
+/* ============================================================
+   再生中インジケータ（イコライザ風の3本バー）
+   ============================================================ */
+
+.eq-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+
+.eq-bars span {
+  width: 3px;
+  border-radius: 2px;
+  background: currentColor;
+  animation: eq-bounce 1s ease-in-out infinite;
+}
+
+.eq-bars span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.eq-bars span:nth-child(3) {
+  animation-delay: 0.45s;
+}
+
+@keyframes eq-bounce {
+  0%,
+  100% {
+    height: 4px;
+  }
+  50% {
+    height: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eq-bars span {
+    animation: none;
+    height: 8px;
+  }
+}

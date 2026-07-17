@@ -1,5 +1,7 @@
 'use client';
 
+import { VolumeIcon } from './icons';
+
 interface VolumeControlProps {
   volume: number;
   onChange: (volume: number) => void;
@@ -8,7 +10,7 @@ interface VolumeControlProps {
 export function VolumeControl({ volume, onChange }: VolumeControlProps) {
   return (
     <div className="flex items-center gap-3">
-      <span className="text-sm">🔊</span>
+      <VolumeIcon className="h-4.5 w-4.5 shrink-0 text-ink-soft" />
       <input
         type="range"
         min="0"
@@ -16,9 +18,12 @@ export function VolumeControl({ volume, onChange }: VolumeControlProps) {
         step="0.01"
         value={volume}
         onChange={(e) => onChange(parseFloat(e.target.value))}
-        className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+        className="glass-range flex-1"
+        aria-label="音量"
       />
-      <span className="text-sm w-12 text-right">{Math.round(volume * 100)}%</span>
+      <span className="w-10 text-right text-xs tabular-nums text-ink-soft">
+        {Math.round(volume * 100)}%
+      </span>
     </div>
   );
 }
