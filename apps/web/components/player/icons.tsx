@@ -160,6 +160,44 @@ export function PlusIcon({ className }: IconProps) {
   );
 }
 
+export function ListIcon({ className }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M9 6h11M9 12h11M9 18h11" />
+      <circle cx="4.5" cy="6" r="1.3" fill="currentColor" stroke="none" />
+      <circle cx="4.5" cy="12" r="1.3" fill="currentColor" stroke="none" />
+      <circle cx="4.5" cy="18" r="1.3" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export function TuneIcon({ className }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M5 4v16M12 4v16M19 4v16" />
+      <circle cx="5" cy="14.5" r="2.2" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="8" r="2.2" fill="currentColor" stroke="none" />
+      <circle cx="19" cy="16.5" r="2.2" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 export function TrashIcon({ className }: IconProps) {
   return (
     <svg

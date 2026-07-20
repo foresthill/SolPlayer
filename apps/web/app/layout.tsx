@@ -1,9 +1,20 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
   title: 'SolPlayer',
   description: 'リアルタイム周波数変換機能付き音楽プレイヤー',
+};
+
+// viewportFit: 'cover' でノッチ端末のセーフエリア（env(safe-area-inset-*)）を有効化
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#faf9ff' },
+    { media: '(prefers-color-scheme: dark)', color: '#141220' },
+  ],
 };
 
 export default function RootLayout({
@@ -24,7 +35,8 @@ export default function RootLayout({
             </h1>
           </header>
           <main className="flex-1 px-4 py-6 sm:px-6">{children}</main>
-          <footer className="px-6 py-5 text-center text-xs text-ink-faint">
+          {/* モバイルではフッターメニューと重なるため非表示 */}
+          <footer className="hidden px-6 py-5 text-center text-xs text-ink-faint lg:block">
             SolPlayer — 周波数変換音楽プレイヤー
           </footer>
         </div>

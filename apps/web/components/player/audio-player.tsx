@@ -1,6 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { useAudioPlayer } from '@/hooks/use-audio-player';
+import { MobileNav, type MobileTab } from './mobile-nav';
 import { FrequencySelector } from './frequency-selector';
 import { PlaybackControls } from './playback-controls';
 import { ProgressBar } from './progress-bar';
@@ -39,13 +41,20 @@ export function AudioPlayer() {
     toggleShuffle,
   } = useAudioPlayer();
 
+  // モバイルのフッターメニューで表示カードを切り替える（lg以上は全カード表示）
+  const [activeTab, setActiveTab] = useState<MobileTab>('player');
+
   const hasTrack = trackTitle !== null;
   const canPlay = hasTrack || playlist.length > 0;
 
   return (
-    <div className="mx-auto grid w-full max-w-md gap-6 lg:max-w-5xl lg:grid-cols-[1.1fr_1fr] lg:items-start">
+    <div className="mx-auto grid w-full max-w-md gap-6 pb-32 lg:max-w-5xl lg:grid-cols-[1.1fr_1fr] lg:items-start lg:pb-0">
       {/* メインプレイヤー */}
-      <section className="glass-panel space-y-7 p-7 sm:p-9">
+      <section
+        className={`glass-panel space-y-7 p-7 sm:p-9 ${
+          activeTab === 'player' ? '' : 'hidden'
+        } lg:block`}
+      >
         <TrackInfo
           title={trackTitle ?? 'トラック未選択'}
           artist={
@@ -95,11 +104,19 @@ export function AudioPlayer() {
 
       {/* 周波数 & プレイリスト */}
       <div className="space-y-6">
-        <section className="glass-panel p-6 sm:p-7">
+        <section
+          className={`glass-panel p-6 sm:p-7 ${
+            activeTab === 'tuning' ? '' : 'hidden'
+          } lg:block`}
+        >
           <FrequencySelector frequency={frequency} onChange={setFrequency} />
         </section>
 
-        <section className="glass-panel p-6 sm:p-7">
+        <section
+          className={`glass-panel p-6 sm:p-7 ${
+            activeTab === 'playlist' ? '' : 'hidden'
+          } lg:block`}
+        >
           <PlaylistPanel
             playlist={playlist}
             currentIndex={currentIndex}
@@ -110,6 +127,17 @@ export function AudioPlayer() {
           />
         </section>
       </div>
+
+      {/* モバイル用フッターメニュー＋ミニプレイヤー */}
+      <MobileNav
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        trackTitle={trackTitle}
+        isPlaying={isPlaying}
+        onPlay={() => void play()}
+        onPause={pause}
+        onNext={() => void next()}
+      />
     </div>
   );
 }
