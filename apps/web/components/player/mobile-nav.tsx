@@ -16,6 +16,7 @@ interface MobileNavProps {
   onTabChange: (tab: MobileTab) => void;
   /** ミニプレイヤー表示用 */
   trackTitle: string | null;
+  artworkUrl?: string | null;
   isPlaying: boolean;
   onPlay: () => void;
   onPause: () => void;
@@ -36,6 +37,7 @@ export function MobileNav({
   activeTab,
   onTabChange,
   trackTitle,
+  artworkUrl = null,
   isPlaying,
   onPlay,
   onPause,
@@ -55,7 +57,16 @@ export function MobileNav({
               onClick={() => onTabChange('player')}
               aria-label="プレイヤーを開く"
             >
-              <MusicNoteIcon className="h-4 w-4 shrink-0 text-ink-faint" />
+              {artworkUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={artworkUrl}
+                  alt=""
+                  className="h-7 w-7 shrink-0 rounded-md border border-[var(--glass-border)] object-cover"
+                />
+              ) : (
+                <MusicNoteIcon className="h-4 w-4 shrink-0 text-ink-faint" />
+              )}
               <span className="truncate text-sm font-medium">{trackTitle}</span>
             </button>
             <button
