@@ -59,6 +59,13 @@ export function FrequencySelector({ frequency, onChange }: FrequencySelectorProp
   const [savedPresets, setSavedPresets] = useState<SavedPreset[]>([]);
   const [inputError, setInputError] = useState(false);
 
+  // プリセット等で周波数が変わったら入力欄も連動させる
+  // （周波数はユーザー操作でのみ変わるため、入力中に勝手に書き換わることはない）
+  useEffect(() => {
+    setCustomValue(formatHz(frequency));
+    setInputError(false);
+  }, [frequency]);
+
   // 保存済みプリセットをlocalStorageから復元（DB接続までのブラウザ保存）
   useEffect(() => {
     try {

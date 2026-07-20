@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import type { PlaylistTrack } from '@/hooks/use-audio-player';
-import { MusicNoteIcon, PlusIcon, TrashIcon } from './icons';
+import { GripIcon, MusicNoteIcon, PlusIcon, TrashIcon } from './icons';
 
 interface PlaylistPanelProps {
   playlist: PlaylistTrack[];
@@ -11,6 +11,12 @@ interface PlaylistPanelProps {
   onSelectTrack: (index: number) => void;
   onRemoveTrack: (id: string) => void;
   onAddFiles: (files: File[]) => void;
+  onReorder: (from: number, to: number) => void;
+}
+
+interface DragState {
+  from: number;
+  over: number;
 }
 
 export function PlaylistPanel({
@@ -20,9 +26,13 @@ export function PlaylistPanel({
   onSelectTrack,
   onRemoveTrack,
   onAddFiles,
+  onReorder,
 }: PlaylistPanelProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  // 並べ替えドラッグ中の状態（fromを掴んでoverの位置へ）
+  const [dragState, setDragState] = useState<DragState | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -36,6 +46,39 @@ export function PlaylistPanel({
     setIsDragOver(false);
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) onAddFiles(files);
+  };
+
+  /** ポインタY座標から挿入先インデックスを求める（マウス/タッチ共通） */
+  const indexFromPointer = (clientY: number): number => {
+    const items = listRef.current?.querySelectorAll('li');
+    if (!items || items.length === 0) return 0;
+    for (let i = 0; i < items.length; i++) {
+      const rect = items[i].getBoundingClientRect();
+      if (clientY < rect.top + rect.height / 2) return i;
+    }
+    return items.length - 1;
+  };
+
+  const handleGripPointerDown = (
+    e: React.PointerEvent<HTMLButtonElement>,
+    index: number
+  ) => {
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setDragState({ from: index, over: index });
+  };
+
+  const handleGripPointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (!dragState) return;
+    setDragState({ ...dragState, over: indexFromPointer(e.clientY) });
+  };
+
+  const handleGripPointerUp = () => {
+    if (!dragState) return;
+    if (dragState.from !== dragState.over) {
+      onReorder(dragState.from, dragState.over);
+    }
+    setDragState(null);
   };
 
   return (
@@ -90,42 +133,82 @@ export function PlaylistPanel({
           </span>
         </button>
       ) : (
-        <ul className="max-h-72 space-y-1 overflow-y-auto pr-1">
+        <ul ref={listRef} className="max-h-72 space-y-1 overflow-y-auto pr-1">
           {playlist.map((track, index) => {
             const isCurrent = index === currentIndex;
+            const isDragging = dragState?.from === index;
+            const isDropTarget =
+              dragState !== null &&
+              dragState.over === index &&
+              dragState.over !== dragState.from;
             return (
               <li key={track.id} className="group">
                 <div
-                  className={`flex w-full items-center gap-3 rounded-2xl border px-3 py-2.5 transition-colors ${
+                  className={`flex w-full items-center gap-2.5 rounded-2xl border px-2.5 py-2 transition-colors ${
                     isCurrent
                       ? 'border-[var(--glass-border)] bg-[var(--glass-bg-strong)]'
                       : 'border-transparent hover:bg-[var(--glass-bg)]'
+                  } ${isDragging ? 'opacity-40' : ''} ${
+                    isDropTarget ? 'ring-2 ring-[var(--track-fill)]' : ''
                   }`}
                 >
+                  {/* 並べ替えハンドル（タッチでも動くよう touch-action: none） */}
                   <button
                     type="button"
-                    className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 text-left"
+                    className="glass-btn h-8 w-6 shrink-0 cursor-grab touch-none active:cursor-grabbing"
+                    onPointerDown={(e) => handleGripPointerDown(e, index)}
+                    onPointerMove={handleGripPointerMove}
+                    onPointerUp={handleGripPointerUp}
+                    onPointerCancel={() => setDragState(null)}
+                    aria-label={`${track.title} を並べ替え`}
+                    title="ドラッグで並べ替え"
+                  >
+                    <GripIcon className="h-4 w-4" />
+                  </button>
+
+                  <button
+                    type="button"
+                    className="flex min-w-0 flex-1 cursor-pointer items-center gap-2.5 text-left"
                     onClick={() => onSelectTrack(index)}
                   >
-                    <span className="w-5 shrink-0 text-center text-xs tabular-nums text-ink-faint">
-                      {isCurrent && isPlaying ? (
-                        <span className="eq-bars text-ink-soft">
-                          <span />
-                          <span />
-                          <span />
-                        </span>
+                    {/* サムネイル（アートワーク or 音符） */}
+                    <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[var(--glass-border)] bg-[var(--glass-bg)]">
+                      {track.artworkUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={track.artworkUrl}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
                       ) : (
-                        index + 1
+                        <MusicNoteIcon className="h-4 w-4 text-ink-faint" />
+                      )}
+                      {isCurrent && isPlaying && (
+                        <span className="absolute inset-0 flex items-center justify-center bg-black/30">
+                          <span className="eq-bars text-white">
+                            <span />
+                            <span />
+                            <span />
+                          </span>
+                        </span>
                       )}
                     </span>
-                    <span
-                      className={`truncate text-sm ${
-                        isCurrent ? 'font-semibold' : 'text-ink-soft'
-                      }`}
-                    >
-                      {track.title}
+                    <span className="min-w-0 flex-1">
+                      <span
+                        className={`block truncate text-sm ${
+                          isCurrent ? 'font-semibold' : 'text-ink-soft'
+                        }`}
+                      >
+                        {track.title}
+                      </span>
+                      {track.artist && (
+                        <span className="block truncate text-xs text-ink-faint">
+                          {track.artist}
+                        </span>
+                      )}
                     </span>
                   </button>
+
                   <button
                     type="button"
                     className="glass-btn h-7 w-7 shrink-0 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"

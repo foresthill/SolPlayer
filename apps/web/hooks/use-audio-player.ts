@@ -9,6 +9,10 @@ export interface PlaylistTrack {
   title: string;
   /** ObjectURL（ローカルファイル）または通常のURL */
   url: string;
+  /** メタデータ（ID3等）から取得したアーティスト名 */
+  artist?: string;
+  /** 埋め込みアートワークのObjectURL */
+  artworkUrl?: string;
 }
 
 /** リピートモード: オフ → 全曲 → 1曲 の順に循環 */
@@ -41,6 +45,7 @@ export interface UseAudioPlayerReturn {
   addFiles: (files: File[]) => Promise<void>;
   selectTrack: (index: number) => Promise<void>;
   removeTrack: (id: string) => void;
+  reorderPlaylist: (from: number, to: number) => void;
   next: () => Promise<void>;
   previous: () => Promise<void>;
   cycleRepeatMode: () => void;
@@ -60,6 +65,44 @@ function createTrackId(): string {
 /** ファイル名から拡張子を除いてトラック名にする */
 function fileToTitle(file: File): string {
   return file.name.replace(/\.[^.]+$/, '');
+}
+
+/**
+ * 音声ファイルのメタデータ（曲名/アーティスト/アートワーク）を読み取る。
+ * タグが無い・解析に失敗した場合はファイル名にフォールバックする。
+ */
+async function readTrackMetadata(
+  file: File
+): Promise<Pick<PlaylistTrack, 'title' | 'artist' | 'artworkUrl'>> {
+  const fallback = { title: fileToTitle(file) };
+  try {
+    // music-metadataはサイズが大きいため必要時に動的ロードする
+    const { parseBlob, selectCover } = await import('music-metadata');
+    const { common } = await parseBlob(file, { duration: false });
+
+    let artworkUrl: string | undefined;
+    const cover = selectCover(common.picture);
+    if (cover) {
+      const blob = new Blob([cover.data as BlobPart], { type: cover.format });
+      artworkUrl = URL.createObjectURL(blob);
+    }
+
+    return {
+      title: common.title?.trim() || fallback.title,
+      artist: common.artist?.trim() || undefined,
+      artworkUrl,
+    };
+  } catch {
+    return fallback;
+  }
+}
+
+/** トラックが保持するObjectURLをまとめて破棄する */
+function revokeTrackUrls(track: PlaylistTrack): void {
+  URL.revokeObjectURL(track.url);
+  if (track.artworkUrl) {
+    URL.revokeObjectURL(track.artworkUrl);
+  }
 }
 
 export function useAudioPlayer(): UseAudioPlayerReturn {
@@ -95,7 +138,7 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
       }
       // ObjectURLをすべて破棄してリーク防止
       for (const track of stateRef.current.playlist) {
-        URL.revokeObjectURL(track.url);
+        revokeTrackUrls(track);
       }
     };
   }, []);
@@ -210,11 +253,13 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
       );
       if (audioFiles.length === 0) return;
 
-      const newTracks: PlaylistTrack[] = audioFiles.map((file) => ({
-        id: createTrackId(),
-        title: fileToTitle(file),
-        url: URL.createObjectURL(file),
-      }));
+      const newTracks: PlaylistTrack[] = await Promise.all(
+        audioFiles.map(async (file) => ({
+          id: createTrackId(),
+          url: URL.createObjectURL(file),
+          ...(await readTrackMetadata(file)),
+        }))
+      );
 
       const hadNoTrack = stateRef.current.playlist.length === 0;
       const updated = [...stateRef.current.playlist, ...newTracks];
@@ -235,7 +280,7 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     const index = playlist.findIndex((t) => t.id === id);
     if (index === -1) return;
 
-    URL.revokeObjectURL(playlist[index].url);
+    revokeTrackUrls(playlist[index]);
     const updated = playlist.filter((t) => t.id !== id);
     stateRef.current.playlist = updated;
     setPlaylist(updated);
@@ -250,6 +295,34 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
       setCurrentIndex(-1);
     } else if (index < currentIndex) {
       setCurrentIndex(currentIndex - 1);
+    }
+  }, []);
+
+  const reorderPlaylist = useCallback((from: number, to: number) => {
+    const { playlist, currentIndex } = stateRef.current;
+    if (
+      from === to ||
+      from < 0 ||
+      to < 0 ||
+      from >= playlist.length ||
+      to >= playlist.length
+    ) {
+      return;
+    }
+
+    const updated = [...playlist];
+    const [moved] = updated.splice(from, 1);
+    updated.splice(to, 0, moved);
+    stateRef.current.playlist = updated;
+    setPlaylist(updated);
+
+    // 再生中トラックの位置を追従させる
+    if (currentIndex === from) {
+      setCurrentIndex(to);
+    } else if (from < currentIndex && to >= currentIndex) {
+      setCurrentIndex(currentIndex - 1);
+    } else if (from > currentIndex && to <= currentIndex) {
+      setCurrentIndex(currentIndex + 1);
     }
   }, []);
 
@@ -371,6 +444,7 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     addFiles,
     selectTrack,
     removeTrack,
+    reorderPlaylist,
     next,
     previous,
     cycleRepeatMode,

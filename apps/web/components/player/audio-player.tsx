@@ -35,6 +35,7 @@ export function AudioPlayer() {
     addFiles,
     selectTrack,
     removeTrack,
+    reorderPlaylist,
     next,
     previous,
     cycleRepeatMode,
@@ -44,11 +45,13 @@ export function AudioPlayer() {
   // モバイルのフッターメニューで表示カードを切り替える（lg以上は全カード表示）
   const [activeTab, setActiveTab] = useState<MobileTab>('player');
 
+  const currentTrack = playlist[currentIndex] ?? null;
   const hasTrack = trackTitle !== null;
   const canPlay = hasTrack || playlist.length > 0;
 
   return (
-    <div className="mx-auto grid w-full max-w-md gap-6 pb-32 lg:max-w-5xl lg:grid-cols-[1.1fr_1fr] lg:items-start lg:pb-0">
+    // minmax(0,_)で長い曲名がトラック幅を押し広げないようにする（truncateを効かせる）
+    <div className="mx-auto grid w-full max-w-md grid-cols-[minmax(0,1fr)] gap-6 pb-32 lg:max-w-5xl lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-start lg:pb-0">
       {/* メインプレイヤー */}
       <section
         className={`glass-panel space-y-7 p-7 sm:p-9 ${
@@ -58,9 +61,12 @@ export function AudioPlayer() {
         <TrackInfo
           title={trackTitle ?? 'トラック未選択'}
           artist={
-            hasTrack ? 'ローカルファイル' : 'プレイリストに曲を追加してください'
+            hasTrack
+              ? (currentTrack?.artist ?? 'ローカルファイル')
+              : 'プレイリストに曲を追加してください'
           }
           isPlaying={isPlaying}
+          artworkUrl={currentTrack?.artworkUrl ?? null}
         />
 
         <ProgressBar
@@ -124,6 +130,7 @@ export function AudioPlayer() {
             onSelectTrack={(index) => void selectTrack(index)}
             onRemoveTrack={removeTrack}
             onAddFiles={(files) => void addFiles(files)}
+            onReorder={reorderPlaylist}
           />
         </section>
       </div>
@@ -133,6 +140,7 @@ export function AudioPlayer() {
         activeTab={activeTab}
         onTabChange={setActiveTab}
         trackTitle={trackTitle}
+        artworkUrl={currentTrack?.artworkUrl ?? null}
         isPlaying={isPlaying}
         onPlay={() => void play()}
         onPause={pause}
