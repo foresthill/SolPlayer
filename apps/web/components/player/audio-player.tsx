@@ -50,7 +50,8 @@ export function AudioPlayer() {
   const canPlay = hasTrack || playlist.length > 0;
 
   return (
-    <div className="mx-auto grid w-full max-w-md gap-6 pb-32 lg:max-w-5xl lg:grid-cols-[1.1fr_1fr] lg:items-start lg:pb-0">
+    // minmax(0,_)で長い曲名がトラック幅を押し広げないようにする（truncateを効かせる）
+    <div className="mx-auto grid w-full max-w-md grid-cols-[minmax(0,1fr)] gap-6 pb-32 lg:max-w-5xl lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-start lg:pb-0">
       {/* メインプレイヤー */}
       <section
         className={`glass-panel space-y-7 p-7 sm:p-9 ${
