@@ -3,6 +3,14 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getAudioProcessor } from '@/lib/audio/audio-context';
 import { AudioProcessor } from '@solplayer/audio-core';
+import {
+  loadLibrary,
+  saveTrack,
+  deleteTrack,
+  updateOrder,
+  requestPersistentStorage,
+  type StoredTrack,
+} from '@/lib/library-store';
 
 export interface PlaylistTrack {
   id: string;
@@ -73,28 +81,40 @@ function fileToTitle(file: File): string {
  */
 async function readTrackMetadata(
   file: File
-): Promise<Pick<PlaylistTrack, 'title' | 'artist' | 'artworkUrl'>> {
+): Promise<{ title: string; artist?: string; artworkBlob?: Blob }> {
   const fallback = { title: fileToTitle(file) };
   try {
     // music-metadataはサイズが大きいため必要時に動的ロードする
     const { parseBlob, selectCover } = await import('music-metadata');
     const { common } = await parseBlob(file, { duration: false });
 
-    let artworkUrl: string | undefined;
+    let artworkBlob: Blob | undefined;
     const cover = selectCover(common.picture);
     if (cover) {
-      const blob = new Blob([cover.data as BlobPart], { type: cover.format });
-      artworkUrl = URL.createObjectURL(blob);
+      artworkBlob = new Blob([cover.data as BlobPart], { type: cover.format });
     }
 
     return {
       title: common.title?.trim() || fallback.title,
       artist: common.artist?.trim() || undefined,
-      artworkUrl,
+      artworkBlob,
     };
   } catch {
     return fallback;
   }
+}
+
+/** 保存済みトラックから再生用のPlaylistTrack（ObjectURL付き）を作る */
+function storedToPlaylistTrack(stored: StoredTrack): PlaylistTrack {
+  return {
+    id: stored.id,
+    title: stored.title,
+    artist: stored.artist,
+    url: URL.createObjectURL(stored.blob),
+    artworkUrl: stored.artworkBlob
+      ? URL.createObjectURL(stored.artworkBlob)
+      : undefined,
+  };
 }
 
 /** トラックが保持するObjectURLをまとめて破棄する */
@@ -131,7 +151,24 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     processorRef.current = processor;
     processor.setOnEnded(() => endedHandlerRef.current());
 
+    // 保存済みライブラリを復元（フェーズ1: 端末内永続化）
+    requestPersistentStorage();
+    let cancelled = false;
+    void loadLibrary()
+      .then((stored) => {
+        if (cancelled || stored.length === 0) return;
+        // 復元前にユーザーが曲を追加していたら上書きしない
+        if (stateRef.current.playlist.length > 0) return;
+        const restored = stored.map(storedToPlaylistTrack);
+        stateRef.current.playlist = restored;
+        setPlaylist(restored);
+      })
+      .catch(() => {
+        // IndexedDBが使えない環境ではセッション限りで動作
+      });
+
     return () => {
+      cancelled = true;
       processor.setOnEnded(null);
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
@@ -253,19 +290,42 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
       );
       if (audioFiles.length === 0) return;
 
-      const newTracks: PlaylistTrack[] = await Promise.all(
-        audioFiles.map(async (file) => ({
-          id: createTrackId(),
+      const baseOrder = stateRef.current.playlist.length;
+      const newTracks: PlaylistTrack[] = [];
+      const storedTracks: StoredTrack[] = [];
+      for (const [i, file] of audioFiles.entries()) {
+        const meta = await readTrackMetadata(file);
+        const id = createTrackId();
+        newTracks.push({
+          id,
+          title: meta.title,
+          artist: meta.artist,
           url: URL.createObjectURL(file),
-          ...(await readTrackMetadata(file)),
-        }))
-      );
+          artworkUrl: meta.artworkBlob
+            ? URL.createObjectURL(meta.artworkBlob)
+            : undefined,
+        });
+        storedTracks.push({
+          id,
+          title: meta.title,
+          artist: meta.artist,
+          blob: file,
+          artworkBlob: meta.artworkBlob,
+          order: baseOrder + i,
+          addedAt: Date.now(),
+        });
+      }
 
       const hadNoTrack = stateRef.current.playlist.length === 0;
       const updated = [...stateRef.current.playlist, ...newTracks];
       // 直後のloadTrackAtが新しいリストを参照できるよう、refも即時更新する
       stateRef.current.playlist = updated;
       setPlaylist(updated);
+
+      // 端末内ライブラリへ保存（容量不足等で失敗してもセッション再生は継続）
+      for (const stored of storedTracks) {
+        void saveTrack(stored).catch(() => {});
+      }
 
       // 何も再生していなければ最初に追加した曲をすぐ再生
       if (hadNoTrack) {
@@ -284,6 +344,11 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     const updated = playlist.filter((t) => t.id !== id);
     stateRef.current.playlist = updated;
     setPlaylist(updated);
+
+    // 端末内ライブラリからも削除し、並び順を詰める
+    void deleteTrack(id)
+      .then(() => updateOrder(updated.map((t) => t.id)))
+      .catch(() => {});
 
     if (index === currentIndex) {
       // 再生中のトラックを削除したら停止して未選択に戻す
@@ -315,6 +380,9 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     updated.splice(to, 0, moved);
     stateRef.current.playlist = updated;
     setPlaylist(updated);
+
+    // 並び順を端末内ライブラリにも反映
+    void updateOrder(updated.map((t) => t.id)).catch(() => {});
 
     // 再生中トラックの位置を追従させる
     if (currentIndex === from) {
