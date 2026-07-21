@@ -64,7 +64,8 @@
 - ✅ メタデータ読み取り（music-metadataでID3等の曲名/アーティスト/アートワークを表示。タグ無しはファイル名フォールバック）
 - ✅ プレイリストの並べ替え（ハンドルをドラッグ。ポインタイベント実装でマウス/タッチ両対応）
 - ✅ 同期フェーズ1: 端末内永続化（曲の実体+メタデータをIndexedDBに保存。リロードでプレイリスト復元。lib/library-store.ts）
-- ✅ Web再生タブ（YouTube埋め込み。URL貼り付け→IFrame再生、履歴5件をlocalStorage保存。規約準拠のためダウンロードは非対応、周波数変換も適用外）
+- ✅ Web再生タブ（YouTube埋め込み。URL貼り付け→IFrame再生、履歴5件をlocalStorage保存。規約準拠のためダウンロードは非対応）
+- ✅ ライブ変換（audio-core/live-converter.ts + live-convert-panel.tsx。getDisplayMediaでタブ音声をキャプチャし、保存せずリアルタイムでSoundTouchピッチ変換。YouTube等に周波数変換を適用する手段。PCのChrome/Edge限定＝モバイルブラウザにタブ音声キャプチャAPIが無い）
 
 ### 進行中: 同期ロードマップ（方針決定済み: ハイブリッド→最終的に実体もクラウド）
 - フェーズ2: アカウント同期 — Googleログイン(Auth.js)＋DB(Neon等)でプレイリスト/マイプリセットのメタデータを同期。

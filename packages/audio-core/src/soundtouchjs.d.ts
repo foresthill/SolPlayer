@@ -54,4 +54,40 @@ declare module 'soundtouchjs' {
     on(event: 'play', cb: (detail: PitchShifterPlayDetail) => void): void;
     off(event?: string): void;
   }
+
+  /** SimpleFilterが吸い出すサンプル供給源のインターフェース */
+  export interface SoundTouchSource {
+    /**
+     * インターリーブ(L,R,L,R...)でtargetへ書き込み、供給したフレーム数を返す。
+     * ライブストリーム源は position を無視してよい。
+     */
+    extract(target: Float32Array, numFrames: number, position: number): number;
+  }
+
+  /** テンポ/ピッチ変換のコアパイプライン */
+  export class SoundTouch {
+    set pitch(value: number);
+    set pitchSemitones(value: number);
+    set rate(value: number);
+    set tempo(value: number);
+  }
+
+  /** ソース→SoundTouch→出力の変換フィルタ */
+  export class SimpleFilter {
+    constructor(sourceSound: SoundTouchSource, pipe: SoundTouch, callback?: () => void);
+    /** 変換済みサンプルをインターリーブで取り出す。返り値は実フレーム数 */
+    extract(target: Float32Array, numFrames: number): number;
+    sourcePosition: number;
+    onEnd(): void;
+  }
+
+  /**
+   * filter.extract() を出力し続けるScriptProcessorNodeを生成する
+   */
+  export function getWebAudioNode(
+    context: BaseAudioContext,
+    filter: SimpleFilter,
+    sourcePositionCallback?: (sourcePosition: number) => void,
+    bufferSize?: number
+  ): ScriptProcessorNode;
 }
