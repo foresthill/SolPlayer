@@ -4,12 +4,13 @@ import {
   MusicNoteIcon,
   ListIcon,
   TuneIcon,
+  VideoIcon,
   PlayIcon,
   PauseIcon,
   NextIcon,
 } from './icons';
 
-export type MobileTab = 'player' | 'playlist' | 'tuning';
+export type MobileTab = 'player' | 'playlist' | 'tuning' | 'youtube';
 
 interface MobileNavProps {
   activeTab: MobileTab;
@@ -27,6 +28,7 @@ const TABS: { key: MobileTab; label: string; Icon: typeof MusicNoteIcon }[] = [
   { key: 'player', label: 'プレイヤー', Icon: MusicNoteIcon },
   { key: 'playlist', label: 'プレイリスト', Icon: ListIcon },
   { key: 'tuning', label: 'チューニング', Icon: TuneIcon },
+  { key: 'youtube', label: 'Web再生', Icon: VideoIcon },
 ];
 
 /**
