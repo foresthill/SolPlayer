@@ -10,6 +10,7 @@ import { VolumeControl } from './volume-control';
 import { SpeedControl } from './speed-control';
 import { TrackInfo } from './track-info';
 import { PlaylistPanel } from './playlist-panel';
+import { YouTubePanel } from './youtube-panel';
 import { StopIcon } from './icons';
 
 export function AudioPlayer() {
@@ -116,6 +117,14 @@ export function AudioPlayer() {
           } lg:block`}
         >
           <FrequencySelector frequency={frequency} onChange={setFrequency} />
+        </section>
+
+        <section
+          className={`glass-panel p-6 sm:p-7 ${
+            activeTab === 'youtube' ? '' : 'hidden'
+          } lg:block`}
+        >
+          <YouTubePanel />
         </section>
 
         <section
