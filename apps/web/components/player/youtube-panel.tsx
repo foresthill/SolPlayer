@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { LiveConvertPanel } from './live-convert-panel';
 import { TrashIcon, VideoIcon } from './icons';
 
 /**
@@ -37,7 +38,12 @@ export function parseYouTubeId(input: string): string | null {
   return null;
 }
 
-export function YouTubePanel() {
+interface YouTubePanelProps {
+  /** チューニングタブで選択中の基調周波数（ライブ変換に連動） */
+  frequency: number;
+}
+
+export function YouTubePanel({ frequency }: YouTubePanelProps) {
   const [input, setInput] = useState('');
   const [videoId, setVideoId] = useState<string | null>(null);
   const [error, setError] = useState(false);
@@ -179,9 +185,8 @@ export function YouTubePanel() {
         </div>
       )}
 
-      <p className="text-[0.7rem] leading-relaxed text-ink-faint">
-        YouTube埋め込み再生では音声データに触れられないため、周波数変換・倍速は適用されません（ローカルファイル再生専用の機能です）。
-      </p>
+      {/* 埋め込みには直接変換を適用できないため、タブ音声キャプチャによるライブ変換を提供 */}
+      <LiveConvertPanel frequency={frequency} />
     </div>
   );
 }

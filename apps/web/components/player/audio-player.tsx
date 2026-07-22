@@ -124,7 +124,7 @@ export function AudioPlayer() {
             activeTab === 'youtube' ? '' : 'hidden'
           } lg:block`}
         >
-          <YouTubePanel />
+          <YouTubePanel frequency={frequency} />
         </section>
 
         <section
