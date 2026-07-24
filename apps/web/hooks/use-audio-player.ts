@@ -16,6 +16,7 @@ import {
   youtubeThumbnailUrl,
   YOUTUBE_HOST_ID,
 } from '@/lib/youtube-engine';
+import { installIosAudioUnlock } from '@/lib/ios-audio-unlock';
 
 export interface PlaylistTrack {
   id: string;
@@ -30,6 +31,11 @@ export interface PlaylistTrack {
   artworkUrl?: string;
   /** YouTube動画ID（youtubeのみ） */
   videoId?: string;
+  /**
+   * 音源の実体（localのみ・メモリ上の参照）。
+   * iOS Safariで不安定な fetch(blob:) を避け、直接デコードするために保持する
+   */
+  blob?: Blob;
 }
 
 /** YouTubeトラックか（音声データに触れないため周波数変換は適用されない） */
@@ -49,6 +55,8 @@ export interface UseAudioPlayerReturn {
   frequency: number;
   playbackSpeed: number;
   trackTitle: string | null;
+  /** 直近のトラック読み込みエラー（表示用）。正常時はnull */
+  playbackError: string | null;
 
   // プレイリスト
   playlist: PlaylistTrack[];
@@ -179,6 +187,7 @@ function storedToPlaylistTrack(stored: StoredTrack): PlaylistTrack {
     artist: stored.artist,
     kind: 'local',
     url: stored.blob ? URL.createObjectURL(stored.blob) : '',
+    blob: stored.blob,
     artworkUrl: stored.artworkBlob
       ? URL.createObjectURL(stored.artworkBlob)
       : undefined,
@@ -230,6 +239,7 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [repeatMode, setRepeatMode] = useState<RepeatMode>('off');
   const [isShuffle, setIsShuffle] = useState(false);
+  const [playbackError, setPlaybackError] = useState<string | null>(null);
 
   const processorRef = useRef<AudioProcessor | null>(null);
   const animationFrameRef = useRef<number | undefined>(undefined);
@@ -253,6 +263,9 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     const processor = getAudioProcessor();
     processorRef.current = processor;
     processor.setOnEnded(() => endedHandlerRef.current());
+
+    // iOSのマナースイッチでWeb Audioが無音になる問題への対策
+    installIosAudioUnlock();
 
     // YouTubeエンジン: 曲終了で同じ自動曲送りへ、動画側UI操作の再生状態も同期
     const ytEngine = getYouTubeEngine();
@@ -359,6 +372,7 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
       setCurrentIndex(index);
       setIsPlaying(false);
       setCurrentTime(0);
+      setPlaybackError(null);
 
       if (isYouTubeTrack(track)) {
         // ローカル再生を止めてYouTubeエンジンへ切替
@@ -383,8 +397,25 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
       // YouTube再生中なら止めてローカルエンジンへ切替
       getYouTubeEngine().pause();
 
-      await processorRef.current.initialize();
-      await processorRef.current.load(track.url);
+      try {
+        await processorRef.current.initialize();
+        // blobがあれば直接デコード（iOSで不安定なfetch(blob:)を回避）
+        if (track.blob) {
+          await processorRef.current.loadBlob(track.blob);
+        } else {
+          await processorRef.current.load(track.url);
+        }
+      } catch (e) {
+        if (seq !== loadSeqRef.current) return;
+        // 読み込み失敗を無言にせずUIへ表示する
+        const reason =
+          e instanceof Error && e.message.startsWith('DECODE_FAILED')
+            ? 'この端末で再生できない形式の可能性があります'
+            : '読み込みに失敗しました';
+        setPlaybackError(`「${track.title}」を再生できません（${reason}）`);
+        setDuration(0);
+        return;
+      }
       // ロード中に別のトラックが選択されたら何もしない
       if (seq !== loadSeqRef.current) return;
 
@@ -483,6 +514,7 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
           title: meta.title,
           artist: meta.artist,
           url: URL.createObjectURL(file),
+          blob: file,
           artworkUrl: meta.artworkBlob
             ? URL.createObjectURL(meta.artworkBlob)
             : undefined,
@@ -745,6 +777,7 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     frequency,
     playbackSpeed,
     trackTitle: currentTrack?.title ?? null,
+    playbackError,
     playlist,
     currentIndex,
     repeatMode,
