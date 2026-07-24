@@ -41,9 +41,11 @@ export function parseYouTubeId(input: string): string | null {
 interface YouTubePanelProps {
   /** チューニングタブで選択中の基調周波数（ライブ変換に連動） */
   frequency: number;
+  /** 現在の動画をプレイリストに追加する */
+  onAddToPlaylist: (videoId: string) => void;
 }
 
-export function YouTubePanel({ frequency }: YouTubePanelProps) {
+export function YouTubePanel({ frequency, onAddToPlaylist }: YouTubePanelProps) {
   const [input, setInput] = useState('');
   const [videoId, setVideoId] = useState<string | null>(null);
   const [error, setError] = useState(false);
@@ -135,15 +137,24 @@ export function YouTubePanel({ frequency }: YouTubePanelProps) {
       )}
 
       {videoId ? (
-        <div className="overflow-hidden rounded-2xl border border-[var(--glass-border)] shadow-[var(--glass-shadow)]">
-          <iframe
-            key={videoId}
-            src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&playsinline=1`}
-            title="YouTube プレイヤー"
-            allow="autoplay; encrypted-media; picture-in-picture"
-            allowFullScreen
-            className="aspect-video w-full"
-          />
+        <div className="space-y-2">
+          <div className="overflow-hidden rounded-2xl border border-[var(--glass-border)] shadow-[var(--glass-shadow)]">
+            <iframe
+              key={videoId}
+              src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&playsinline=1`}
+              title="YouTube プレイヤー"
+              allow="autoplay; encrypted-media; picture-in-picture"
+              allowFullScreen
+              className="aspect-video w-full"
+            />
+          </div>
+          <button
+            type="button"
+            className="glass-chip flex w-full items-center justify-center gap-1.5 px-4 py-2 text-sm font-medium"
+            onClick={() => onAddToPlaylist(videoId)}
+          >
+            この動画をプレイリストに追加
+          </button>
         </div>
       ) : (
         <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-[var(--glass-border)] bg-[var(--glass-bg)] px-4 py-10 text-center">

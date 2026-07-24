@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import type { PlaylistTrack } from '@/hooks/use-audio-player';
-import { GripIcon, MusicNoteIcon, PlusIcon, TrashIcon } from './icons';
+import { GripIcon, MusicNoteIcon, PlusIcon, TrashIcon, VideoIcon } from './icons';
 
 interface PlaylistPanelProps {
   playlist: PlaylistTrack[];
@@ -31,8 +31,14 @@ export function PlaylistPanel({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
-  // 並べ替えドラッグ中の状態（fromを掴んでoverの位置へ）
+  // 並べ替えドラッグ中の状態（fromを掴んでoverの位置へ）。
+  // pointerdown直後のmoveがstate反映前に届いても取りこぼさないよう、refでも同期保持する
   const [dragState, setDragState] = useState<DragState | null>(null);
+  const dragStateRef = useRef<DragState | null>(null);
+  const setDrag = (state: DragState | null) => {
+    dragStateRef.current = state;
+    setDragState(state);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -65,20 +71,22 @@ export function PlaylistPanel({
   ) => {
     e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
-    setDragState({ from: index, over: index });
+    setDrag({ from: index, over: index });
   };
 
   const handleGripPointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
-    if (!dragState) return;
-    setDragState({ ...dragState, over: indexFromPointer(e.clientY) });
+    const current = dragStateRef.current;
+    if (!current) return;
+    setDrag({ ...current, over: indexFromPointer(e.clientY) });
   };
 
   const handleGripPointerUp = () => {
-    if (!dragState) return;
-    if (dragState.from !== dragState.over) {
-      onReorder(dragState.from, dragState.over);
+    const current = dragStateRef.current;
+    if (!current) return;
+    if (current.from !== current.over) {
+      onReorder(current.from, current.over);
     }
-    setDragState(null);
+    setDrag(null);
   };
 
   return (
@@ -159,7 +167,7 @@ export function PlaylistPanel({
                     onPointerDown={(e) => handleGripPointerDown(e, index)}
                     onPointerMove={handleGripPointerMove}
                     onPointerUp={handleGripPointerUp}
-                    onPointerCancel={() => setDragState(null)}
+                    onPointerCancel={() => setDrag(null)}
                     aria-label={`${track.title} を並べ替え`}
                     title="ドラッグで並べ替え"
                   >
@@ -195,11 +203,14 @@ export function PlaylistPanel({
                     </span>
                     <span className="min-w-0 flex-1">
                       <span
-                        className={`block truncate text-sm ${
+                        className={`flex items-center gap-1.5 text-sm ${
                           isCurrent ? 'font-semibold' : 'text-ink-soft'
                         }`}
                       >
-                        {track.title}
+                        {track.kind === 'youtube' && (
+                          <VideoIcon className="h-3.5 w-3.5 shrink-0 text-ink-faint" />
+                        )}
+                        <span className="truncate">{track.title}</span>
                       </span>
                       {track.artist && (
                         <span className="block truncate text-xs text-ink-faint">

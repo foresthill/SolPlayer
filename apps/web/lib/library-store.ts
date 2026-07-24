@@ -17,10 +17,14 @@ export interface StoredTrack {
   id: string;
   title: string;
   artist?: string;
-  /** 音源の実体 */
-  blob: Blob;
-  /** 埋め込みアートワークの実体 */
+  /** トラック種別。省略時は'local'（旧データ互換） */
+  kind?: 'local' | 'youtube';
+  /** 音源の実体（localのみ） */
+  blob?: Blob;
+  /** 埋め込みアートワークの実体（localのみ） */
   artworkBlob?: Blob;
+  /** YouTube動画ID（youtubeのみ） */
+  videoId?: string;
   /** プレイリスト内の並び順 */
   order: number;
   addedAt: number;
