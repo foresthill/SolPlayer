@@ -5,11 +5,16 @@ import { getAudioProcessor } from '@/lib/audio/audio-context';
 import { AudioProcessor } from '@solplayer/audio-core';
 import {
   loadLibrary,
+  loadPlaylists,
+  savePlaylist,
+  deletePlaylistAndTracks,
   saveTrack,
   deleteTrack,
   updateOrder,
   requestPersistentStorage,
+  DEFAULT_PLAYLIST_ID,
   type StoredTrack,
+  type StoredPlaylist,
 } from '@/lib/library-store';
 import {
   getYouTubeEngine,
@@ -21,6 +26,8 @@ import { installIosAudioUnlock } from '@/lib/ios-audio-unlock';
 export interface PlaylistTrack {
   id: string;
   title: string;
+  /** 所属プレイリスト */
+  playlistId?: string;
   /** トラック種別。省略時は'local' */
   kind?: 'local' | 'youtube';
   /** ObjectURL（ローカルファイル）。youtubeでは未使用 */
@@ -37,6 +44,8 @@ export interface PlaylistTrack {
    */
   blob?: Blob;
 }
+
+export type { StoredPlaylist };
 
 /** YouTubeトラックか（音声データに触れないため周波数変換は適用されない） */
 export function isYouTubeTrack(track: PlaylistTrack | null | undefined): boolean {
@@ -55,11 +64,16 @@ export interface UseAudioPlayerReturn {
   frequency: number;
   playbackSpeed: number;
   trackTitle: string | null;
+  /** 現在のトラック（プレイリスト切替後も再生中の曲を保持する） */
+  currentTrack: PlaylistTrack | null;
   /** 直近のトラック読み込みエラー（表示用）。正常時はnull */
   playbackError: string | null;
 
   // プレイリスト
+  playlists: StoredPlaylist[];
+  activePlaylistId: string;
   playlist: PlaylistTrack[];
+  /** 現在のトラックのアクティブプレイリスト内での位置（無ければ-1） */
   currentIndex: number;
   repeatMode: RepeatMode;
   isShuffle: boolean;
@@ -81,16 +95,22 @@ export interface UseAudioPlayerReturn {
   previous: () => Promise<void>;
   cycleRepeatMode: () => void;
   toggleShuffle: () => void;
+  switchPlaylist: (id: string) => Promise<void>;
+  createPlaylist: (name: string) => Promise<void>;
+  removePlaylist: (id: string) => Promise<void>;
 }
 
 /** 前のトラックに戻らず曲頭に戻す境界秒数 */
 const RESTART_THRESHOLD_SECONDS = 3;
 
-function createTrackId(): string {
+/** アクティブなプレイリストIDの保存先 */
+const ACTIVE_PLAYLIST_KEY = 'solplayer:active-playlist';
+
+function createId(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
     return crypto.randomUUID();
   }
-  return `track-${Math.random().toString(36).slice(2)}`;
+  return `id-${Math.random().toString(36).slice(2)}`;
 }
 
 /** ファイル名から拡張子を除いてトラック名にする */
@@ -173,6 +193,7 @@ function storedToPlaylistTrack(stored: StoredTrack): PlaylistTrack {
       id: stored.id,
       title: stored.title,
       artist: stored.artist,
+      playlistId: stored.playlistId ?? DEFAULT_PLAYLIST_ID,
       kind: 'youtube',
       url: '',
       videoId: stored.videoId,
@@ -185,6 +206,7 @@ function storedToPlaylistTrack(stored: StoredTrack): PlaylistTrack {
     id: stored.id,
     title: stored.title,
     artist: stored.artist,
+    playlistId: stored.playlistId ?? DEFAULT_PLAYLIST_ID,
     kind: 'local',
     url: stored.blob ? URL.createObjectURL(stored.blob) : '',
     blob: stored.blob,
@@ -235,141 +257,58 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
   const [volume, setVolumeState] = useState(0.8);
   const [frequency, setFrequencyState] = useState(440);
   const [playbackSpeed, setPlaybackSpeedState] = useState(1.0);
+  const [playlists, setPlaylists] = useState<StoredPlaylist[]>([]);
+  const [activePlaylistId, setActivePlaylistId] = useState(DEFAULT_PLAYLIST_ID);
   const [playlist, setPlaylist] = useState<PlaylistTrack[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(-1);
+  const [currentTrack, setCurrentTrack] = useState<PlaylistTrack | null>(null);
   const [repeatMode, setRepeatMode] = useState<RepeatMode>('off');
   const [isShuffle, setIsShuffle] = useState(false);
   const [playbackError, setPlaybackError] = useState<string | null>(null);
 
   const processorRef = useRef<AudioProcessor | null>(null);
   const animationFrameRef = useRef<number | undefined>(undefined);
-  // onEndedコールバックは初回登録のみのため、最新の状態はrefで参照する
-  const stateRef = useRef({ playlist, currentIndex, repeatMode, isShuffle });
-  stateRef.current = { playlist, currentIndex, repeatMode, isShuffle };
+  // コールバック類は初回登録のみのため、最新の状態はrefで参照する
+  const stateRef = useRef({
+    playlist,
+    currentTrack,
+    repeatMode,
+    isShuffle,
+    activePlaylistId,
+    playlists,
+  });
+  stateRef.current = {
+    playlist,
+    currentTrack,
+    repeatMode,
+    isShuffle,
+    activePlaylistId,
+    playlists,
+  };
   const endedHandlerRef = useRef<() => void>(() => {});
   // 連打時に古いloadの完了処理を無視するためのシーケンス番号
   const loadSeqRef = useRef(0);
 
+  /** 現在のトラックのアクティブリスト内での位置（無ければ-1） */
+  const findCurrentIndex = useCallback((): number => {
+    const { playlist, currentTrack } = stateRef.current;
+    if (!currentTrack) return -1;
+    return playlist.findIndex((t) => t.id === currentTrack.id);
+  }, []);
+
   /** 現在のトラックに応じたアクティブエンジンの再生位置を返す */
   const getActiveTime = useCallback((): number => {
-    const { playlist, currentIndex } = stateRef.current;
-    if (isYouTubeTrack(playlist[currentIndex])) {
+    if (isYouTubeTrack(stateRef.current.currentTrack)) {
       return getYouTubeEngine().getCurrentTime();
     }
     return processorRef.current?.getCurrentTime() ?? 0;
   }, []);
 
-  useEffect(() => {
-    const processor = getAudioProcessor();
-    processorRef.current = processor;
-    processor.setOnEnded(() => endedHandlerRef.current());
-
-    // iOSのマナースイッチでWeb Audioが無音になる問題への対策
-    installIosAudioUnlock();
-
-    // YouTubeエンジン: 曲終了で同じ自動曲送りへ、動画側UI操作の再生状態も同期
-    const ytEngine = getYouTubeEngine();
-    ytEngine.setOnEnded(() => {
-      if (isYouTubeTrack(stateRef.current.playlist[stateRef.current.currentIndex])) {
-        endedHandlerRef.current();
-      }
-    });
-    ytEngine.setOnPlayingChange((playing) => {
-      if (isYouTubeTrack(stateRef.current.playlist[stateRef.current.currentIndex])) {
-        setIsPlaying(playing);
-      }
-    });
-
-    // 保存済みライブラリを復元（フェーズ1: 端末内永続化）
-    requestPersistentStorage();
-    let cancelled = false;
-    void loadLibrary()
-      .then(async (stored) => {
-        if (cancelled || stored.length === 0) return;
-        // 復元前にユーザーが曲を追加していたら上書きしない
-        if (stateRef.current.playlist.length > 0) return;
-        const restored = stored.map(storedToPlaylistTrack);
-        stateRef.current.playlist = restored;
-        setPlaylist(restored);
-
-        // しおり: 前回のトラックと再生位置を復元（自動再生はしない）
-        const resume = loadResumePoint();
-        if (!resume) return;
-        const index = restored.findIndex((t) => t.id === resume.trackId);
-        if (index === -1 || !processorRef.current) return;
-        await loadTrackAt(restored[index], index, false);
-        if (cancelled) return;
-        // 位置の復元はローカル曲のみ（YouTubeは頭出しのみ）
-        if (resume.time > 0 && !isYouTubeTrack(restored[index])) {
-          processorRef.current.seek(resume.time);
-          setCurrentTime(processorRef.current.getCurrentTime());
-        }
-      })
-      .catch(() => {
-        // IndexedDBが使えない環境ではセッション限りで動作
-      });
-
-    return () => {
-      cancelled = true;
-      processor.setOnEnded(null);
-      ytEngine.setOnEnded(null);
-      ytEngine.setOnPlayingChange(null);
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-      // ObjectURLをすべて破棄してリーク防止
-      for (const track of stateRef.current.playlist) {
-        revokeTrackUrls(track);
-      }
-    };
-  }, []);
-
-  // 再生位置を定期的に更新（アクティブエンジンから取得。YouTubeはdurationも遅れて確定する）
-  useEffect(() => {
-    if (isPlaying) {
-      const updateTime = () => {
-        setCurrentTime(getActiveTime());
-        const { playlist, currentIndex } = stateRef.current;
-        if (isYouTubeTrack(playlist[currentIndex])) {
-          const d = getYouTubeEngine().getDuration();
-          if (d > 0) {
-            setDuration((prev) => (Math.abs(prev - d) > 0.5 ? d : prev));
-          }
-        }
-        animationFrameRef.current = requestAnimationFrame(updateTime);
-      };
-      animationFrameRef.current = requestAnimationFrame(updateTime);
-    } else {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    }
-
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [isPlaying]);
-
-  // しおり: 再生中は定期的に位置を保存（一時停止/停止時は各操作で保存）
-  useEffect(() => {
-    if (!isPlaying) return;
-    const interval = setInterval(() => {
-      const { playlist, currentIndex } = stateRef.current;
-      const track = playlist[currentIndex];
-      if (track) {
-        saveResumePoint({ trackId: track.id, time: getActiveTime() });
-      }
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [isPlaying, getActiveTime]);
-
   /** 指定トラックをロードし、必要なら再生を開始する */
-  const loadTrackAt = useCallback(
-    async (track: PlaylistTrack, index: number, autoplay: boolean) => {
+  const loadTrack = useCallback(
+    async (track: PlaylistTrack, autoplay: boolean) => {
       const seq = ++loadSeqRef.current;
-      setCurrentIndex(index);
+      setCurrentTrack(track);
+      stateRef.current.currentTrack = track;
       setIsPlaying(false);
       setCurrentTime(0);
       setPlaybackError(null);
@@ -381,7 +320,10 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
         try {
           await engine.ensurePlayer(YOUTUBE_HOST_ID);
         } catch {
-          // IFrame APIがロードできない環境（オフライン等）では何もしない
+          if (seq !== loadSeqRef.current) return;
+          setPlaybackError(
+            `「${track.title}」を再生できません（YouTubeプレイヤーを読み込めませんでした）`
+          );
           return;
         }
         if (seq !== loadSeqRef.current || !track.videoId) return;
@@ -432,42 +374,176 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     async (index: number) => {
       const track = stateRef.current.playlist[index];
       if (!track) return;
-      await loadTrackAt(track, index, true);
+      await loadTrack(track, true);
     },
-    [loadTrackAt]
+    [loadTrack]
   );
+
+  // 初期化: エンジン設定・ライブラリ復元
+  useEffect(() => {
+    const processor = getAudioProcessor();
+    processorRef.current = processor;
+    processor.setOnEnded(() => endedHandlerRef.current());
+
+    // iOSのマナースイッチでWeb Audioが無音になる問題への対策
+    installIosAudioUnlock();
+
+    // YouTubeエンジン: 曲終了で同じ自動曲送りへ、動画側UI操作の再生状態も同期
+    const ytEngine = getYouTubeEngine();
+    ytEngine.setOnEnded(() => {
+      if (isYouTubeTrack(stateRef.current.currentTrack)) {
+        endedHandlerRef.current();
+      }
+    });
+    ytEngine.setOnPlayingChange((playing) => {
+      if (isYouTubeTrack(stateRef.current.currentTrack)) {
+        setIsPlaying(playing);
+      }
+    });
+
+    requestPersistentStorage();
+    let cancelled = false;
+    void (async () => {
+      try {
+        const storedPlaylists = await loadPlaylists();
+        if (cancelled) return;
+        setPlaylists(storedPlaylists);
+
+        // 前回アクティブだったプレイリストを復元
+        let activeId = DEFAULT_PLAYLIST_ID;
+        try {
+          const saved = localStorage.getItem(ACTIVE_PLAYLIST_KEY);
+          if (saved && storedPlaylists.some((p) => p.id === saved)) {
+            activeId = saved;
+          } else if (!storedPlaylists.some((p) => p.id === activeId)) {
+            activeId = storedPlaylists[0].id;
+          }
+        } catch {
+          // localStorage不可なら先頭
+        }
+        setActivePlaylistId(activeId);
+        stateRef.current.activePlaylistId = activeId;
+
+        const stored = await loadLibrary(activeId);
+        if (cancelled || stored.length === 0) return;
+        // 復元前にユーザーが曲を追加していたら上書きしない
+        if (stateRef.current.playlist.length > 0) return;
+        const restored = stored.map(storedToPlaylistTrack);
+        stateRef.current.playlist = restored;
+        setPlaylist(restored);
+
+        // しおり: 前回のトラックと再生位置を復元（自動再生はしない）
+        const resume = loadResumePoint();
+        if (!resume) return;
+        const track = restored.find((t) => t.id === resume.trackId);
+        if (!track || !processorRef.current) return;
+        await loadTrack(track, false);
+        if (cancelled) return;
+        // 位置の復元はローカル曲のみ（YouTubeは頭出しのみ）
+        if (resume.time > 0 && !isYouTubeTrack(track)) {
+          processorRef.current.seek(resume.time);
+          setCurrentTime(processorRef.current.getCurrentTime());
+        }
+      } catch {
+        // IndexedDBが使えない環境ではセッション限りで動作
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      processor.setOnEnded(null);
+      ytEngine.setOnEnded(null);
+      ytEngine.setOnPlayingChange(null);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      // ObjectURLをすべて破棄してリーク防止
+      for (const track of stateRef.current.playlist) {
+        revokeTrackUrls(track);
+      }
+      const { currentTrack, playlist } = stateRef.current;
+      if (currentTrack && !playlist.some((t) => t.id === currentTrack.id)) {
+        revokeTrackUrls(currentTrack);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 再生位置を定期的に更新（rAFに加え、rAFが止まる環境向けにintervalでも更新）
+  useEffect(() => {
+    if (!isPlaying) return;
+
+    const tick = () => {
+      setCurrentTime(getActiveTime());
+      if (isYouTubeTrack(stateRef.current.currentTrack)) {
+        const d = getYouTubeEngine().getDuration();
+        if (d > 0) {
+          setDuration((prev) => (Math.abs(prev - d) > 0.5 ? d : prev));
+        }
+      }
+    };
+    const loop = () => {
+      tick();
+      animationFrameRef.current = requestAnimationFrame(loop);
+    };
+    animationFrameRef.current = requestAnimationFrame(loop);
+    const interval = setInterval(tick, 500);
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      clearInterval(interval);
+    };
+  }, [isPlaying, getActiveTime]);
+
+  // しおり: 再生中は定期的に位置を保存（一時停止/停止時は各操作で保存）
+  useEffect(() => {
+    if (!isPlaying) return;
+    const interval = setInterval(() => {
+      const { currentTrack } = stateRef.current;
+      if (currentTrack) {
+        saveResumePoint({ trackId: currentTrack.id, time: getActiveTime() });
+      }
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [isPlaying, getActiveTime]);
 
   /**
    * 次に再生すべきトラックのインデックスを返す。
    * 自動遷移（曲終了時）でリピートオフの末尾なら null（停止）。
    * 手動の「次へ」は常に先頭へ折り返す。
    */
-  const pickNextIndex = useCallback((manual: boolean): number | null => {
-    const { playlist, currentIndex, repeatMode, isShuffle } = stateRef.current;
-    if (playlist.length === 0) return null;
+  const pickNextIndex = useCallback(
+    (manual: boolean): number | null => {
+      const { playlist, repeatMode, isShuffle } = stateRef.current;
+      if (playlist.length === 0) return null;
+      const currentIdx = findCurrentIndex();
 
-    if (isShuffle && playlist.length > 1) {
-      let idx = currentIndex;
-      while (idx === currentIndex) {
-        idx = Math.floor(Math.random() * playlist.length);
+      if (isShuffle && playlist.length > 1) {
+        let idx = currentIdx;
+        while (idx === currentIdx) {
+          idx = Math.floor(Math.random() * playlist.length);
+        }
+        return idx;
       }
-      return idx;
-    }
 
-    const nextIdx = currentIndex + 1;
-    if (nextIdx < playlist.length) return nextIdx;
-    if (repeatMode === 'all' || manual) return 0;
-    return null;
-  }, []);
+      const nextIdx = currentIdx + 1;
+      if (nextIdx < playlist.length) return nextIdx;
+      if (repeatMode === 'all' || manual) return 0;
+      return null;
+    },
+    [findCurrentIndex]
+  );
 
   // 曲終了時: リピート/シャッフル設定に従って次のトラックへ
   endedHandlerRef.current = () => {
-    const { playlist, currentIndex, repeatMode } = stateRef.current;
+    const { currentTrack, repeatMode } = stateRef.current;
     setIsPlaying(false);
 
     if (repeatMode === 'one') {
       // 同じトラックを先頭から再生し直す
-      if (isYouTubeTrack(playlist[currentIndex])) {
+      if (isYouTubeTrack(currentTrack)) {
         const engine = getYouTubeEngine();
         engine.seek(0);
         engine.play();
@@ -492,6 +568,90 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     void selectTrack(nextIdx);
   };
 
+  /** アクティブプレイリストのトラック一覧を差し替える（再生中の曲のURLは保持） */
+  const replacePlaylistTracks = useCallback((tracks: PlaylistTrack[]) => {
+    const { playlist, currentTrack } = stateRef.current;
+    for (const track of playlist) {
+      if (track.id !== currentTrack?.id) {
+        revokeTrackUrls(track);
+      }
+    }
+    stateRef.current.playlist = tracks;
+    setPlaylist(tracks);
+  }, []);
+
+  const switchPlaylist = useCallback(
+    async (id: string) => {
+      if (id === stateRef.current.activePlaylistId) return;
+      setActivePlaylistId(id);
+      stateRef.current.activePlaylistId = id;
+      try {
+        localStorage.setItem(ACTIVE_PLAYLIST_KEY, id);
+      } catch {
+        // 保存できなくても切替は続行
+      }
+      try {
+        const stored = await loadLibrary(id);
+        // 切替中にさらに切り替えられた場合は破棄
+        if (stateRef.current.activePlaylistId !== id) return;
+        replacePlaylistTracks(stored.map(storedToPlaylistTrack));
+      } catch {
+        replacePlaylistTracks([]);
+      }
+    },
+    [replacePlaylistTracks]
+  );
+
+  const createPlaylist = useCallback(
+    async (name: string) => {
+      const trimmed = name.trim();
+      if (!trimmed) return;
+      const playlist: StoredPlaylist = {
+        id: createId(),
+        name: trimmed,
+        order: stateRef.current.playlists.length,
+        createdAt: Date.now(),
+      };
+      const updated = [...stateRef.current.playlists, playlist];
+      setPlaylists(updated);
+      stateRef.current.playlists = updated;
+      void savePlaylist(playlist).catch(() => {});
+      await switchPlaylist(playlist.id);
+    },
+    [switchPlaylist]
+  );
+
+  const removePlaylist = useCallback(
+    async (id: string) => {
+      const { playlists, currentTrack, activePlaylistId } = stateRef.current;
+      // 最後の1つは消させない（空のデフォルトが必ず残る運用）
+      if (playlists.length <= 1) return;
+
+      const updated = playlists.filter((p) => p.id !== id);
+      setPlaylists(updated);
+      stateRef.current.playlists = updated;
+      void deletePlaylistAndTracks(id).catch(() => {});
+
+      // 再生中の曲が消したプレイリストの所属なら停止
+      if (currentTrack && (currentTrack.playlistId ?? DEFAULT_PLAYLIST_ID) === id) {
+        loadSeqRef.current++;
+        processorRef.current?.stop();
+        getYouTubeEngine().pause();
+        setIsPlaying(false);
+        setCurrentTime(0);
+        setDuration(0);
+        setCurrentTrack(null);
+        stateRef.current.currentTrack = null;
+        saveResumePoint(null);
+      }
+
+      if (activePlaylistId === id) {
+        await switchPlaylist(updated[0].id);
+      }
+    },
+    [switchPlaylist]
+  );
+
   const addFiles = useCallback(
     async (files: File[]) => {
       // MIMEタイプが不明/汎用（application/octet-stream等）でも拡張子で受け入れる
@@ -503,16 +663,18 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
       );
       if (audioFiles.length === 0) return;
 
+      const playlistId = stateRef.current.activePlaylistId;
       const baseOrder = stateRef.current.playlist.length;
       const newTracks: PlaylistTrack[] = [];
       const storedTracks: StoredTrack[] = [];
       for (const [i, file] of audioFiles.entries()) {
         const meta = await readTrackMetadata(file);
-        const id = createTrackId();
+        const id = createId();
         newTracks.push({
           id,
           title: meta.title,
           artist: meta.artist,
+          playlistId,
           url: URL.createObjectURL(file),
           blob: file,
           artworkUrl: meta.artworkBlob
@@ -523,6 +685,7 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
           id,
           title: meta.title,
           artist: meta.artist,
+          playlistId,
           blob: file,
           artworkBlob: meta.artworkBlob,
           order: baseOrder + i,
@@ -530,9 +693,10 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
         });
       }
 
-      const hadNoTrack = stateRef.current.playlist.length === 0;
+      const wasIdle =
+        stateRef.current.playlist.length === 0 && !stateRef.current.currentTrack;
       const updated = [...stateRef.current.playlist, ...newTracks];
-      // 直後のloadTrackAtが新しいリストを参照できるよう、refも即時更新する
+      // 直後のloadTrackが新しいリストを参照できるよう、refも即時更新する
       stateRef.current.playlist = updated;
       setPlaylist(updated);
 
@@ -542,28 +706,31 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
       }
 
       // 何も再生していなければ最初に追加した曲をすぐ再生
-      if (hadNoTrack) {
-        await loadTrackAt(newTracks[0], updated.length - newTracks.length, true);
+      if (wasIdle) {
+        await loadTrack(newTracks[0], true);
       }
     },
-    [loadTrackAt]
+    [loadTrack]
   );
 
   const addYouTubeTrack = useCallback(
     async (videoId: string) => {
       const meta = await fetchYouTubeMetadata(videoId);
-      const id = createTrackId();
+      const id = createId();
+      const playlistId = stateRef.current.activePlaylistId;
       const track: PlaylistTrack = {
         id,
         kind: 'youtube',
         title: meta.title,
         artist: meta.artist,
+        playlistId,
         url: '',
         videoId,
         artworkUrl: youtubeThumbnailUrl(videoId),
       };
 
-      const hadNoTrack = stateRef.current.playlist.length === 0;
+      const wasIdle =
+        stateRef.current.playlist.length === 0 && !stateRef.current.currentTrack;
       const updated = [...stateRef.current.playlist, track];
       stateRef.current.playlist = updated;
       setPlaylist(updated);
@@ -573,21 +740,22 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
         kind: 'youtube',
         title: meta.title,
         artist: meta.artist,
+        playlistId,
         videoId,
         order: updated.length - 1,
         addedAt: Date.now(),
       }).catch(() => {});
 
       // 何も再生していなければすぐ再生
-      if (hadNoTrack) {
-        await loadTrackAt(track, 0, true);
+      if (wasIdle) {
+        await loadTrack(track, true);
       }
     },
-    [loadTrackAt]
+    [loadTrack]
   );
 
   const removeTrack = useCallback((id: string) => {
-    const { playlist, currentIndex } = stateRef.current;
+    const { playlist, currentTrack } = stateRef.current;
     const index = playlist.findIndex((t) => t.id === id);
     if (index === -1) return;
 
@@ -601,7 +769,7 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
       .then(() => updateOrder(updated.map((t) => t.id)))
       .catch(() => {});
 
-    if (index === currentIndex) {
+    if (currentTrack?.id === id) {
       // 再生中のトラックを削除したら停止して未選択に戻す
       loadSeqRef.current++;
       processorRef.current?.stop();
@@ -609,15 +777,14 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
       setIsPlaying(false);
       setCurrentTime(0);
       setDuration(0);
-      setCurrentIndex(-1);
+      setCurrentTrack(null);
+      stateRef.current.currentTrack = null;
       saveResumePoint(null);
-    } else if (index < currentIndex) {
-      setCurrentIndex(currentIndex - 1);
     }
   }, []);
 
   const reorderPlaylist = useCallback((from: number, to: number) => {
-    const { playlist, currentIndex } = stateRef.current;
+    const { playlist } = stateRef.current;
     if (
       from === to ||
       from < 0 ||
@@ -636,28 +803,19 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
 
     // 並び順を端末内ライブラリにも反映
     void updateOrder(updated.map((t) => t.id)).catch(() => {});
-
-    // 再生中トラックの位置を追従させる
-    if (currentIndex === from) {
-      setCurrentIndex(to);
-    } else if (from < currentIndex && to >= currentIndex) {
-      setCurrentIndex(currentIndex - 1);
-    } else if (from > currentIndex && to <= currentIndex) {
-      setCurrentIndex(currentIndex + 1);
-    }
   }, []);
 
   const play = useCallback(async () => {
-    const { playlist, currentIndex } = stateRef.current;
-    if (currentIndex === -1) {
+    const { playlist, currentTrack } = stateRef.current;
+    if (!currentTrack) {
       // 未選択なら先頭から再生
       if (playlist.length > 0) {
-        await loadTrackAt(playlist[0], 0, true);
+        await loadTrack(playlist[0], true);
       }
       return;
     }
 
-    if (isYouTubeTrack(playlist[currentIndex])) {
+    if (isYouTubeTrack(currentTrack)) {
       getYouTubeEngine().play();
       setIsPlaying(true);
       return;
@@ -666,29 +824,27 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     if (!processorRef.current) return;
     await processorRef.current.play();
     setIsPlaying(true);
-  }, [loadTrackAt]);
+  }, [loadTrack]);
 
   const pause = useCallback(() => {
-    const { playlist, currentIndex } = stateRef.current;
-    const track = playlist[currentIndex];
+    const { currentTrack } = stateRef.current;
 
-    if (isYouTubeTrack(track)) {
+    if (isYouTubeTrack(currentTrack)) {
       getYouTubeEngine().pause();
     } else {
       processorRef.current?.pause();
     }
     setIsPlaying(false);
 
-    if (track) {
-      saveResumePoint({ trackId: track.id, time: getActiveTime() });
+    if (currentTrack) {
+      saveResumePoint({ trackId: currentTrack.id, time: getActiveTime() });
     }
   }, [getActiveTime]);
 
   const stop = useCallback(() => {
-    const { playlist, currentIndex } = stateRef.current;
-    const track = playlist[currentIndex];
+    const { currentTrack } = stateRef.current;
 
-    if (isYouTubeTrack(track)) {
+    if (isYouTubeTrack(currentTrack)) {
       getYouTubeEngine().stop();
     } else {
       processorRef.current?.stop();
@@ -696,7 +852,7 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     setIsPlaying(false);
     setCurrentTime(0);
 
-    saveResumePoint(track ? { trackId: track.id, time: 0 } : null);
+    saveResumePoint(currentTrack ? { trackId: currentTrack.id, time: 0 } : null);
   }, []);
 
   const next = useCallback(async () => {
@@ -706,14 +862,15 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
   }, [pickNextIndex, selectTrack]);
 
   const previous = useCallback(async () => {
-    const { playlist, currentIndex } = stateRef.current;
-    if (playlist.length === 0 || currentIndex === -1) {
+    const { playlist, currentTrack } = stateRef.current;
+    if (playlist.length === 0 || !currentTrack) {
       return;
     }
+    const currentIdx = findCurrentIndex();
 
-    // 少しでも再生が進んでいる場合、または先頭トラックなら曲頭に戻す
-    if (getActiveTime() > RESTART_THRESHOLD_SECONDS || currentIndex === 0) {
-      if (isYouTubeTrack(playlist[currentIndex])) {
+    // 少しでも再生が進んでいる場合、または先頭/リスト外なら曲頭に戻す
+    if (getActiveTime() > RESTART_THRESHOLD_SECONDS || currentIdx <= 0) {
+      if (isYouTubeTrack(currentTrack)) {
         getYouTubeEngine().seek(0);
       } else {
         processorRef.current?.seek(0);
@@ -722,8 +879,8 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
       return;
     }
 
-    await selectTrack(currentIndex - 1);
-  }, [selectTrack, getActiveTime]);
+    await selectTrack(currentIdx - 1);
+  }, [selectTrack, getActiveTime, findCurrentIndex]);
 
   const cycleRepeatMode = useCallback(() => {
     setRepeatMode((mode) =>
@@ -736,8 +893,7 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
   }, []);
 
   const seek = useCallback((time: number) => {
-    const { playlist, currentIndex } = stateRef.current;
-    if (isYouTubeTrack(playlist[currentIndex])) {
+    if (isYouTubeTrack(stateRef.current.currentTrack)) {
       getYouTubeEngine().seek(time);
     } else {
       if (!processorRef.current) return;
@@ -767,8 +923,6 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     setPlaybackSpeedState(speed);
   }, []);
 
-  const currentTrack = playlist[currentIndex] ?? null;
-
   return {
     isPlaying,
     currentTime,
@@ -777,9 +931,14 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     frequency,
     playbackSpeed,
     trackTitle: currentTrack?.title ?? null,
+    currentTrack,
     playbackError,
+    playlists,
+    activePlaylistId,
     playlist,
-    currentIndex,
+    currentIndex: currentTrack
+      ? playlist.findIndex((t) => t.id === currentTrack.id)
+      : -1,
     repeatMode,
     isShuffle,
     play,
@@ -798,5 +957,8 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     previous,
     cycleRepeatMode,
     toggleShuffle,
+    switchPlaylist,
+    createPlaylist,
+    removePlaylist,
   };
 }

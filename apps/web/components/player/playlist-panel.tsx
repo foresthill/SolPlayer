@@ -1,10 +1,12 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import type { PlaylistTrack } from '@/hooks/use-audio-player';
+import type { PlaylistTrack, StoredPlaylist } from '@/hooks/use-audio-player';
 import { GripIcon, MusicNoteIcon, PlusIcon, TrashIcon, VideoIcon } from './icons';
 
 interface PlaylistPanelProps {
+  playlists: StoredPlaylist[];
+  activePlaylistId: string;
   playlist: PlaylistTrack[];
   currentIndex: number;
   isPlaying: boolean;
@@ -12,6 +14,9 @@ interface PlaylistPanelProps {
   onRemoveTrack: (id: string) => void;
   onAddFiles: (files: File[]) => void;
   onReorder: (from: number, to: number) => void;
+  onSwitchPlaylist: (id: string) => void;
+  onCreatePlaylist: (name: string) => void;
+  onRemovePlaylist: (id: string) => void;
 }
 
 interface DragState {
@@ -19,7 +24,16 @@ interface DragState {
   over: number;
 }
 
+/**
+ * ホバーできる環境（PC）ではホバー時のみ表示、
+ * タッチ端末では常時表示にするための削除ボタン用クラス
+ */
+const HOVER_REVEAL =
+  '[@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 focus-visible:opacity-100 transition-opacity';
+
 export function PlaylistPanel({
+  playlists,
+  activePlaylistId,
   playlist,
   currentIndex,
   isPlaying,
@@ -27,10 +41,15 @@ export function PlaylistPanel({
   onRemoveTrack,
   onAddFiles,
   onReorder,
+  onSwitchPlaylist,
+  onCreatePlaylist,
+  onRemovePlaylist,
 }: PlaylistPanelProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [newName, setNewName] = useState('');
   // 並べ替えドラッグ中の状態（fromを掴んでoverの位置へ）。
   // pointerdown直後のmoveがstate反映前に届いても取りこぼさないよう、refでも同期保持する
   const [dragState, setDragState] = useState<DragState | null>(null);
@@ -133,6 +152,93 @@ export function PlaylistPanel({
         </button>
       </div>
 
+      {/* プレイリスト切替チップ */}
+      <div className="flex flex-wrap items-center gap-2">
+        {playlists.map((pl) => {
+          const isActive = pl.id === activePlaylistId;
+          return (
+            <span key={pl.id} className="group/pl relative inline-flex">
+              <button
+                type="button"
+                className={`glass-chip max-w-40 truncate px-3 py-1.5 text-xs font-medium ${
+                  isActive && playlists.length > 1 ? 'pr-7' : ''
+                }`}
+                data-active={isActive}
+                onClick={() => onSwitchPlaylist(pl.id)}
+                aria-pressed={isActive}
+              >
+                {pl.name}
+              </button>
+              {isActive && playlists.length > 1 && (
+                <button
+                  type="button"
+                  className="glass-btn absolute top-1/2 right-1 h-5 w-5 -translate-y-1/2"
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        `プレイリスト「${pl.name}」と中の曲を削除しますか？`
+                      )
+                    ) {
+                      onRemovePlaylist(pl.id);
+                    }
+                  }}
+                  aria-label={`プレイリスト「${pl.name}」を削除`}
+                  title="このプレイリストを削除"
+                >
+                  <TrashIcon className="h-3 w-3" />
+                </button>
+              )}
+            </span>
+          );
+        })}
+        {isCreating ? (
+          <span className="inline-flex items-center gap-1.5">
+            <input
+              type="text"
+              value={newName}
+              autoFocus
+              onChange={(e) => setNewName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && newName.trim()) {
+                  onCreatePlaylist(newName);
+                  setNewName('');
+                  setIsCreating(false);
+                } else if (e.key === 'Escape') {
+                  setIsCreating(false);
+                  setNewName('');
+                }
+              }}
+              placeholder="プレイリスト名"
+              className="glass-input w-36 px-3 py-1.5 text-xs"
+              aria-label="新しいプレイリスト名"
+            />
+            <button
+              type="button"
+              className="glass-chip px-3 py-1.5 text-xs font-medium"
+              onClick={() => {
+                if (newName.trim()) {
+                  onCreatePlaylist(newName);
+                  setNewName('');
+                  setIsCreating(false);
+                }
+              }}
+            >
+              作成
+            </button>
+          </span>
+        ) : (
+          <button
+            type="button"
+            className="glass-btn h-7 w-7"
+            onClick={() => setIsCreating(true)}
+            aria-label="新しいプレイリストを作成"
+            title="新しいプレイリスト"
+          >
+            <PlusIcon className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+
       {playlist.length === 0 ? (
         <button
           type="button"
@@ -226,7 +332,7 @@ export function PlaylistPanel({
 
                   <button
                     type="button"
-                    className="glass-btn h-7 w-7 shrink-0 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                    className={`glass-btn h-7 w-7 shrink-0 ${HOVER_REVEAL}`}
                     onClick={() => onRemoveTrack(track.id)}
                     aria-label={`${track.title} を削除`}
                     title="削除"
