@@ -463,8 +463,12 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
 
   const addFiles = useCallback(
     async (files: File[]) => {
+      // MIMEタイプが不明/汎用（application/octet-stream等）でも拡張子で受け入れる
+      const AUDIO_EXT =
+        /\.(mp3|m4a|m4b|aac|wav|aif|aiff|caf|flac|ogg|oga|opus|webm|mp4)$/i;
       const audioFiles = files.filter(
-        (f) => f.type.startsWith('audio/') || f.type === ''
+        (f) =>
+          f.type.startsWith('audio/') || f.type === '' || AUDIO_EXT.test(f.name)
       );
       if (audioFiles.length === 0) return;
 
