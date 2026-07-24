@@ -101,10 +101,14 @@ export function PlaylistPanel({
       onDragLeave={() => setIsDragOver(false)}
       onDrop={handleDrop}
     >
+      {/*
+        iOSは accept="audio/*" だけだと一部の音声ファイルをグレーアウトして
+        選択不可にすることがあるため、拡張子も明示して選択可能にする
+      */}
       <input
         ref={fileInputRef}
         type="file"
-        accept="audio/*"
+        accept="audio/*,.mp3,.m4a,.aac,.wav,.aif,.aiff,.caf,.flac,.ogg,.oga,.opus"
         multiple
         onChange={handleFileChange}
         className="hidden"
