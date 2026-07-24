@@ -100,6 +100,7 @@ export function YouTubePanel({ frequency }: YouTubePanelProps) {
         <h3 className="text-sm font-semibold tracking-wider text-ink-soft">
           Web再生 (YouTube)
         </h3>
+        <p className="text-[0.65rem] text-ink-faint">埋め込み再生は変換なし</p>
       </div>
 
       <div className="flex gap-2">
@@ -186,7 +187,7 @@ export function YouTubePanel({ frequency }: YouTubePanelProps) {
       )}
 
       {/* 埋め込みには直接変換を適用できないため、タブ音声キャプチャによるライブ変換を提供 */}
-      <LiveConvertPanel frequency={frequency} />
+      <LiveConvertPanel frequency={frequency} videoId={videoId} />
     </div>
   );
 }
