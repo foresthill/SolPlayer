@@ -8,6 +8,8 @@ interface TrackInfoProps {
   isPlaying?: boolean;
   /** 埋め込みアートワークのURL（無ければプレースホルダ表示） */
   artworkUrl?: string | null;
+  /** 動画表示時などアートワーク枠自体を出さない場合にtrue */
+  hideArtwork?: boolean;
 }
 
 export function TrackInfo({
@@ -15,10 +17,12 @@ export function TrackInfo({
   artist,
   isPlaying = false,
   artworkUrl = null,
+  hideArtwork = false,
 }: TrackInfoProps) {
   return (
     <div className="flex flex-col items-center gap-5 text-center">
       {/* アートワーク */}
+      {!hideArtwork && (
       <div
         className={`relative flex h-36 w-36 items-center justify-center overflow-hidden rounded-[2rem] border border-[var(--glass-border)] bg-gradient-to-br from-white/50 via-white/20 to-white/5 shadow-[var(--glass-shadow)] backdrop-blur-xl transition-shadow duration-700 sm:h-40 sm:w-40 ${
           isPlaying ? 'shadow-[0_0_60px_-10px_rgba(255,255,255,0.55)]' : ''
@@ -49,6 +53,7 @@ export function TrackInfo({
           </span>
         )}
       </div>
+      )}
 
       <div className="w-full min-w-0">
         <h2 className="truncate text-lg font-semibold tracking-wide">{title}</h2>

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useAudioPlayer } from '@/hooks/use-audio-player';
+import { useAudioPlayer, isYouTubeTrack } from '@/hooks/use-audio-player';
+import { YOUTUBE_HOST_ID } from '@/lib/youtube-engine';
 import { MobileNav, type MobileTab } from './mobile-nav';
 import { FrequencySelector } from './frequency-selector';
 import { PlaybackControls } from './playback-controls';
@@ -34,6 +35,7 @@ export function AudioPlayer() {
     setFrequency,
     setPlaybackSpeed,
     addFiles,
+    addYouTubeTrack,
     selectTrack,
     removeTrack,
     reorderPlaylist,
@@ -47,6 +49,7 @@ export function AudioPlayer() {
   const [activeTab, setActiveTab] = useState<MobileTab>('player');
 
   const currentTrack = playlist[currentIndex] ?? null;
+  const currentIsYouTube = isYouTubeTrack(currentTrack);
   const hasTrack = trackTitle !== null;
   const canPlay = hasTrack || playlist.length > 0;
 
@@ -59,6 +62,17 @@ export function AudioPlayer() {
           activeTab === 'player' ? '' : 'hidden'
         } lg:block`}
       >
+        {/* YouTubeトラック再生用のプレイヤーホスト（IFrame APIがこのdivをiframeに置換する） */}
+        <div
+          className={
+            currentIsYouTube
+              ? 'overflow-hidden rounded-2xl border border-[var(--glass-border)] shadow-[var(--glass-shadow)]'
+              : 'hidden'
+          }
+        >
+          <div id={YOUTUBE_HOST_ID} className="aspect-video w-full" />
+        </div>
+
         <TrackInfo
           title={trackTitle ?? 'トラック未選択'}
           artist={
@@ -68,7 +82,14 @@ export function AudioPlayer() {
           }
           isPlaying={isPlaying}
           artworkUrl={currentTrack?.artworkUrl ?? null}
+          hideArtwork={currentIsYouTube}
         />
+
+        {currentIsYouTube && (
+          <p className="text-center text-[0.7rem] leading-relaxed text-ink-faint">
+            YouTube再生中は周波数変換・倍速は適用されません（PCではライブ変換が使えます）
+          </p>
+        )}
 
         <ProgressBar
           currentTime={currentTime}
@@ -121,14 +142,6 @@ export function AudioPlayer() {
 
         <section
           className={`glass-panel p-6 sm:p-7 ${
-            activeTab === 'youtube' ? '' : 'hidden'
-          } lg:block`}
-        >
-          <YouTubePanel frequency={frequency} />
-        </section>
-
-        <section
-          className={`glass-panel p-6 sm:p-7 ${
             activeTab === 'playlist' ? '' : 'hidden'
           } lg:block`}
         >
@@ -140,6 +153,17 @@ export function AudioPlayer() {
             onRemoveTrack={removeTrack}
             onAddFiles={(files) => void addFiles(files)}
             onReorder={reorderPlaylist}
+          />
+        </section>
+
+        <section
+          className={`glass-panel p-6 sm:p-7 ${
+            activeTab === 'youtube' ? '' : 'hidden'
+          } lg:block`}
+        >
+          <YouTubePanel
+            frequency={frequency}
+            onAddToPlaylist={(videoId) => void addYouTubeTrack(videoId)}
           />
         </section>
       </div>
