@@ -23,6 +23,7 @@ export function AudioPlayer() {
     frequency,
     playbackSpeed,
     trackTitle,
+    playbackError,
     playlist,
     currentIndex,
     repeatMode,
@@ -88,6 +89,12 @@ export function AudioPlayer() {
         {currentIsYouTube && (
           <p className="text-center text-[0.7rem] leading-relaxed text-ink-faint">
             YouTube再生中は周波数変換・倍速は適用されません（PCではライブ変換が使えます）
+          </p>
+        )}
+
+        {playbackError && (
+          <p className="text-center text-xs leading-relaxed text-red-500/90">
+            {playbackError}
           </p>
         )}
 

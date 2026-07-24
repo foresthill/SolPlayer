@@ -65,12 +65,39 @@ export class AudioProcessor {
    * @param url - 音声ファイルのURL（ローカルファイルのObjectURLも可）
    */
   async load(url: string): Promise<void> {
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    await this.loadArrayBuffer(arrayBuffer);
+  }
+
+  /**
+   * Blob/Fileから直接ロード
+   *
+   * iOS Safariで不安定な fetch(blob:) を経由しない読み込み経路。
+   */
+  async loadBlob(blob: Blob): Promise<void> {
+    const arrayBuffer = await AudioProcessor.blobToArrayBuffer(blob);
+    await this.loadArrayBuffer(arrayBuffer);
+  }
+
+  private static blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
+    if (typeof blob.arrayBuffer === 'function') {
+      return blob.arrayBuffer();
+    }
+    // 古いSafari向けフォールバック
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as ArrayBuffer);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsArrayBuffer(blob);
+    });
+  }
+
+  private async loadArrayBuffer(arrayBuffer: ArrayBuffer): Promise<void> {
     await this.initialize();
     if (!this.context) return;
 
-    const response = await fetch(url);
-    const arrayBuffer = await response.arrayBuffer();
-    this.buffer = await this.context.decodeAudioData(arrayBuffer);
+    this.buffer = await this.decodeWithFallback(arrayBuffer);
     this.duration = this.buffer.duration;
 
     // 出力チェーン: PitchShifter → Gain → Destination
@@ -85,6 +112,81 @@ export class AudioProcessor {
     this.currentTime = 0;
     this.isPlaying = false;
     this.ended = false;
+  }
+
+  /**
+   * decodeAudioDataの互換ラッパー
+   *
+   * 古いSafariはPromiseを返さずコールバック形式のみのため両対応する。
+   */
+  private decodeCompat(data: ArrayBuffer): Promise<AudioBuffer> {
+    return new Promise((resolve, reject) => {
+      try {
+        const maybePromise = this.context!.decodeAudioData(
+          data,
+          resolve,
+          (err) => reject(err ?? new Error('decode error'))
+        ) as Promise<AudioBuffer> | undefined;
+        if (maybePromise && typeof maybePromise.then === 'function') {
+          maybePromise.then(resolve, reject);
+        }
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  /**
+   * デコード（フォールバック付き）
+   *
+   * SafariはID3v2タグ付きMP3等のデコードに失敗することがあるため、
+   * 失敗時はID3タグを取り除いて再試行する。
+   * 注意: decodeAudioDataは渡したArrayBufferをdetachするブラウザがあるため、
+   * 各試行にはコピーを渡す。
+   */
+  private async decodeWithFallback(data: ArrayBuffer): Promise<AudioBuffer> {
+    const stripped = AudioProcessor.stripId3v2(data);
+    try {
+      return await this.decodeCompat(data.slice(0));
+    } catch (firstError) {
+      if (stripped) {
+        try {
+          return await this.decodeCompat(stripped);
+        } catch {
+          // 下のthrowへ
+        }
+      }
+      throw new Error(
+        `DECODE_FAILED: ${
+          firstError instanceof Error ? firstError.message : String(firstError)
+        }`
+      );
+    }
+  }
+
+  /**
+   * 先頭のID3v2タグを取り除いたコピーを返す（タグが無ければnull）
+   */
+  private static stripId3v2(data: ArrayBuffer): ArrayBuffer | null {
+    const bytes = new Uint8Array(data);
+    if (
+      bytes.length < 10 ||
+      bytes[0] !== 0x49 || // 'I'
+      bytes[1] !== 0x44 || // 'D'
+      bytes[2] !== 0x33 // '3'
+    ) {
+      return null;
+    }
+    // サイズはsyncsafe整数（各バイト7bit）
+    const size =
+      ((bytes[6] & 0x7f) << 21) |
+      ((bytes[7] & 0x7f) << 14) |
+      ((bytes[8] & 0x7f) << 7) |
+      (bytes[9] & 0x7f);
+    const hasFooter = (bytes[5] & 0x10) !== 0;
+    const total = 10 + size + (hasFooter ? 10 : 0);
+    if (total >= bytes.length) return null;
+    return data.slice(total);
   }
 
   /**
