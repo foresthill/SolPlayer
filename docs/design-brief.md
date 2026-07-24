@@ -65,7 +65,8 @@
 - ✅ プレイリストの並べ替え（ハンドルをドラッグ。ポインタイベント実装でマウス/タッチ両対応）
 - ✅ 同期フェーズ1: 端末内永続化（曲の実体+メタデータをIndexedDBに保存。リロードでプレイリスト復元。lib/library-store.ts）
 - ✅ Web再生タブ（YouTube埋め込み。URL貼り付け→IFrame再生、履歴5件をlocalStorage保存。規約準拠のためダウンロードは非対応）
-- ✅ ライブ変換（audio-core/live-converter.ts + live-convert-panel.tsx。getDisplayMediaでタブ音声をキャプチャし、保存せずリアルタイムでSoundTouchピッチ変換。YouTube等に周波数変換を適用する手段。PCのChrome/Edge限定＝モバイルブラウザにタブ音声キャプチャAPIが無い）
+- ✅ ライブ変換（audio-core/live-converter.ts + live-convert-panel.tsx。getDisplayMediaでタブ音声をキャプチャし、保存せずリアルタイムでSoundTouchピッチ変換。YouTube等に周波数変換を適用する手段。PCのChrome/Edge限定＝モバイルブラウザにタブ音声キャプチャAPIが無い。UIは「①別タブで開く→②キャプチャ」の2ステップ。元タブ消音はaudio制約のsuppressLocalAudioPlaybackで実施、効かない環境では手動ミュート案内）
+- ✅ しおり（レジューム再生。原作iOS由来の機能。最後に再生していたトラックと位置をlocalStorageに保存し、起動時に復元。再生中3秒毎+一時停止/停止時に保存）
 
 ### 進行中: 同期ロードマップ（方針決定済み: ハイブリッド→最終的に実体もクラウド）
 - フェーズ2: アカウント同期 — Googleログイン(Auth.js)＋DB(Neon等)でプレイリスト/マイプリセットのメタデータを同期。

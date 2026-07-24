@@ -104,6 +104,45 @@ async function readTrackMetadata(
   }
 }
 
+/** しおり（レジューム再生）: 最後に再生していたトラックと位置 */
+const RESUME_KEY = 'solplayer:resume';
+
+interface ResumePoint {
+  trackId: string;
+  time: number;
+}
+
+function saveResumePoint(point: ResumePoint | null): void {
+  try {
+    if (point) {
+      localStorage.setItem(RESUME_KEY, JSON.stringify(point));
+    } else {
+      localStorage.removeItem(RESUME_KEY);
+    }
+  } catch {
+    // 保存できない環境では諦める
+  }
+}
+
+function loadResumePoint(): ResumePoint | null {
+  try {
+    const raw = localStorage.getItem(RESUME_KEY);
+    if (!raw) return null;
+    const parsed: unknown = JSON.parse(raw);
+    if (
+      typeof parsed === 'object' &&
+      parsed !== null &&
+      typeof (parsed as ResumePoint).trackId === 'string' &&
+      typeof (parsed as ResumePoint).time === 'number'
+    ) {
+      return parsed as ResumePoint;
+    }
+  } catch {
+    // 壊れたデータは無視
+  }
+  return null;
+}
+
 /** 保存済みトラックから再生用のPlaylistTrack（ObjectURL付き）を作る */
 function storedToPlaylistTrack(stored: StoredTrack): PlaylistTrack {
   return {
@@ -155,13 +194,25 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     requestPersistentStorage();
     let cancelled = false;
     void loadLibrary()
-      .then((stored) => {
+      .then(async (stored) => {
         if (cancelled || stored.length === 0) return;
         // 復元前にユーザーが曲を追加していたら上書きしない
         if (stateRef.current.playlist.length > 0) return;
         const restored = stored.map(storedToPlaylistTrack);
         stateRef.current.playlist = restored;
         setPlaylist(restored);
+
+        // しおり: 前回のトラックと再生位置を復元（自動再生はしない）
+        const resume = loadResumePoint();
+        if (!resume) return;
+        const index = restored.findIndex((t) => t.id === resume.trackId);
+        if (index === -1 || !processorRef.current) return;
+        await loadTrackAt(restored[index], index, false);
+        if (cancelled) return;
+        if (resume.time > 0) {
+          processorRef.current.seek(resume.time);
+          setCurrentTime(processorRef.current.getCurrentTime());
+        }
       })
       .catch(() => {
         // IndexedDBが使えない環境ではセッション限りで動作
@@ -201,6 +252,22 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
+  }, [isPlaying]);
+
+  // しおり: 再生中は定期的に位置を保存（一時停止/停止時は各操作で保存）
+  useEffect(() => {
+    if (!isPlaying) return;
+    const interval = setInterval(() => {
+      const { playlist, currentIndex } = stateRef.current;
+      const track = playlist[currentIndex];
+      if (track && processorRef.current) {
+        saveResumePoint({
+          trackId: track.id,
+          time: processorRef.current.getCurrentTime(),
+        });
+      }
+    }, 3000);
+    return () => clearInterval(interval);
   }, [isPlaying]);
 
   /** 指定トラックをロードし、必要なら再生を開始する */
@@ -358,6 +425,7 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
       setCurrentTime(0);
       setDuration(0);
       setCurrentIndex(-1);
+      saveResumePoint(null);
     } else if (index < currentIndex) {
       setCurrentIndex(currentIndex - 1);
     }
@@ -415,6 +483,15 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
 
     processorRef.current.pause();
     setIsPlaying(false);
+
+    const { playlist, currentIndex } = stateRef.current;
+    const track = playlist[currentIndex];
+    if (track) {
+      saveResumePoint({
+        trackId: track.id,
+        time: processorRef.current.getCurrentTime(),
+      });
+    }
   }, []);
 
   const stop = useCallback(() => {
@@ -423,6 +500,10 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     processorRef.current.stop();
     setIsPlaying(false);
     setCurrentTime(0);
+
+    const { playlist, currentIndex } = stateRef.current;
+    const track = playlist[currentIndex];
+    saveResumePoint(track ? { trackId: track.id, time: 0 } : null);
   }, []);
 
   const next = useCallback(async () => {
