@@ -184,7 +184,7 @@ export function YouTubePanel({ frequency, onAddToPlaylist }: YouTubePanelProps) 
                 </button>
                 <button
                   type="button"
-                  className="glass-btn h-7 w-7 shrink-0 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                  className="glass-btn h-7 w-7 shrink-0 transition-opacity focus-visible:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
                   onClick={() => removeRecent(id)}
                   aria-label={`${id} を履歴から削除`}
                   title="履歴から削除"

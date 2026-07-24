@@ -23,7 +23,10 @@ export function AudioPlayer() {
     frequency,
     playbackSpeed,
     trackTitle,
+    currentTrack,
     playbackError,
+    playlists,
+    activePlaylistId,
     playlist,
     currentIndex,
     repeatMode,
@@ -44,12 +47,14 @@ export function AudioPlayer() {
     previous,
     cycleRepeatMode,
     toggleShuffle,
+    switchPlaylist,
+    createPlaylist,
+    removePlaylist,
   } = useAudioPlayer();
 
   // モバイルのフッターメニューで表示カードを切り替える（lg以上は全カード表示）
   const [activeTab, setActiveTab] = useState<MobileTab>('player');
 
-  const currentTrack = playlist[currentIndex] ?? null;
   const currentIsYouTube = isYouTubeTrack(currentTrack);
   const hasTrack = trackTitle !== null;
   const canPlay = hasTrack || playlist.length > 0;
@@ -153,6 +158,8 @@ export function AudioPlayer() {
           } lg:block`}
         >
           <PlaylistPanel
+            playlists={playlists}
+            activePlaylistId={activePlaylistId}
             playlist={playlist}
             currentIndex={currentIndex}
             isPlaying={isPlaying}
@@ -160,6 +167,9 @@ export function AudioPlayer() {
             onRemoveTrack={removeTrack}
             onAddFiles={(files) => void addFiles(files)}
             onReorder={reorderPlaylist}
+            onSwitchPlaylist={(id) => void switchPlaylist(id)}
+            onCreatePlaylist={(name) => void createPlaylist(name)}
+            onRemovePlaylist={(id) => void removePlaylist(id)}
           />
         </section>
 

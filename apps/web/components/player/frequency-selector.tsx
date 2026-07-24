@@ -186,7 +186,7 @@ export function FrequencySelector({ frequency, onChange }: FrequencySelectorProp
                 </button>
                 <button
                   type="button"
-                  className="glass-btn absolute top-1/2 right-1 h-5 w-5 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                  className="glass-btn absolute top-1/2 right-1 h-5 w-5 -translate-y-1/2 transition-opacity focus-visible:opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
                   onClick={() => removePreset(preset.id)}
                   aria-label={`${formatHz(preset.hz)}Hz を削除`}
                   title="削除"
