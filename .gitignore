@@ -8,6 +8,9 @@ dist
 .build/
 # Next.js 静的エクスポート（Capacitor用 pnpm build:mobile の出力）
 apps/web/out/
+# Chrome拡張のビルド生成物
+apps/extension/dist-firefox/
+apps/extension/artifacts/
 
 # Environment
 .env*

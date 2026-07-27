@@ -1,0 +1,18 @@
+{
+  "name": "@solplayer/extension",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SolPlayer Tune - YouTubeのプレイヤーに432Hz変換トグルを注入するChrome拡張",
+  "scripts": {
+    "build": "esbuild src/content.ts --bundle --format=iife --outfile=dist/content.js && node scripts/copy-assets.mjs",
+    "pack": "node scripts/pack.mjs",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "soundtouchjs": "^0.3.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "typescript": "^5.7.0"
+  }
+}

@@ -83,17 +83,81 @@ Web再生タブ（YouTube埋め込みカード）の下部に同居しており�
 ### C. 対応環境
 - PCのChrome/Edge限定。Safari/Firefox/スマホは非対応（制約表の通り）
 
-## 7. 未検討・検討の余地があるアイデア（ブレスト用）
+## 7. ブレスト結果と検証状況（2026-08 更新）
 
-1. **Chrome拡張機能化** — 拡張の `chrome.tabCapture` APIならツールバーの1クリックで
-   「今見ているYouTubeタブ」をキャプチャ可能（共有ダイアログ不要）。
-   タブのミュートも拡張APIで制御可能。UXの2ステップ問題を根本解決できる可能性。
-   配布はChromeウェブストア。SolPlayer本体との連携方法（拡張内で変換完結 vs 本体へ送る）は要設計
-2. **AudioWorklet + WASM化** — SoundTouchのC++実装をWASMでWorklet内実行（最高品質・最低負荷）
-3. **専用モードUI** — キャプチャ中は「変換中」の全画面ビジュアライザ＋大きな周波数切替だけの
-   ミニマルUIにする（"そのタブで動かす"割り切りに合う見せ方）
-4. **Picture-in-Picture連携** — 別タブのYouTube映像をPiPで小窓表示しながらアプリ側で操作
-5. **位相/品質チューニング** — WSOLAパラメータ（シーケンス長・オーバーラップ）の音楽向け最適化
+### ✅ 検証済み: インジェクション型Chrome拡張（ブレイクスルー確定）
+
+ブレストで最有力とされた「拡張機能でYouTubeプレイヤーに直接トグルを注入」を
+プロトタイプ実装し（`apps/extension/`）、E2Eで実測検証済み。
+
+- **`chrome.tabCapture` すら不要**。コンテンツスクリプトから
+  `createMediaElementSource(video)` で`<video>`要素の音声出力を丸ごとWeb Audioへ
+  付け替える方式（世のYouTube用イコライザ拡張と同じ確立された手法）
+- これにより: 二重再生が構造的に不発生 / 共有ダイアログ不要 / タブ移動不要 /
+  映像はそのまま / 特別なpermissionも不要
+- **実測: 440Hz動画 → 432.00Hz / 444.01Hz 出力を確認**。バイパス復帰・再開も正常
+- 残課題: プレイヤーバー内へのボタン注入（現在は右下浮遊ボタン）、
+  AudioWorklet化、本体との設定連携、ストア配布
+- 住み分け: Webアプリ＝ローカルファイル＋同期、拡張＝Webストリーミング変換
+
+### 承認済みの改善方針（ブレストより）
+
+- **AudioWorklet移行は必須**（ScriptProcessorはメインスレッド動作でUI描画と競合しグリッチ源）。
+  まず既存JS実装のWorklet載せ替え → 限界を感じたらWASM化、の2段構え
+- **Document Picture-in-Picture**: タブキャプチャ方式の弱点（映像が見えない）への対策。
+  現在は取得直後に破棄しているキャプチャの映像トラックを、`<video>`やPiP小窓に
+  表示する実装が可能（追加検証は容易）
+- **エッジケースを制約に追加**（下記8参照）: DRM/CORS保護コンテンツは仕様により無音化
+  （file://での無音化として実測確認済み。EME保護のYouTubeムービー等も同様の想定）。
+  バックグラウンドタブのスロットリングによる音飛びリスク（AudioWorklet化で軽減）
+
+### 未着手のアイデア
+
+- 専用モードUI（全画面ビジュアライザ＋周波数のみのミニマルUI）
+- WSOLAパラメータの音楽向け最適化
+
+## 7.5 スマホ対応の検証結果（2026-08 ブレスト第2弾への回答）
+
+ブレスト案「①スマホ用ブラウザ拡張 / ②専用WebViewアプリ(SolBrowser)」の技術検証。
+**方向性は正しいが、重要な訂正が2点**ある。
+
+### 訂正1: iOS Safari拡張は「App Store配布のネイティブアプリに同梱」が必須
+iOS SafariのWeb拡張は単体配布できず、Xcodeでネイティブアプリにラップして
+App Storeから配る仕組み（safari-web-extension）。つまり配布の手間は
+②のWebViewアプリと同等になる。既にCapacitorでXcodeプロジェクトがあるため
+資産は活かせるが、「Safariにポン入れ」はできない点に注意。
+
+### 訂正2: WKURLSchemeHandlerではhttpsをフックできない
+iOSのWKURLSchemeHandlerは**カスタムスキーム専用**で、https通信の傍受・
+ヘッダ書き換えは不可（②案のiOS側CORS無効化はこの経路では成立しない）。
+Androidの shouldInterceptRequest は https を傍受可能で、この部分は正しい。
+
+### 追加の重要事実
+- **Kiwi Browserは2025年1月に開発終了**。Android側の受け皿はFirefox for Android
+  （2023年以降、AMOの拡張を正式サポート）が本命
+- **CORS突破が不要な可能性が高い**: YouTube WebはMSE(MediaSource)経由で
+  音声を供給するため、MediaElementSourceのCORS汚染が起きない
+  （PC版拡張が無加工で動くのと同じ理屈）。Android FirefoxはMSE対応、
+  iOS SafariもiOS 17.1+でMSE対応済み。つまりdeclarativeNetRequestによる
+  ヘッダ改変は「古いiOS向けの保険」であり、まず素のままで動くか実機確認すべき
+- AudioPlaybackCapture不可の分析（YouTubeのオプトアウト＋二重再生問題）は正確
+
+### 推奨ロードマップ（安い順）
+1. **Android: 既存拡張をFirefox for Androidで実機テスト** — 追加実装ほぼゼロ。
+   Firefox用パッケージ（gecko設定入りmanifest）は作成済み（apps/extension/scripts/pack.mjs）。
+   動けばAMOに提出して正式配布（無料・審査あり）
+2. **iOS: safari-web-extensionラップ** — 既存content.jsをXcodeテンプレートに同梱して
+   App Store配布。要Apple Developer Program（年約1.5万円）。実機でのMediaElementSource
+   挙動（MSE/タイント）の確認が先決
+3. **SolBrowser（専用WebViewアプリ）** — iOS/Android両対応の最終形だが、
+   App Store審査リスク（4.2 最小機能・他社サイトのラップ判定）と、他社ページを
+   改変表示する構造ゆえのYouTube ToS上の論点があり、①②の結果を見てから判断
+
+## 7.6 配布（Release）
+
+- GitHub Actionsワークフロー `extension-release`（手動実行・バージョン入力）で
+  Chrome用/Firefox用zipをGitHub Releasesに添付する仕組みを整備済み
+- 将来: Chromeウェブストア（開発者登録$5・審査あり）/ AMO（無料・審査あり）
 
 ## 8. 評価基準（案を比較するときの軸）
 
