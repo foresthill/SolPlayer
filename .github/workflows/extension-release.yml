@@ -23,8 +23,8 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @solplayer/extension build
-      - run: pnpm --filter @solplayer/extension pack
+      - run: pnpm --filter @solplayer/extension run build
+      - run: pnpm --filter @solplayer/extension run package
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: extension-v${{ inputs.version }}
