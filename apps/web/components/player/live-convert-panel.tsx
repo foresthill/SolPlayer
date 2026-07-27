@@ -60,14 +60,33 @@ export function LiveConvertPanel({ frequency, videoId }: LiveConvertPanelProps) 
     try {
       const stream = await navigator.mediaDevices.getDisplayMedia({
         video: true,
-        // suppressLocalAudioPlayback: キャプチャ元タブの音を消し、変換後の音だけを聴く
-        // （audio制約の中に入れるのが正しい仕様。タブ共有時のみ有効）
         audio: {
+          // キャプチャ元タブの音を消し、変換後の音だけを聴く
+          // （audio制約の中に入れるのが正しい仕様。タブ共有時のみ有効）
           suppressLocalAudioPlayback: true,
+          // 音声通話用の処理を必ず無効化する。特にノイズ抑制は
+          // 音楽の持続成分（ベース/パッド/残響）をノイズと誤認して
+          // 削り取り、スカスカな音になる
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false,
+          channelCount: 2,
         } as MediaTrackConstraints,
         // 自タブは候補から除外（自分の出力を再キャプチャするハウリング防止）
         ...({ selfBrowserSurface: 'exclude' } as object),
       });
+      // ダイアログ側の設定で音声処理が有効になっていた場合に備えて再適用
+      const audioTrack = stream.getAudioTracks()[0];
+      if (audioTrack?.applyConstraints) {
+        void audioTrack
+          .applyConstraints({
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: false,
+          })
+          .catch(() => {});
+      }
+
       await converter.start(stream);
       converter.setFrequency(440, frequency);
 
