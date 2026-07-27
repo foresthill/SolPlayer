@@ -21,10 +21,19 @@ const PLAYLISTS_STORE = 'playlists';
 export const DEFAULT_PLAYLIST_ID = 'default';
 export const DEFAULT_PLAYLIST_NAME = 'マイプレイリスト';
 
+/**
+ * メタデータ解析ロジックのバージョン。
+ * 保存済みトラックのmetaVersionがこれより古い場合、起動時に再スキャンして
+ * アートワーク等を取り込み直す（機能追加前に取り込んだ曲への追従）。
+ */
+export const TRACK_META_VERSION = 2;
+
 export interface StoredTrack {
   id: string;
   title: string;
   artist?: string;
+  /** メタデータ解析時のバージョン（TRACK_META_VERSION参照） */
+  metaVersion?: number;
   /** 所属プレイリスト。省略時はデフォルト（旧データ互換） */
   playlistId?: string;
   /** トラック種別。省略時は'local'（旧データ互換） */

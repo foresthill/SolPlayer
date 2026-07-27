@@ -14,12 +14,21 @@
 import { SoundTouch, SimpleFilter, getWebAudioNode } from 'soundtouchjs';
 import { FrequencyConverter } from './frequency-converter';
 
-const BUFFER_SIZE = 4096;
+/** 入力キャプチャのバッファサイズ */
+const CAPTURE_BUFFER_SIZE = 4096;
+/** 出力のバッファサイズ（大きいほど途切れにくいが遅延増。音楽鑑賞用途で許容） */
+const OUTPUT_BUFFER_SIZE = 8192;
 /** 入力キューがこの秒数を超えたら古いサンプルを捨てて遅延の蓄積を防ぐ */
 const MAX_QUEUE_SECONDS = 2;
+/**
+ * 再生開始前に貯めるフレーム数（ジッタ吸収用のクッション）。
+ * これが無いと入力の揺らぎがそのまま音切れ（プチプチ）になる。
+ */
+const PRIME_FRAMES = 16384;
 
 /**
  * ライブ入力のリングキュー。SimpleFilterのソースとして振る舞う。
+ * クッション分が貯まるまで供給を待ち（プライミング）、
  * 足りないフレームは供給しない（無音を挿入せず遅延の蓄積を防ぐ）。
  */
 class LiveStreamSource {
@@ -28,6 +37,8 @@ class LiveStreamSource {
   private readFrames = 0;
   private availableFrames = 0;
   private maxFrames: number;
+  /** クッションが貯まって供給を開始したか */
+  private primed = false;
 
   constructor(sampleRate: number) {
     this.maxFrames = sampleRate * MAX_QUEUE_SECONDS;
@@ -47,6 +58,12 @@ class LiveStreamSource {
   }
 
   extract(target: Float32Array, numFrames: number): number {
+    // クッションが貯まるまで供給しない（開始直後・枯渇後の音切れ防止）
+    if (!this.primed) {
+      if (this.availableFrames < PRIME_FRAMES) return 0;
+      this.primed = true;
+    }
+
     let written = 0;
     while (written < numFrames && this.queue.length > 0) {
       const head = this.queue[0];
@@ -64,6 +81,10 @@ class LiveStreamSource {
       }
     }
     this.availableFrames -= written;
+    // 使い切ったら再度クッションが貯まるまで待つ
+    if (this.availableFrames === 0) {
+      this.primed = false;
+    }
     return written;
   }
 }
@@ -114,7 +135,7 @@ export class LiveConverter {
 
     // 入力キャプチャ: MediaStream → ScriptProcessor → キュー
     const sourceNode = context.createMediaStreamSource(stream);
-    const captureNode = context.createScriptProcessor(BUFFER_SIZE, 2, 1);
+    const captureNode = context.createScriptProcessor(CAPTURE_BUFFER_SIZE, 2, 1);
     captureNode.onaudioprocess = (e) => {
       const input = e.inputBuffer;
       const left = input.getChannelData(0);
@@ -135,7 +156,7 @@ export class LiveConverter {
     muteGain.connect(context.destination);
 
     // 出力: SimpleFilter → ScriptProcessor → Gain → スピーカー
-    const outputNode = getWebAudioNode(context, filter, undefined, BUFFER_SIZE);
+    const outputNode = getWebAudioNode(context, filter, undefined, OUTPUT_BUFFER_SIZE);
     const gain = context.createGain();
     gain.gain.value = this.volumeLevel;
     outputNode.connect(gain);
