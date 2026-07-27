@@ -12,6 +12,8 @@ import { SpeedControl } from './speed-control';
 import { TrackInfo } from './track-info';
 import { PlaylistPanel } from './playlist-panel';
 import { YouTubePanel } from './youtube-panel';
+import { LiveConvertPanel } from './live-convert-panel';
+import { SyncHint } from '@/components/sync-hint';
 import { StopIcon } from './icons';
 
 export function AudioPlayer() {
@@ -62,6 +64,14 @@ export function AudioPlayer() {
   return (
     // minmax(0,_)で長い曲名がトラック幅を押し広げないようにする（truncateを効かせる）
     <div className="mx-auto grid w-full max-w-md grid-cols-[minmax(0,1fr)] gap-6 pb-32 lg:max-w-5xl lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-start lg:pb-0">
+      {/*
+        PCの主役: ライブ変換ヒーロー（変換は全てブラウザ内で完結・サーバー負荷ゼロ）。
+        モバイルはタブ音声キャプチャAPIが無いため非表示
+      */}
+      <section className="glass-panel hidden p-6 sm:p-7 lg:col-span-2 lg:block">
+        <LiveConvertPanel frequency={frequency} />
+      </section>
+
       {/* メインプレイヤー */}
       <section
         className={`glass-panel space-y-7 p-7 sm:p-9 ${
@@ -171,6 +181,8 @@ export function AudioPlayer() {
             onCreatePlaylist={(name) => void createPlaylist(name)}
             onRemovePlaylist={(id) => void removePlaylist(id)}
           />
+          {/* 未ログイン時のみ: 同期の案内（ログインは強化であってゲートではない） */}
+          <SyncHint />
         </section>
 
         <section
@@ -179,7 +191,6 @@ export function AudioPlayer() {
           } lg:block`}
         >
           <YouTubePanel
-            frequency={frequency}
             onAddToPlaylist={(videoId) => void addYouTubeTrack(videoId)}
           />
         </section>
