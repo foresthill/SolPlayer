@@ -4,9 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "build:mobile": "BUILD_TARGET=capacitor next build",
-    "cap:sync": "pnpm build:mobile && cap sync",
+    "build": "prisma generate && node scripts/migrate-deploy-if-db.mjs && next build",
+    "cap:sync": "mkdir -p out && touch out/index.html && cap sync",
     "cap:ios": "cap open ios",
     "cap:android": "cap open android",
     "start": "next start",
@@ -17,6 +16,7 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.11.3",
     "@capacitor/android": "^8.4.2",
     "@capacitor/core": "^8.4.2",
     "@capacitor/ios": "^8.4.2",
@@ -25,6 +25,7 @@
     "@solplayer/shared-types": "workspace:*",
     "music-metadata": "^11.14.0",
     "next": "^15.5.19",
+    "next-auth": "5.0.0-beta.32",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "zustand": "^5.0.0"

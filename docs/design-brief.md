@@ -72,11 +72,12 @@
 - ✅ YouTubeトラックのプレイリスト混在（Web再生タブから「プレイリストに追加」。IFrame Player API（lib/youtube-engine.ts）でローカル曲と同じ操作系＝再生/一時停止/前後/シーク/自動曲送り/リピート/シャッフルに統合。タイトルはoEmbed・サムネイルはi.ytimg.com。IndexedDBに永続化。YouTube再生中は周波数変換・倍速は非適用の注記表示）
 
 ### 進行中: 同期ロードマップ（方針決定済み: ハイブリッド→最終的に実体もクラウド）
-- フェーズ2: アカウント同期 — Googleログイン(Auth.js)＋DB(Neon等)でプレイリスト/マイプリセットのメタデータを同期。
-  実体が無い端末ではグレー表示＋再リンクUX（ファイル名+サイズ+ハッシュで同一判定）。
-  ユーザー側の準備: Google Cloud OAuthクライアント作成、DBホスティング選定（変数は apps/web/.env.example 参照）。
-  DBスキーマは prisma migrate dev でマイグレーションファイルを prisma/migrations/ にコミットする運用
-  （本番適用は migrate deploy。db pushは使わない）
+- ✅ フェーズ2: アカウント同期（実装済み） — Auth.js v5のGoogleログイン＋Prisma/Neon。
+  プレイリスト/トラックメタデータ/マイプリセットを /api/sync で同期
+  （サーバー全置換PUT・クライアント側でユニオンマージ。実体Blobは同期しない）。
+  他端末で追加されたローカル曲は「実体なし」表示（選択時に案内。フェーズ3で解消）。
+  マイグレーションは prisma/migrations/ にコミット、Vercelビルド時に migrate deploy 適用。
+  注意: APIルート導入に伴い静的エクスポート廃止。Capacitorはserver.urlで本番サイト表示方式に変更
 - フェーズ3: 実体のクラウド保存 — 曲ごとに「クラウドに置く」でオブジェクトストレージ(R2等)へ
   アップロードし、どの端末からもストリーミング再生
 

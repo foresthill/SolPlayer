@@ -2,6 +2,7 @@
 
 import { FrequencyConverter } from '@solplayer/audio-core';
 import { useEffect, useState } from 'react';
+import { PRESETS_UPDATED_EVENT } from '@/lib/sync-client';
 import { PlusIcon, TrashIcon } from './icons';
 
 interface FrequencySelectorProps {
@@ -66,27 +67,32 @@ export function FrequencySelector({ frequency, onChange }: FrequencySelectorProp
     setInputError(false);
   }, [frequency]);
 
-  // 保存済みプリセットをlocalStorageから復元（DB接続までのブラウザ保存）
+  // 保存済みプリセットをlocalStorageから復元（アカウント同期で更新されたら再読込）
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed: unknown = JSON.parse(raw);
-        if (Array.isArray(parsed)) {
-          setSavedPresets(
-            parsed.filter(
-              (p): p is SavedPreset =>
-                typeof p === 'object' &&
-                p !== null &&
-                typeof (p as SavedPreset).id === 'string' &&
-                typeof (p as SavedPreset).hz === 'number'
-            )
-          );
+    const load = () => {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed: unknown = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            setSavedPresets(
+              parsed.filter(
+                (p): p is SavedPreset =>
+                  typeof p === 'object' &&
+                  p !== null &&
+                  typeof (p as SavedPreset).id === 'string' &&
+                  typeof (p as SavedPreset).hz === 'number'
+              )
+            );
+          }
         }
+      } catch {
+        // 壊れたデータは無視
       }
-    } catch {
-      // 壊れたデータは無視
-    }
+    };
+    load();
+    window.addEventListener(PRESETS_UPDATED_EVENT, load);
+    return () => window.removeEventListener(PRESETS_UPDATED_EVENT, load);
   }, []);
 
   const persist = (list: SavedPreset[]) => {

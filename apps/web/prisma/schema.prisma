@@ -7,54 +7,102 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ============================================================
+// Auth.js（NextAuth）標準モデル
+// ============================================================
+
 model User {
-  id        String     @id @default(cuid())
-  email     String     @unique
-  name      String?
-  image     String?
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+
+  accounts  Account[]
+  sessions  Session[]
   playlists Playlist[]
   tracks    Track[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  presets   FrequencyPreset[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ============================================================
+// SolPlayer 同期データ（フェーズ2: メタデータのみ。実体はフェーズ3）
+// ============================================================
+
 model Playlist {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  coverImage  String?
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tracks      Track[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id // クライアント生成ID（端末間で共通）
+  name      String
+  order     Int      @default(0)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tracks    Track[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
 }
 
 model Track {
-  id            String     @id @default(cuid())
-  title         String
-  artist        String
-  album         String?
-  duration      Int // 秒
+  id       String     @id // クライアント生成ID
+  title    String
+  artist   String?
+  kind     SourceType @default(LOCAL)
+  /// YouTube動画ID（kind=YOUTUBE）
+  videoId  String?
+  /// ローカル実体の再リンク用（kind=LOCAL）
+  fileName String?
+  fileSize Int?
+  order    Int        @default(0)
 
-  sourceType    SourceType
-  sourceUrl     String?
-  sourceId      String?
-  audioFileUrl  String?
+  playlistId String
+  playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  frequency     Int        @default(440)
-  playbackSpeed Float      @default(1.0)
-
-  playlistId    String?
-  playlist      Playlist?  @relation(fields: [playlistId], references: [id], onDelete: SetNull)
-
-  userId        String
-  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  addedAt   DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([playlistId])
@@ -63,6 +111,16 @@ model Track {
 enum SourceType {
   LOCAL
   YOUTUBE
-  SPOTIFY
-  APPLE_MUSIC
+}
+
+/// 周波数マイプリセット
+model FrequencyPreset {
+  id        String   @id @default(cuid())
+  hz        Float
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, hz])
+  @@index([userId])
 }

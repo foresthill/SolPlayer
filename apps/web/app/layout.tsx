@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { AuthWidget } from '@/components/auth-widget';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -29,10 +30,11 @@ export default function RootLayout({
         <div className="aurora" aria-hidden="true" />
 
         <div className="flex min-h-screen flex-col">
-          <header className="px-6 pt-6 pb-2">
+          <header className="flex items-center justify-between px-6 pt-6 pb-2">
             <h1 className="text-lg font-semibold tracking-[0.2em] text-ink-soft">
               SolPlayer
             </h1>
+            <AuthWidget />
           </header>
           <main className="flex-1 px-4 py-6 sm:px-6">{children}</main>
           {/* モバイルではフッターメニューと重なるため非表示 */}
