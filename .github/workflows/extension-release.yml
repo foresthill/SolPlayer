@@ -1,0 +1,44 @@
+# Chrome拡張「SolPlayer Tune」の配布用Releaseを作成するワークフロー。
+# GitHubのActionsタブから手動実行（Run workflow）し、バージョンを入力する。
+name: extension-release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'リリースバージョン（例: 0.1.0）'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @solplayer/extension build
+      - run: pnpm --filter @solplayer/extension pack
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: extension-v${{ inputs.version }}
+          name: SolPlayer Tune v${{ inputs.version }}
+          files: apps/extension/artifacts/*.zip
+          body: |
+            YouTubeの音声をその場で432Hz/444Hzに変換して聴くブラウザ拡張です（音声の保存・ダウンロードは一切しません）。
+
+            ## インストール（Chrome / Edge）
+            1. `solplayer-tune-chrome.zip` をダウンロードして展開
+            2. `chrome://extensions` を開き、右上の「デベロッパーモード」をON
+            3. 「パッケージ化されていない拡張機能を読み込む」→ 展開したフォルダを選択
+            4. YouTubeを開くと右下に「♪ 440Hz」ボタンが表示されます
+
+            ## インストール（Firefox / Firefox for Android）
+            `solplayer-tune-firefox.zip` は addons.mozilla.org への提出用パッケージです
+            （Firefoxは署名済み拡張のみ恒久インストール可能なため、AMO経由での配布を予定）。

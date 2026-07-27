@@ -116,6 +116,49 @@ Web再生タブ（YouTube埋め込みカード）の下部に同居しており�
 - 専用モードUI（全画面ビジュアライザ＋周波数のみのミニマルUI）
 - WSOLAパラメータの音楽向け最適化
 
+## 7.5 スマホ対応の検証結果（2026-08 ブレスト第2弾への回答）
+
+ブレスト案「①スマホ用ブラウザ拡張 / ②専用WebViewアプリ(SolBrowser)」の技術検証。
+**方向性は正しいが、重要な訂正が2点**ある。
+
+### 訂正1: iOS Safari拡張は「App Store配布のネイティブアプリに同梱」が必須
+iOS SafariのWeb拡張は単体配布できず、Xcodeでネイティブアプリにラップして
+App Storeから配る仕組み（safari-web-extension）。つまり配布の手間は
+②のWebViewアプリと同等になる。既にCapacitorでXcodeプロジェクトがあるため
+資産は活かせるが、「Safariにポン入れ」はできない点に注意。
+
+### 訂正2: WKURLSchemeHandlerではhttpsをフックできない
+iOSのWKURLSchemeHandlerは**カスタムスキーム専用**で、https通信の傍受・
+ヘッダ書き換えは不可（②案のiOS側CORS無効化はこの経路では成立しない）。
+Androidの shouldInterceptRequest は https を傍受可能で、この部分は正しい。
+
+### 追加の重要事実
+- **Kiwi Browserは2025年1月に開発終了**。Android側の受け皿はFirefox for Android
+  （2023年以降、AMOの拡張を正式サポート）が本命
+- **CORS突破が不要な可能性が高い**: YouTube WebはMSE(MediaSource)経由で
+  音声を供給するため、MediaElementSourceのCORS汚染が起きない
+  （PC版拡張が無加工で動くのと同じ理屈）。Android FirefoxはMSE対応、
+  iOS SafariもiOS 17.1+でMSE対応済み。つまりdeclarativeNetRequestによる
+  ヘッダ改変は「古いiOS向けの保険」であり、まず素のままで動くか実機確認すべき
+- AudioPlaybackCapture不可の分析（YouTubeのオプトアウト＋二重再生問題）は正確
+
+### 推奨ロードマップ（安い順）
+1. **Android: 既存拡張をFirefox for Androidで実機テスト** — 追加実装ほぼゼロ。
+   Firefox用パッケージ（gecko設定入りmanifest）は作成済み（apps/extension/scripts/pack.mjs）。
+   動けばAMOに提出して正式配布（無料・審査あり）
+2. **iOS: safari-web-extensionラップ** — 既存content.jsをXcodeテンプレートに同梱して
+   App Store配布。要Apple Developer Program（年約1.5万円）。実機でのMediaElementSource
+   挙動（MSE/タイント）の確認が先決
+3. **SolBrowser（専用WebViewアプリ）** — iOS/Android両対応の最終形だが、
+   App Store審査リスク（4.2 最小機能・他社サイトのラップ判定）と、他社ページを
+   改変表示する構造ゆえのYouTube ToS上の論点があり、①②の結果を見てから判断
+
+## 7.6 配布（Release）
+
+- GitHub Actionsワークフロー `extension-release`（手動実行・バージョン入力）で
+  Chrome用/Firefox用zipをGitHub Releasesに添付する仕組みを整備済み
+- 将来: Chromeウェブストア（開発者登録$5・審査あり）/ AMO（無料・審査あり）
+
 ## 8. 評価基準（案を比較するときの軸）
 
 1. **合法性・規約適合**（ダウンロード・複製を作らない。これは絶対条件）
