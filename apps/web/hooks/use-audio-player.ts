@@ -13,6 +13,7 @@ import {
   updateOrder,
   requestPersistentStorage,
   DEFAULT_PLAYLIST_ID,
+  TRACK_META_VERSION,
   type StoredTrack,
   type StoredPlaylist,
 } from '@/lib/library-store';
@@ -119,17 +120,18 @@ function fileToTitle(file: File): string {
 }
 
 /**
- * 音声ファイルのメタデータ（曲名/アーティスト/アートワーク）を読み取る。
- * タグが無い・解析に失敗した場合はファイル名にフォールバックする。
+ * 音声データのメタデータ（曲名/アーティスト/アートワーク）を読み取る。
+ * タグが無い・解析に失敗した場合はfallbackTitleを使う。
  */
 async function readTrackMetadata(
-  file: File
+  source: Blob,
+  fallbackTitle: string
 ): Promise<{ title: string; artist?: string; artworkBlob?: Blob }> {
-  const fallback = { title: fileToTitle(file) };
+  const fallback = { title: fallbackTitle };
   try {
     // music-metadataはサイズが大きいため必要時に動的ロードする
     const { parseBlob, selectCover } = await import('music-metadata');
-    const { common } = await parseBlob(file, { duration: false });
+    const { common } = await parseBlob(source, { duration: false });
 
     let artworkBlob: Blob | undefined;
     const cover = selectCover(common.picture);
@@ -379,6 +381,50 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     [loadTrack]
   );
 
+  /**
+   * 旧バージョンで取り込んだ曲のメタデータを再スキャンして反映する。
+   * （アートワーク対応前に追加した曲にもジャケットが表示されるように）
+   * バックグラウンドで1曲ずつ処理し、完了ごとにUIへ反映する。
+   */
+  const rescanStoredMetadata = useCallback((stored: StoredTrack[]) => {
+    void (async () => {
+      for (const s of stored) {
+        if ((s.kind ?? 'local') !== 'local' || !s.blob) continue;
+        if ((s.metaVersion ?? 0) >= TRACK_META_VERSION) continue;
+
+        const meta = await readTrackMetadata(s.blob, s.title);
+        const updatedStored: StoredTrack = {
+          ...s,
+          title: meta.title || s.title,
+          artist: meta.artist ?? s.artist,
+          artworkBlob: meta.artworkBlob ?? s.artworkBlob,
+          metaVersion: TRACK_META_VERSION,
+        };
+        void saveTrack(updatedStored).catch(() => {});
+
+        const newArtworkUrl = meta.artworkBlob
+          ? URL.createObjectURL(meta.artworkBlob)
+          : undefined;
+        const apply = (t: PlaylistTrack): PlaylistTrack =>
+          t.id === s.id
+            ? {
+                ...t,
+                title: updatedStored.title,
+                artist: updatedStored.artist,
+                artworkUrl: newArtworkUrl ?? t.artworkUrl,
+              }
+            : t;
+        stateRef.current.playlist = stateRef.current.playlist.map(apply);
+        setPlaylist((prev) => prev.map(apply));
+        if (stateRef.current.currentTrack?.id === s.id) {
+          const updatedCurrent = apply(stateRef.current.currentTrack);
+          stateRef.current.currentTrack = updatedCurrent;
+          setCurrentTrack(updatedCurrent);
+        }
+      }
+    })();
+  }, []);
+
   // 初期化: エンジン設定・ライブラリ復元
   useEffect(() => {
     const processor = getAudioProcessor();
@@ -431,6 +477,8 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
         const restored = stored.map(storedToPlaylistTrack);
         stateRef.current.playlist = restored;
         setPlaylist(restored);
+        // 旧データのアートワーク等を追い取り込み（バックグラウンド）
+        rescanStoredMetadata(stored);
 
         // しおり: 前回のトラックと再生位置を復元（自動再生はしない）
         const resume = loadResumePoint();
@@ -595,11 +643,12 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
         // 切替中にさらに切り替えられた場合は破棄
         if (stateRef.current.activePlaylistId !== id) return;
         replacePlaylistTracks(stored.map(storedToPlaylistTrack));
+        rescanStoredMetadata(stored);
       } catch {
         replacePlaylistTracks([]);
       }
     },
-    [replacePlaylistTracks]
+    [replacePlaylistTracks, rescanStoredMetadata]
   );
 
   const createPlaylist = useCallback(
@@ -668,7 +717,7 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
       const newTracks: PlaylistTrack[] = [];
       const storedTracks: StoredTrack[] = [];
       for (const [i, file] of audioFiles.entries()) {
-        const meta = await readTrackMetadata(file);
+        const meta = await readTrackMetadata(file, fileToTitle(file));
         const id = createId();
         newTracks.push({
           id,
@@ -685,6 +734,7 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
           id,
           title: meta.title,
           artist: meta.artist,
+          metaVersion: TRACK_META_VERSION,
           playlistId,
           blob: file,
           artworkBlob: meta.artworkBlob,
