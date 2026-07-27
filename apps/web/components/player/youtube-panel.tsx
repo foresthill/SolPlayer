@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { LiveConvertPanel } from './live-convert-panel';
 import { TrashIcon, VideoIcon } from './icons';
 
 /**
@@ -39,13 +38,11 @@ export function parseYouTubeId(input: string): string | null {
 }
 
 interface YouTubePanelProps {
-  /** チューニングタブで選択中の基調周波数（ライブ変換に連動） */
-  frequency: number;
   /** 現在の動画をプレイリストに追加する */
   onAddToPlaylist: (videoId: string) => void;
 }
 
-export function YouTubePanel({ frequency, onAddToPlaylist }: YouTubePanelProps) {
+export function YouTubePanel({ onAddToPlaylist }: YouTubePanelProps) {
   const [input, setInput] = useState('');
   const [videoId, setVideoId] = useState<string | null>(null);
   const [error, setError] = useState(false);
@@ -197,8 +194,10 @@ export function YouTubePanel({ frequency, onAddToPlaylist }: YouTubePanelProps) 
         </div>
       )}
 
-      {/* 埋め込みには直接変換を適用できないため、タブ音声キャプチャによるライブ変換を提供 */}
-      <LiveConvertPanel frequency={frequency} videoId={videoId} />
+      {/* 埋め込みには直接変換を適用できない（周波数変換したい場合はライブ変換へ誘導） */}
+      <p className="hidden text-[0.7rem] leading-relaxed text-ink-faint lg:block">
+        この動画を432Hz等で聴きたい場合は、ページ上部の「ライブ変換」を使ってください（埋め込み再生は変換なし）。
+      </p>
     </div>
   );
 }

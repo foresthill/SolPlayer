@@ -14,6 +14,7 @@ import {
   requestPersistentStorage,
   DEFAULT_PLAYLIST_ID,
   TRACK_META_VERSION,
+  LIBRARY_REFRESHED_EVENT,
   type StoredTrack,
   type StoredPlaylist,
 } from '@/lib/library-store';
@@ -341,6 +342,15 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
       // YouTube再生中なら止めてローカルエンジンへ切替
       getYouTubeEngine().pause();
 
+      // 同期で入ってきた「実体がこの端末に無い」トラック
+      if (!track.blob && !track.url) {
+        setPlaybackError(
+          `「${track.title}」の音源はこの端末にありません（追加した端末で再生できます。クラウド保存はフェーズ3で対応予定）`
+        );
+        setDuration(0);
+        return;
+      }
+
       try {
         await processorRef.current.initialize();
         // blobがあれば直接デコード（iOSで不安定なfetch(blob:)を回避）
@@ -380,6 +390,18 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     },
     [loadTrack]
   );
+
+  /** アクティブプレイリストのトラック一覧を差し替える（再生中の曲のURLは保持） */
+  const replacePlaylistTracks = useCallback((tracks: PlaylistTrack[]) => {
+    const { playlist, currentTrack } = stateRef.current;
+    for (const track of playlist) {
+      if (track.id !== currentTrack?.id) {
+        revokeTrackUrls(track);
+      }
+    }
+    stateRef.current.playlist = tracks;
+    setPlaylist(tracks);
+  }, []);
 
   /**
    * 旧バージョンで取り込んだ曲のメタデータを再スキャンして反映する。
@@ -517,6 +539,26 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // アカウント同期のマージ完了後にプレイリスト表示を再読込する
+  useEffect(() => {
+    const onRefreshed = () => {
+      void (async () => {
+        try {
+          const storedPlaylists = await loadPlaylists();
+          setPlaylists(storedPlaylists);
+          stateRef.current.playlists = storedPlaylists;
+          const stored = await loadLibrary(stateRef.current.activePlaylistId);
+          replacePlaylistTracks(stored.map(storedToPlaylistTrack));
+          rescanStoredMetadata(stored);
+        } catch {
+          // 読めない場合は現状維持
+        }
+      })();
+    };
+    window.addEventListener(LIBRARY_REFRESHED_EVENT, onRefreshed);
+    return () => window.removeEventListener(LIBRARY_REFRESHED_EVENT, onRefreshed);
+  }, [replacePlaylistTracks, rescanStoredMetadata]);
+
   // 再生位置を定期的に更新（rAFに加え、rAFが止まる環境向けにintervalでも更新）
   useEffect(() => {
     if (!isPlaying) return;
@@ -615,18 +657,6 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     }
     void selectTrack(nextIdx);
   };
-
-  /** アクティブプレイリストのトラック一覧を差し替える（再生中の曲のURLは保持） */
-  const replacePlaylistTracks = useCallback((tracks: PlaylistTrack[]) => {
-    const { playlist, currentTrack } = stateRef.current;
-    for (const track of playlist) {
-      if (track.id !== currentTrack?.id) {
-        revokeTrackUrls(track);
-      }
-    }
-    stateRef.current.playlist = tracks;
-    setPlaylist(tracks);
-  }, []);
 
   const switchPlaylist = useCallback(
     async (id: string) => {
@@ -735,6 +765,8 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
           title: meta.title,
           artist: meta.artist,
           metaVersion: TRACK_META_VERSION,
+          fileName: file.name,
+          fileSize: file.size,
           playlistId,
           blob: file,
           artworkBlob: meta.artworkBlob,

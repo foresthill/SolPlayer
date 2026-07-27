@@ -28,12 +28,26 @@ export const DEFAULT_PLAYLIST_NAME = 'マイプレイリスト';
  */
 export const TRACK_META_VERSION = 2;
 
+/** ライブラリ変更イベント（アカウント同期のトリガー） */
+export const LIBRARY_CHANGED_EVENT = 'solplayer:library-changed';
+/** リモートからのマージ完了イベント（UIの再読込トリガー） */
+export const LIBRARY_REFRESHED_EVENT = 'solplayer:library-refreshed';
+
+function notifyLibraryChanged(): void {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(LIBRARY_CHANGED_EVENT));
+  }
+}
+
 export interface StoredTrack {
   id: string;
   title: string;
   artist?: string;
   /** メタデータ解析時のバージョン（TRACK_META_VERSION参照） */
   metaVersion?: number;
+  /** ローカル実体の再リンク・同期用のファイル情報（localのみ） */
+  fileName?: string;
+  fileSize?: number;
   /** 所属プレイリスト。省略時はデフォルト（旧データ互換） */
   playlistId?: string;
   /** トラック種別。省略時は'local'（旧データ互換） */
@@ -145,6 +159,7 @@ export async function loadPlaylists(): Promise<StoredPlaylist[]> {
 
 export async function savePlaylist(playlist: StoredPlaylist): Promise<void> {
   await withStore(PLAYLISTS_STORE, 'readwrite', (s) => s.put(playlist));
+  notifyLibraryChanged();
 }
 
 /** プレイリストと所属トラックをまとめて削除 */
@@ -171,6 +186,7 @@ export async function deletePlaylistAndTracks(playlistId: string): Promise<void>
   } finally {
     db.close();
   }
+  notifyLibraryChanged();
 }
 
 /* ============================================================
@@ -189,14 +205,26 @@ export async function loadLibrary(playlistId: string): Promise<StoredTrack[]> {
     .sort((a, b) => a.order - b.order);
 }
 
+/** 全プレイリストの全トラックを取得（同期用） */
+export async function loadAllTracks(): Promise<StoredTrack[]> {
+  const tracks = await withStore(
+    TRACKS_STORE,
+    'readonly',
+    (s) => s.getAll() as IDBRequest<StoredTrack[]>
+  );
+  return tracks.sort((a, b) => a.order - b.order);
+}
+
 /** トラックを保存（同IDは上書き） */
 export async function saveTrack(track: StoredTrack): Promise<void> {
   await withStore(TRACKS_STORE, 'readwrite', (s) => s.put(track));
+  notifyLibraryChanged();
 }
 
 /** トラックを削除 */
 export async function deleteTrack(id: string): Promise<void> {
   await withStore(TRACKS_STORE, 'readwrite', (s) => s.delete(id));
+  notifyLibraryChanged();
 }
 
 /** 並び順をまとめて更新 */
@@ -222,6 +250,7 @@ export async function updateOrder(ids: string[]): Promise<void> {
   } finally {
     db.close();
   }
+  notifyLibraryChanged();
 }
 
 /**

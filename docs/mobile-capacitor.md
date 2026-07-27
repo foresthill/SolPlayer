@@ -5,12 +5,12 @@ Web版（`apps/web`）を Capacitor でラップして iOS / Android アプリ�
 
 ## 構成
 
-- `apps/web/capacitor.config.ts` — Capacitor設定（appId: `com.foresthill.solplayer`, webDir: `out`）
-- `apps/web/next.config.ts` — `BUILD_TARGET=capacitor` のときだけ静的エクスポート（`output: 'export'`）。
-  通常ビルド（Vercel）には影響しない。
+- `apps/web/capacitor.config.ts` — Capacitor設定（appId: `com.foresthill.solplayer`）
+- **フェーズ2（認証・同期API）以降は静的エクスポートを廃止**し、
+  `server.url` で本番サイト（https://sol-player-web.vercel.app）を表示する方式。
+  アプリはネイティブの器＋本番Webという構成（Webを更新すればアプリも即反映）
 - npm scripts（`apps/web/package.json`）:
-  - `pnpm build:mobile` — Capacitor用の静的ビルド（`out/` を生成）
-  - `pnpm cap:sync` — 静的ビルド → ネイティブプロジェクトへ同期
+  - `pnpm cap:sync` — 設定をネイティブプロジェクトへ同期
   - `pnpm cap:ios` / `pnpm cap:android` — Xcode / Android Studio で開く
 
 ## セットアップ

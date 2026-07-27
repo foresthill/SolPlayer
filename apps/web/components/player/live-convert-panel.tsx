@@ -2,12 +2,11 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { LiveConverter } from '@solplayer/audio-core';
+import { parseYouTubeId } from './youtube-panel';
 
 interface LiveConvertPanelProps {
   /** プレイヤーで選択中の基調周波数（チューニングタブと連動） */
   frequency: number;
-  /** 入力中の動画ID（「別タブで開く」ボタンに使用） */
-  videoId: string | null;
 }
 
 type LiveState = 'idle' | 'running' | 'unsupported';
@@ -19,12 +18,15 @@ type LiveState = 'idle' | 'running' | 'unsupported';
  * ハウリングするため、「①別タブでYouTubeを開く→②そのタブをキャプチャ」
  * の2ステップ方式を取る。PCのChrome/Edge向け。
  */
-export function LiveConvertPanel({ frequency, videoId }: LiveConvertPanelProps) {
+export function LiveConvertPanel({ frequency }: LiveConvertPanelProps) {
   const converterRef = useRef<LiveConverter | null>(null);
   const [state, setState] = useState<LiveState>('idle');
   const [error, setError] = useState<string | null>(null);
   // suppressLocalAudioPlaybackが効かなかった場合の手動ミュート案内
   const [needsManualMute, setNeedsManualMute] = useState(false);
+  // 開きたい動画のURL（任意。空ならYouTubeトップを開く）
+  const [urlInput, setUrlInput] = useState('');
+  const videoId = parseYouTubeId(urlInput);
 
   useEffect(() => {
     if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getDisplayMedia) {
@@ -125,11 +127,16 @@ export function LiveConvertPanel({ frequency, videoId }: LiveConvertPanelProps) 
   }
 
   return (
-    <div className="space-y-3 rounded-2xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-4">
+    <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <h4 className="text-xs font-semibold tracking-wider text-ink-soft">
-          YouTubeを{frequency}Hzで聴く（ライブ変換・PCのChrome/Edge）
-        </h4>
+        <div>
+          <h2 className="text-base font-semibold tracking-wide">
+            YouTubeを{frequency}Hzで聴く（ライブ変換・PCのChrome/Edge）
+          </h2>
+          <p className="mt-1 text-xs text-ink-soft">
+            別タブで再生中の音を、保存せずその場で{frequency}Hzに変換して聴けます。周波数はチューニングと連動。
+          </p>
+        </div>
         {state === 'running' && (
           <span className="flex shrink-0 items-center gap-1.5 text-xs text-ink">
             <span className="eq-bars text-ink-soft">
@@ -152,23 +159,34 @@ export function LiveConvertPanel({ frequency, videoId }: LiveConvertPanelProps) 
         </button>
       ) : (
         <div className="space-y-2">
-          {/* 上の埋め込みプレイヤーとは別に、キャプチャ用のタブを開いて使う2ステップ */}
-          <button
-            type="button"
-            className="glass-chip w-full px-4 py-2 text-left text-sm"
-            onClick={openVideoTab}
-          >
-            <span className="mr-2 font-semibold">①</span>
-            {videoId ? 'この動画を別タブで開く' : 'YouTubeを別タブで開く'}
-          </button>
-          <button
-            type="button"
-            className="glass-chip w-full px-4 py-2 text-left text-sm"
-            onClick={() => void start()}
-          >
-            <span className="mr-2 font-semibold">②</span>
-            そのタブをキャプチャして{frequency}Hzで聴く
-          </button>
+          <input
+            type="text"
+            inputMode="url"
+            value={urlInput}
+            onChange={(e) => setUrlInput(e.target.value)}
+            placeholder="YouTubeのURL（空でもOK。①でYouTubeを開いて選べます）"
+            className="glass-input w-full text-sm"
+            aria-label="ライブ変換のYouTube URL"
+          />
+          {/* 同一タブのキャプチャはハウリングするため、キャプチャ用のタブを開いて使う2ステップ */}
+          <div className="grid gap-2 sm:grid-cols-2">
+            <button
+              type="button"
+              className="glass-chip px-4 py-2 text-left text-sm"
+              onClick={openVideoTab}
+            >
+              <span className="mr-2 font-semibold">①</span>
+              {videoId ? 'この動画を別タブで開く' : 'YouTubeを別タブで開く'}
+            </button>
+            <button
+              type="button"
+              className="glass-chip px-4 py-2 text-left text-sm"
+              onClick={() => void start()}
+            >
+              <span className="mr-2 font-semibold">②</span>
+              そのタブをキャプチャして{frequency}Hzで聴く
+            </button>
+          </div>
         </div>
       )}
 
