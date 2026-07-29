@@ -37,7 +37,7 @@ jobs:
             1. `solplayer-tune-chrome.zip` をダウンロードして展開
             2. `chrome://extensions` を開き、右上の「デベロッパーモード」をON
             3. 「パッケージ化されていない拡張機能を読み込む」→ 展開したフォルダを選択
-            4. YouTubeを開くと右下に「♪ 440Hz」ボタンが表示されます
+            4. YouTubeの視聴ページを開くと動画の下に「♪ 440Hz」ボタンが表示されます（クリックでチューニングパネルが開きます）
 
             ## インストール（Firefox / Firefox for Android）
             `solplayer-tune-firefox.zip` は addons.mozilla.org への提出用パッケージです

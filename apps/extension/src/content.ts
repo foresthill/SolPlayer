@@ -15,8 +15,18 @@
 
 import { SoundTouch, SimpleFilter, getWebAudioNode } from 'soundtouchjs';
 
-const FREQUENCIES = [440, 432, 444] as const;
+/** 公式プリセット。候補を増やすときはここに1行足すだけでUIに反映される */
+const OFFICIAL_PRESETS: ReadonlyArray<{ hz: number; label: string }> = [
+  { hz: 440, label: '440Hz 標準' },
+  { hz: 432, label: '432Hz' },
+  { hz: 444, label: '444Hz' },
+];
+const BASE_HZ = 440;
+const MIN_HZ = 200;
+const MAX_HZ = 999;
+const MAX_MY_PRESETS = 12;
 const STORAGE_KEY = 'solplayer-tune-hz';
+const PRESETS_KEY = 'solplayer-tune-presets';
 const CAPTURE_BUFFER = 4096;
 const OUTPUT_BUFFER = 4096;
 /** ジッタ吸収のプリバッファ（低遅延優先で本体アプリより小さめ ≒0.17s@48kHz） */
@@ -128,7 +138,7 @@ class TuneEngine {
       const queue = new StreamQueue();
       const soundtouch = new SoundTouch();
       soundtouch.tempo = 1.0;
-      soundtouch.pitchSemitones = toSemitones(440, targetHz);
+      soundtouch.pitchSemitones = toSemitones(BASE_HZ, targetHz);
       const filter = new SimpleFilter(
         { extract: (t: Float32Array, n: number) => queue.extract(t, n) },
         soundtouch
@@ -162,7 +172,7 @@ class TuneEngine {
       this.soundtouch = soundtouch;
       this.converting = true;
     } else if (this.soundtouch) {
-      this.soundtouch.pitchSemitones = toSemitones(440, targetHz);
+      this.soundtouch.pitchSemitones = toSemitones(BASE_HZ, targetHz);
     }
   }
 
@@ -178,7 +188,7 @@ class TuneEngine {
 
   setFrequency(video: HTMLVideoElement, hz: number): boolean {
     if (!this.ensureGraph(video)) return false;
-    if (hz === 440) {
+    if (hz === BASE_HZ) {
       this.bypass();
     } else {
       this.engage(hz);
@@ -189,19 +199,52 @@ class TuneEngine {
 
 const engine = new TuneEngine();
 
+/** 小数第10位まで受け付け、末尾の0は省いて表示する */
+function formatHz(hz: number): string {
+  return String(Number(hz.toFixed(10)));
+}
+
+function isValidHz(hz: number): boolean {
+  return Number.isFinite(hz) && hz >= MIN_HZ && hz <= MAX_HZ;
+}
+
 function loadHz(): number {
   try {
-    const raw = Number(localStorage.getItem(STORAGE_KEY));
-    if (FREQUENCIES.includes(raw as (typeof FREQUENCIES)[number])) return raw;
+    const raw = Number.parseFloat(localStorage.getItem(STORAGE_KEY) ?? '');
+    if (isValidHz(raw)) return raw;
   } catch {
     // 読めなければデフォルト
   }
-  return 440;
+  return BASE_HZ;
 }
 
 function saveHz(hz: number): void {
   try {
-    localStorage.setItem(STORAGE_KEY, String(hz));
+    localStorage.setItem(STORAGE_KEY, formatHz(hz));
+  } catch {
+    // 保存できなくても動作は継続
+  }
+}
+
+/** マイプリセット（個人でチューニングした周波数の記録） */
+function loadMyPresets(): number[] {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(PRESETS_KEY) ?? '[]');
+    if (Array.isArray(parsed)) {
+      return parsed.map(Number).filter(isValidHz).slice(0, MAX_MY_PRESETS);
+    }
+  } catch {
+    // 壊れていれば空扱い
+  }
+  return [];
+}
+
+function saveMyPresets(presets: number[]): void {
+  try {
+    localStorage.setItem(
+      PRESETS_KEY,
+      JSON.stringify(presets.slice(0, MAX_MY_PRESETS).map(formatHz))
+    );
   } catch {
     // 保存できなくても動作は継続
   }
@@ -214,12 +257,314 @@ function findVideo(): HTMLVideoElement | null {
   );
 }
 
+/* ---------- UI（SolPlayer本体と同じオーロラ×ガラスの意匠） ---------- */
+
+const AURORA_BG =
+  'radial-gradient(120% 90% at 15% 10%, rgba(255,182,222,0.55), transparent 60%),' +
+  'radial-gradient(120% 100% at 85% 15%, rgba(168,196,255,0.5), transparent 60%),' +
+  'radial-gradient(130% 110% at 50% 100%, rgba(178,242,213,0.45), transparent 65%),' +
+  'rgba(255,255,255,0.86)';
+const ACTIVE_GRADIENT = 'linear-gradient(135deg, #a78bfa 0%, #f472b6 100%)';
+const INK = '#1f2430';
+
+function styleChip(el: HTMLElement, active: boolean): void {
+  Object.assign(el.style, {
+    padding: '7px 12px',
+    borderRadius: '9999px',
+    border: active ? '1px solid transparent' : '1px solid rgba(31,36,48,0.14)',
+    background: active ? ACTIVE_GRADIENT : 'rgba(255,255,255,0.75)',
+    color: active ? '#fff' : INK,
+    font: '600 12px/1 system-ui, sans-serif',
+    cursor: 'pointer',
+    boxShadow: active
+      ? '0 4px 14px rgba(167,139,250,0.45)'
+      : '0 1px 4px rgba(31,36,48,0.08)',
+  } as Partial<CSSStyleDeclaration>);
+}
+
+interface TuneUi {
+  wrap: HTMLDivElement;
+  render: () => void;
+}
+
+let ui: TuneUi | null = null;
+let currentHz = loadHz();
+
+function applyHz(hz: number): boolean {
+  const video = findVideo();
+  if (!video) return false;
+  const ok = engine.setFrequency(video, hz);
+  if (ok) {
+    currentHz = hz;
+    saveHz(hz);
+  }
+  return ok;
+}
+
+function buildUi(): TuneUi {
+  const wrap = document.createElement('div');
+  wrap.id = 'solplayer-tune-wrap';
+  Object.assign(wrap.style, {
+    position: 'relative',
+    zIndex: '2147483647',
+    display: 'inline-block',
+    font: '13px system-ui, sans-serif',
+  } as Partial<CSSStyleDeclaration>);
+
+  // メインボタン（白ガラスのピル。変換中はオーロラグラデ）
+  const btn = document.createElement('button');
+  btn.id = 'solplayer-tune-btn';
+  btn.type = 'button';
+  Object.assign(btn.style, {
+    padding: '10px 16px',
+    borderRadius: '9999px',
+    border: '1px solid rgba(255,255,255,0.7)',
+    color: INK,
+    font: '600 13px/1 system-ui, sans-serif',
+    letterSpacing: '0.03em',
+    cursor: 'pointer',
+    backdropFilter: 'blur(14px)',
+    boxShadow: '0 8px 24px rgba(31,36,48,0.25)',
+  } as Partial<CSSStyleDeclaration>);
+
+  // 設定パネル（オーロラ×ガラスのカード）
+  const panel = document.createElement('div');
+  panel.id = 'solplayer-tune-panel';
+  Object.assign(panel.style, {
+    position: 'absolute',
+    right: '0',
+    width: '272px',
+    padding: '14px',
+    borderRadius: '20px',
+    border: '1px solid rgba(255,255,255,0.65)',
+    background: AURORA_BG,
+    backdropFilter: 'blur(18px)',
+    boxShadow: '0 16px 48px rgba(31,38,60,0.3)',
+    color: INK,
+    display: 'none',
+    textAlign: 'left',
+  } as Partial<CSSStyleDeclaration>);
+
+  const title = document.createElement('div');
+  title.textContent = 'SolPlayer Tune';
+  Object.assign(title.style, {
+    font: '700 12px/1 system-ui, sans-serif',
+    letterSpacing: '0.08em',
+    opacity: '0.75',
+    marginBottom: '10px',
+  } as Partial<CSSStyleDeclaration>);
+
+  const officialRow = document.createElement('div');
+  Object.assign(officialRow.style, {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '6px',
+  } as Partial<CSSStyleDeclaration>);
+
+  const myTitle = document.createElement('div');
+  myTitle.textContent = 'マイプリセット';
+  Object.assign(myTitle.style, {
+    font: '600 11px/1 system-ui, sans-serif',
+    opacity: '0.65',
+    margin: '12px 0 6px',
+  } as Partial<CSSStyleDeclaration>);
+
+  const myRow = document.createElement('div');
+  myRow.id = 'solplayer-tune-my-presets';
+  Object.assign(myRow.style, {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '6px',
+  } as Partial<CSSStyleDeclaration>);
+
+  const customTitle = document.createElement('div');
+  customTitle.textContent = '詳細カスタム（小数第10位まで）';
+  Object.assign(customTitle.style, {
+    font: '600 11px/1 system-ui, sans-serif',
+    opacity: '0.65',
+    margin: '12px 0 6px',
+  } as Partial<CSSStyleDeclaration>);
+
+  const customRow = document.createElement('div');
+  Object.assign(customRow.style, {
+    display: 'flex',
+    gap: '6px',
+  } as Partial<CSSStyleDeclaration>);
+
+  const input = document.createElement('input');
+  input.id = 'solplayer-tune-custom';
+  input.type = 'text';
+  input.inputMode = 'decimal';
+  input.placeholder = '例: 432.0981';
+  input.setAttribute('aria-label', 'カスタム周波数(Hz)');
+  Object.assign(input.style, {
+    flex: '1',
+    minWidth: '0',
+    padding: '8px 10px',
+    borderRadius: '12px',
+    border: '1px solid rgba(31,36,48,0.16)',
+    background: 'rgba(255,255,255,0.8)',
+    color: INK,
+    font: '600 12px/1 system-ui, sans-serif',
+  } as Partial<CSSStyleDeclaration>);
+
+  const applyBtn = document.createElement('button');
+  applyBtn.id = 'solplayer-tune-apply';
+  applyBtn.type = 'button';
+  applyBtn.textContent = '適用';
+  styleChip(applyBtn, true);
+
+  const saveBtn = document.createElement('button');
+  saveBtn.id = 'solplayer-tune-save';
+  saveBtn.type = 'button';
+  saveBtn.textContent = '保存';
+  styleChip(saveBtn, false);
+
+  const note = document.createElement('div');
+  note.textContent = '440Hzで無変換に戻ります。音声の保存はしません。';
+  Object.assign(note.style, {
+    font: '500 10px/1.5 system-ui, sans-serif',
+    opacity: '0.55',
+    marginTop: '10px',
+  } as Partial<CSSStyleDeclaration>);
+
+  customRow.append(input, applyBtn, saveBtn);
+  panel.append(title, officialRow, myTitle, myRow, customTitle, customRow, note);
+  wrap.append(btn, panel);
+
+  const showError = (message: string) => {
+    input.value = '';
+    input.placeholder = message;
+  };
+
+  const render = () => {
+    btn.textContent = `♪ ${formatHz(currentHz)}Hz`;
+    const active = currentHz !== BASE_HZ;
+    btn.style.background = active ? ACTIVE_GRADIENT : 'rgba(255,255,255,0.82)';
+    btn.style.color = active ? '#fff' : INK;
+    btn.style.boxShadow = active
+      ? '0 8px 24px rgba(167,139,250,0.5)'
+      : '0 8px 24px rgba(31,36,48,0.25)';
+    btn.title = active
+      ? `${formatHz(currentHz)}Hzで変換中。クリックで設定`
+      : 'クリックでチューニング設定（SolPlayer Tune）';
+
+    officialRow.replaceChildren(
+      ...OFFICIAL_PRESETS.map(({ hz, label }) => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.textContent = label;
+        chip.dataset.hz = formatHz(hz);
+        styleChip(chip, hz === currentHz);
+        chip.addEventListener('click', () => {
+          if (!applyHz(hz)) showError('動画がありません');
+          render();
+        });
+        return chip;
+      })
+    );
+
+    const myPresets = loadMyPresets();
+    myTitle.style.display = myPresets.length > 0 ? '' : 'none';
+    myRow.style.display = myPresets.length > 0 ? 'flex' : 'none';
+    myRow.replaceChildren(
+      ...myPresets.map((hz) => {
+        const chip = document.createElement('div');
+        chip.dataset.hz = formatHz(hz);
+        Object.assign(chip.style, {
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '2px',
+        } as Partial<CSSStyleDeclaration>);
+        const apply = document.createElement('button');
+        apply.type = 'button';
+        apply.textContent = `${formatHz(hz)}Hz`;
+        styleChip(apply, hz === currentHz);
+        apply.style.borderRadius = '9999px 0 0 9999px';
+        apply.addEventListener('click', () => {
+          if (!applyHz(hz)) showError('動画がありません');
+          render();
+        });
+        const del = document.createElement('button');
+        del.type = 'button';
+        del.textContent = '×';
+        del.title = 'このプリセットを削除';
+        del.setAttribute('aria-label', `${formatHz(hz)}Hzのプリセットを削除`);
+        styleChip(del, false);
+        del.style.borderRadius = '0 9999px 9999px 0';
+        del.style.padding = '7px 9px';
+        del.addEventListener('click', () => {
+          saveMyPresets(loadMyPresets().filter((p) => p !== hz));
+          render();
+        });
+        chip.append(apply, del);
+        return chip;
+      })
+    );
+  };
+
+  const parseInput = (): number | null => {
+    const hz = Number.parseFloat(input.value.trim());
+    if (!isValidHz(hz)) {
+      showError(`${MIN_HZ}〜${MAX_HZ}の数値を入力`);
+      return null;
+    }
+    return Number(hz.toFixed(10));
+  };
+
+  applyBtn.addEventListener('click', () => {
+    const hz = parseInput();
+    if (hz === null) return;
+    if (!applyHz(hz)) showError('動画がありません');
+    render();
+  });
+
+  saveBtn.addEventListener('click', () => {
+    const hz = parseInput();
+    if (hz === null) return;
+    const officials = OFFICIAL_PRESETS.map((p) => p.hz);
+    const presets = loadMyPresets().filter((p) => p !== hz);
+    if (!officials.includes(hz)) {
+      presets.unshift(hz);
+      saveMyPresets(presets);
+    }
+    if (!applyHz(hz)) showError('動画がありません');
+    render();
+  });
+
+  btn.addEventListener('click', () => {
+    const open = panel.style.display === 'none';
+    if (open) {
+      // アンカー配置なら下へ、右下固定なら上へ開く
+      panel.style.top = wrap.style.position === 'fixed' ? '' : 'calc(100% + 8px)';
+      panel.style.bottom = wrap.style.position === 'fixed' ? 'calc(100% + 8px)' : '';
+    }
+    panel.style.display = open ? 'block' : 'none';
+  });
+
+  document.addEventListener('click', (e) => {
+    const target = e.target as Node;
+    // チップ適用時の再描画で要素がDOMから外れると contains が false になるため、
+    // 切り離された要素からのクリックは「外側」と誤判定しない
+    if (
+      panel.style.display !== 'none' &&
+      target.isConnected &&
+      !wrap.contains(target)
+    ) {
+      panel.style.display = 'none';
+    }
+  });
+
+  render();
+  return { wrap, render };
+}
+
 /**
- * ボタンの配置先を決める。
+ * UIの配置先を決める。
  * YouTube視聴ページでは動画直下（#below の先頭・右寄せ）に置き、
  * 見つからないページでは画面右下固定にフォールバックする。
  */
-function placeButton(btn: HTMLButtonElement): void {
+function placeUi(wrap: HTMLDivElement): void {
   const below = document.querySelector('#below');
   if (below) {
     let host = document.getElementById('solplayer-tune-host');
@@ -235,93 +580,40 @@ function placeButton(btn: HTMLButtonElement): void {
     if (host.parentElement !== below) {
       below.prepend(host);
     }
-    if (btn.parentElement !== host) {
-      host.appendChild(btn);
+    if (wrap.parentElement !== host) {
+      host.appendChild(wrap);
     }
-    btn.style.position = 'static';
-    btn.style.right = '';
-    btn.style.bottom = '';
+    wrap.style.position = 'relative';
+    wrap.style.right = '';
+    wrap.style.bottom = '';
     return;
   }
   // フォールバック: 画面右下固定
-  if (!btn.isConnected) {
-    document.documentElement.appendChild(btn);
+  if (!wrap.isConnected) {
+    document.documentElement.appendChild(wrap);
   }
-  btn.style.position = 'fixed';
-  btn.style.right = '16px';
-  btn.style.bottom = '16px';
+  wrap.style.position = 'fixed';
+  wrap.style.right = '16px';
+  wrap.style.bottom = '16px';
 }
 
-/** 周波数トグルボタンを注入する */
-function injectButton(): void {
-  const existing = document.getElementById(
-    'solplayer-tune-btn'
-  ) as HTMLButtonElement | null;
-  if (existing) {
-    // SPA遷移でDOMから外れた/アンカーが出現した場合に置き直す
-    placeButton(existing);
-    return;
+/** UIを注入する（SPA遷移で外れた場合は置き直す） */
+function injectUi(): void {
+  if (!ui) {
+    ui = buildUi();
   }
-
-  let hz = loadHz();
-
-  const btn = document.createElement('button');
-  btn.id = 'solplayer-tune-btn';
-  btn.type = 'button';
-  Object.assign(btn.style, {
-    zIndex: '2147483647',
-    padding: '10px 16px',
-    borderRadius: '9999px',
-    border: '1px solid rgba(255,255,255,0.5)',
-    background: 'rgba(30,30,40,0.75)',
-    color: '#fff',
-    font: '600 13px/1 system-ui, sans-serif',
-    letterSpacing: '0.03em',
-    cursor: 'pointer',
-    backdropFilter: 'blur(12px)',
-    boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
-  } as Partial<CSSStyleDeclaration>);
-
-  const render = (active: boolean) => {
-    btn.textContent = `♪ ${hz}Hz`;
-    btn.style.background =
-      hz !== 440 && active ? 'rgba(120,90,220,0.9)' : 'rgba(30,30,40,0.75)';
-    btn.title =
-      hz === 440
-        ? 'クリックで432Hz変換（SolPlayer Tune）'
-        : `${hz}Hzで変換中。クリックで切替`;
-  };
-
-  btn.addEventListener('click', () => {
-    const video = findVideo();
-    if (!video) {
-      btn.textContent = '♪ 動画がありません';
-      setTimeout(() => render(false), 1500);
-      return;
-    }
-    const idx = FREQUENCIES.indexOf(hz as (typeof FREQUENCIES)[number]);
-    hz = FREQUENCIES[(idx + 1) % FREQUENCIES.length];
-    saveHz(hz);
-    const ok = engine.setFrequency(video, hz);
-    render(ok);
-    if (!ok) {
-      btn.textContent = '♪ この動画は変換不可';
-    }
-  });
-
-  render(false);
-  placeButton(btn);
+  placeUi(ui.wrap);
 }
 
-injectButton();
-// SPA遷移でボタンが消えた/配置先が変わった場合に備えて監視（過剰動作を抑えるスロットル付き）
+injectUi();
+// SPA遷移でUIが消えた/配置先が変わった場合に備えて監視（過剰動作を抑えるスロットル付き）
 let injectQueued = false;
 new MutationObserver(() => {
   if (injectQueued) return;
   injectQueued = true;
   setTimeout(() => {
     injectQueued = false;
-    injectButton();
+    injectUi();
   }, 500);
 }).observe(document.documentElement, { childList: true, subtree: true });
 
@@ -329,6 +621,13 @@ new MutationObserver(() => {
 (window as unknown as { __solplayerTune?: unknown }).__solplayerTune = {
   setFrequency: (hz: number) => {
     const video = findVideo();
-    return video ? engine.setFrequency(video, hz) : false;
+    if (!video) return false;
+    const ok = engine.setFrequency(video, hz);
+    if (ok) {
+      currentHz = hz;
+      saveHz(hz);
+      ui?.render();
+    }
+    return ok;
   },
 };
