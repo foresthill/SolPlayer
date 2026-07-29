@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SolPlayer Tune",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "YouTubeの音声をその場で432Hz等に変換して聴く（保存・ダウンロードは一切しません）",
   "content_scripts": [
     {

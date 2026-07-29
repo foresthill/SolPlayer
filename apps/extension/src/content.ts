@@ -214,9 +214,54 @@ function findVideo(): HTMLVideoElement | null {
   );
 }
 
-/** ページ右下に周波数トグルボタンを注入する */
+/**
+ * ボタンの配置先を決める。
+ * YouTube視聴ページでは動画直下（#below の先頭・右寄せ）に置き、
+ * 見つからないページでは画面右下固定にフォールバックする。
+ */
+function placeButton(btn: HTMLButtonElement): void {
+  const below = document.querySelector('#below');
+  if (below) {
+    let host = document.getElementById('solplayer-tune-host');
+    if (!host) {
+      host = document.createElement('div');
+      host.id = 'solplayer-tune-host';
+      Object.assign(host.style, {
+        display: 'flex',
+        justifyContent: 'flex-end',
+        margin: '8px 0 4px',
+      } as Partial<CSSStyleDeclaration>);
+    }
+    if (host.parentElement !== below) {
+      below.prepend(host);
+    }
+    if (btn.parentElement !== host) {
+      host.appendChild(btn);
+    }
+    btn.style.position = 'static';
+    btn.style.right = '';
+    btn.style.bottom = '';
+    return;
+  }
+  // フォールバック: 画面右下固定
+  if (!btn.isConnected) {
+    document.documentElement.appendChild(btn);
+  }
+  btn.style.position = 'fixed';
+  btn.style.right = '16px';
+  btn.style.bottom = '16px';
+}
+
+/** 周波数トグルボタンを注入する */
 function injectButton(): void {
-  if (document.getElementById('solplayer-tune-btn')) return;
+  const existing = document.getElementById(
+    'solplayer-tune-btn'
+  ) as HTMLButtonElement | null;
+  if (existing) {
+    // SPA遷移でDOMから外れた/アンカーが出現した場合に置き直す
+    placeButton(existing);
+    return;
+  }
 
   let hz = loadHz();
 
@@ -224,9 +269,6 @@ function injectButton(): void {
   btn.id = 'solplayer-tune-btn';
   btn.type = 'button';
   Object.assign(btn.style, {
-    position: 'fixed',
-    right: '16px',
-    bottom: '16px',
     zIndex: '2147483647',
     padding: '10px 16px',
     borderRadius: '9999px',
@@ -268,14 +310,20 @@ function injectButton(): void {
   });
 
   render(false);
-  document.documentElement.appendChild(btn);
+  placeButton(btn);
 }
 
 injectButton();
-// SPA遷移でボタンが消えた場合に備えて監視
-new MutationObserver(() => injectButton()).observe(document.documentElement, {
-  childList: true,
-});
+// SPA遷移でボタンが消えた/配置先が変わった場合に備えて監視（過剰動作を抑えるスロットル付き）
+let injectQueued = false;
+new MutationObserver(() => {
+  if (injectQueued) return;
+  injectQueued = true;
+  setTimeout(() => {
+    injectQueued = false;
+    injectButton();
+  }, 500);
+}).observe(document.documentElement, { childList: true, subtree: true });
 
 // テスト用フック（E2E検証で使用）
 (window as unknown as { __solplayerTune?: unknown }).__solplayerTune = {
