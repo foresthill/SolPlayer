@@ -69,6 +69,10 @@
 - ✅ しおり（レジューム再生。原作iOS由来の機能。最後に再生していたトラックと位置をlocalStorageに保存し、起動時に復元。再生中3秒毎+一時停止/停止時に保存）
 - ✅ 複数プレイリスト（IndexedDB v2でplaylistsストア新設・既存曲はマイプレイリストへ自動移行。チップUIで作成/切替/削除、アクティブはlocalStorageに保存。切替中も再生は継続する設計＝currentTrackをインデックスから独立させた）
 - ✅ 曲削除ボタンのタッチ対応（hover:hoverメディアクエリでPCのみホバー表示、タッチ端末は常時表示）
+- ✅ スマホ向けバックグラウンド再生改修（出力をMediaStreamDestination→隠しaudio要素経由に変更し
+  「メディア再生」扱いに。Media Session APIでロック画面/通知領域/イヤホンから再生・前後スキップ・
+  シーク操作、曲名/アーティスト/アートワーク表示。Androidの画面オフ継続とiOSマナースイッチ耐性を改善。
+  未対応環境・autoplay拒否時はdestination直結へ自動フォールバック）
 - ✅ YouTubeトラックのプレイリスト混在（Web再生タブから「プレイリストに追加」。IFrame Player API（lib/youtube-engine.ts）でローカル曲と同じ操作系＝再生/一時停止/前後/シーク/自動曲送り/リピート/シャッフルに統合。タイトルはoEmbed・サムネイルはi.ytimg.com。IndexedDBに永続化。YouTube再生中は周波数変換・倍速は非適用の注記表示）
 
 ### 進行中: 同期ロードマップ（方針決定済み: ハイブリッド→最終的に実体もクラウド）
@@ -83,6 +87,9 @@
 
 ### 未着手
 - Android ネイティブ生成（`cap add android`。iOSは生成済み）
+- 拡張のAMO提出（Firefox for Android配布。手順: docs/mobile-firefox.md。Mozillaアカウントが必要）
+- iOS向け Safari Web Extension 化 / Capacitorネイティブ版のバックグラウンドオーディオ
+  （UIBackgroundModes: audio。iOSで画面オフ再生を確実にする本命）
 - 将来: YouTube / Spotify / Apple Music 連携、ビジュアライゼーション
   （注: YouTubeのダウンロードは規約違反のため不可。埋め込み再生のみ可だが周波数変換は適用不可）
 
