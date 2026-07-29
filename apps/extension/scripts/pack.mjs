@@ -19,7 +19,7 @@ mkdirSync(artifacts, { recursive: true });
 
 // Chrome/Edge用: distをそのままzip
 execSync(
-  `python3 -m zipfile -c ${resolve(artifacts, 'solplayer-tune-chrome.zip')} content.js manifest.json`,
+  `python3 -m zipfile -c ${resolve(artifacts, 'solplayer-tune-chrome.zip')} content.js manifest.json icons`,
   { cwd: resolve(root, 'dist') }
 );
 
@@ -28,6 +28,7 @@ const firefoxDir = resolve(root, 'dist-firefox');
 rmSync(firefoxDir, { recursive: true, force: true });
 mkdirSync(firefoxDir, { recursive: true });
 cpSync(resolve(root, 'dist/content.js'), resolve(firefoxDir, 'content.js'));
+cpSync(resolve(root, 'dist/icons'), resolve(firefoxDir, 'icons'), { recursive: true });
 const manifest = JSON.parse(readFileSync(resolve(root, 'dist/manifest.json'), 'utf8'));
 manifest.browser_specific_settings = {
   gecko: {
@@ -37,7 +38,7 @@ manifest.browser_specific_settings = {
 };
 writeFileSync(resolve(firefoxDir, 'manifest.json'), JSON.stringify(manifest, null, 2));
 execSync(
-  `python3 -m zipfile -c ${resolve(artifacts, 'solplayer-tune-firefox.zip')} content.js manifest.json`,
+  `python3 -m zipfile -c ${resolve(artifacts, 'solplayer-tune-firefox.zip')} content.js manifest.json icons`,
   { cwd: firefoxDir }
 );
 
