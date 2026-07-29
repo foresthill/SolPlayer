@@ -26,6 +26,8 @@ export class AudioProcessor {
   private buffer: AudioBuffer | null = null;
   private shifter: PitchShifter | null = null;
   private gain: GainNode | null = null;
+  private msDest: MediaStreamAudioDestinationNode | null = null;
+  private outputEl: HTMLAudioElement | null = null;
 
   private isPlaying: boolean = false;
   /** トラック末尾に到達済みか（次のplayで先頭から作り直す） */
@@ -100,11 +102,11 @@ export class AudioProcessor {
     this.buffer = await this.decodeWithFallback(arrayBuffer);
     this.duration = this.buffer.duration;
 
-    // 出力チェーン: PitchShifter → Gain → Destination
+    // 出力チェーン: PitchShifter → Gain → (<audio>要素 or Destination)
     this.teardownShifter();
     if (!this.gain) {
       this.gain = this.context.createGain();
-      this.gain.connect(this.context.destination);
+      this.connectOutput(this.gain);
     }
     this.gain.gain.value = this.volumeLevel;
 
@@ -112,6 +114,58 @@ export class AudioProcessor {
     this.currentTime = 0;
     this.isPlaying = false;
     this.ended = false;
+  }
+
+  /**
+   * 出力の接続。
+   *
+   * 可能なら MediaStreamDestination → 隠し<audio>要素 を経由させる。
+   * <audio>要素での再生はOS/ブラウザから「メディア再生」として扱われるため、
+   *   - ロック画面・通知領域にメディアコントロールが出る（Media Session連携）
+   *   - 画面オフ/バックグラウンドでの再生継続性が上がる（特にAndroid）
+   *   - iOSのマナースイッチで消音されない
+   * 未対応環境や再生開始に失敗した場合は従来どおりdestination直結へ戻す。
+   */
+  private connectOutput(gain: GainNode): void {
+    const ctx = this.context!;
+    try {
+      if (
+        typeof document === 'undefined' ||
+        typeof ctx.createMediaStreamDestination !== 'function'
+      ) {
+        throw new Error('element output unsupported');
+      }
+      const dest = ctx.createMediaStreamDestination();
+      const el = document.createElement('audio');
+      el.id = 'solplayer-media-output';
+      el.setAttribute('playsinline', '');
+      el.style.display = 'none';
+      el.srcObject = dest.stream;
+      document.body.appendChild(el);
+      gain.connect(dest);
+      this.msDest = dest;
+      this.outputEl = el;
+    } catch {
+      this.msDest = null;
+      this.outputEl = null;
+      gain.connect(ctx.destination);
+    }
+  }
+
+  /**
+   * <audio>要素経由の出力を諦め、destination直結へ切り替える
+   */
+  private fallbackToDirectOutput(): void {
+    if (!this.context || !this.gain) return;
+    try {
+      if (this.msDest) this.gain.disconnect(this.msDest);
+    } catch {
+      // 未接続なら無視
+    }
+    this.outputEl?.remove();
+    this.outputEl = null;
+    this.msDest = null;
+    this.gain.connect(this.context.destination);
   }
 
   /**
@@ -256,6 +310,11 @@ export class AudioProcessor {
       this.shifter.connect(this.gain);
       this.isPlaying = true;
     }
+
+    // <audio>要素経由の出力を起動（自動再生ポリシー等で失敗したら直結へ）
+    if (this.outputEl && this.outputEl.paused) {
+      this.outputEl.play().catch(() => this.fallbackToDirectOutput());
+    }
   }
 
   /**
@@ -266,6 +325,8 @@ export class AudioProcessor {
 
     this.shifter.disconnect();
     this.isPlaying = false;
+    // 無音ストリームを流し続けず、メディア再生状態も「一時停止」に揃える
+    this.outputEl?.pause();
   }
 
   /**
@@ -279,6 +340,7 @@ export class AudioProcessor {
     this.isPlaying = false;
     this.ended = false;
     this.currentTime = 0;
+    this.outputEl?.pause();
   }
 
   /**
@@ -377,6 +439,9 @@ export class AudioProcessor {
       this.gain.disconnect();
       this.gain = null;
     }
+    this.outputEl?.remove();
+    this.outputEl = null;
+    this.msDest = null;
     if (this.context) {
       this.context.close();
       this.context = null;

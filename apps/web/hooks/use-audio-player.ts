@@ -24,6 +24,12 @@ import {
   YOUTUBE_HOST_ID,
 } from '@/lib/youtube-engine';
 import { installIosAudioUnlock } from '@/lib/ios-audio-unlock';
+import {
+  setupMediaSessionHandlers,
+  updateMediaSessionMetadata,
+  updateMediaSessionPlaybackState,
+  updateMediaSessionPosition,
+} from '@/lib/media-session';
 
 export interface PlaylistTrack {
   id: string;
@@ -1004,6 +1010,44 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     processorRef.current.setPlaybackSpeed(speed);
     setPlaybackSpeedState(speed);
   }, []);
+
+  // Media Session: ロック画面・通知領域・イヤホンボタンからの操作を受け付ける
+  useEffect(() => {
+    setupMediaSessionHandlers({
+      onPlay: () => {
+        void play();
+      },
+      onPause: pause,
+      onNext: () => {
+        void next();
+      },
+      onPrevious: () => {
+        void previous();
+      },
+      onSeek: seek,
+    });
+  }, [play, pause, next, previous, seek]);
+
+  // Media Session: 曲名/アーティスト/アートワークをロック画面に表示
+  useEffect(() => {
+    updateMediaSessionMetadata(
+      currentTrack
+        ? {
+            title: currentTrack.title,
+            artist: currentTrack.artist,
+            artworkUrl: currentTrack.artworkUrl,
+          }
+        : null
+    );
+  }, [currentTrack]);
+
+  // Media Session: 再生状態とシークバー位置の同期
+  useEffect(() => {
+    updateMediaSessionPlaybackState(isPlaying);
+  }, [isPlaying]);
+  useEffect(() => {
+    updateMediaSessionPosition(duration, currentTime, playbackSpeed);
+  }, [duration, currentTime, playbackSpeed]);
 
   return {
     isPlaying,
