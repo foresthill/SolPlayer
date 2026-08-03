@@ -15,6 +15,19 @@ import { auth } from '@/auth';
 
 export const dynamic = 'force-dynamic';
 
+/**
+ * アップロードを許可するメールアドレス（カンマ区切り、小文字比較）。
+ * ストレージ費用が青天井にならないよう、未設定なら全員ロック。
+ * 将来プレミアムプラン等で開放する際はDBのフラグ判定に置き換える。
+ */
+function isUploadAllowed(email: string | null | undefined): boolean {
+  const allowed = (process.env.BLOB_ALLOWED_EMAILS ?? '')
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  return !!email && allowed.includes(email.toLowerCase());
+}
+
 /** 1曲あたりの上限（無料枠を考慮しつつ高音質FLACも許容） */
 const MAX_FILE_BYTES = 100 * 1024 * 1024;
 
@@ -22,6 +35,9 @@ export async function POST(request: Request): Promise<NextResponse> {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+  }
+  if (!isUploadAllowed(session.user.email)) {
+    return NextResponse.json({ error: 'cloud storage locked' }, { status: 403 });
   }
   const body = (await request.json()) as HandleUploadBody;
 

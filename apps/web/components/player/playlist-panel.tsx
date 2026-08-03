@@ -69,8 +69,10 @@ export function PlaylistPanel({
         return next;
       });
     } catch (e) {
-      const msg =
-        e instanceof Error && /401|unauthorized/i.test(e.message)
+      const raw = e instanceof Error ? e.message : '';
+      const msg = /locked/i.test(raw)
+        ? 'クラウド保存は準備中です'
+        : /401|unauthorized/i.test(raw)
           ? 'ログインすると使えます'
           : 'アップロードに失敗しました';
       setUploadState((prev) => ({ ...prev, [id]: msg }));
