@@ -31,6 +31,8 @@ export interface RemoteTrack {
   videoId?: string | null;
   fileName?: string | null;
   fileSize?: number | null;
+  /** クラウド保存した実体のURL（フェーズ3） */
+  fileUrl?: string | null;
   order: number;
   playlistId: string;
 }
@@ -107,6 +109,7 @@ export async function buildLocalPayload(): Promise<{
       videoId: t.videoId ?? null,
       fileName: t.fileName ?? null,
       fileSize: t.fileSize ?? null,
+      fileUrl: t.fileUrl ?? null,
       order: t.order,
       playlistId: t.playlistId ?? DEFAULT_PLAYLIST_ID,
     })),
@@ -159,6 +162,8 @@ export async function mergeRemoteIntoLocal(remote: RemoteLibrary): Promise<void>
         ...local,
         title: t.title,
         artist: t.artist ?? local.artist,
+        // クラウドURLは「どちらかにあれば採用」（アップロード端末→他端末へ伝搬）
+        fileUrl: t.fileUrl ?? local.fileUrl,
         order: t.order,
         playlistId: t.playlistId,
       });
@@ -171,11 +176,12 @@ export async function mergeRemoteIntoLocal(remote: RemoteLibrary): Promise<void>
         videoId: t.videoId ?? undefined,
         fileName: t.fileName ?? undefined,
         fileSize: t.fileSize ?? undefined,
+        fileUrl: t.fileUrl ?? undefined,
         playlistId: t.playlistId,
         order: t.order,
         addedAt: Date.now(),
         metaVersion: TRACK_META_VERSION,
-        // blobなし = この端末に実体が無い状態
+        // blobなし = この端末に実体が無い状態（fileUrlがあればストリーミング再生可）
       });
     }
   }

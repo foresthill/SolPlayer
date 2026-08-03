@@ -57,13 +57,17 @@ SQLをオフライン生成してコミットする（初回 `20260801000000_ini
 
 ```bash
 cd apps/web
+# 変更前のスキーマ（コミット済み）と現在のスキーマの差分SQLを生成
+git show HEAD:apps/web/prisma/schema.prisma > /tmp/schema-old.prisma
+mkdir -p prisma/migrations/$(date +%Y%m%d%H%M%S)_<変更名>
 pnpm exec prisma migrate diff \
-  --from-migrations prisma/migrations \
+  --from-schema-datamodel /tmp/schema-old.prisma \
   --to-schema-datamodel prisma/schema.prisma \
-  --script > prisma/migrations/$(date +%Y%m%d%H%M%S)_<変更名>/migration.sql
+  --script > prisma/migrations/<作ったディレクトリ>/migration.sql
 ```
 
-（ディレクトリを先に作ること。適用はVercelビルドの `migrate deploy` に任せる）
+（`--from-migrations` はシャドウDB接続が必要なためDB無し環境では使えない。
+スキーマ同士の差分なら完全オフラインで生成できる。適用はVercelビルドに任せる）
 
 ## トラブルシューティング
 
