@@ -94,6 +94,8 @@ model Track {
   /// ローカル実体の再リンク用（kind=LOCAL）
   fileName String?
   fileSize Int?
+  /// クラウド保存した実体のURL（フェーズ3。kind=LOCALのみ）
+  fileUrl  String?
   order    Int        @default(0)
 
   playlistId String

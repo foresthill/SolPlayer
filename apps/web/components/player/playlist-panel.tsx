@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+
 import type { PlaylistTrack, StoredPlaylist } from '@/hooks/use-audio-player';
 import { GripIcon, MusicNoteIcon, PlusIcon, TrashIcon, VideoIcon } from './icons';
 
@@ -12,6 +13,8 @@ interface PlaylistPanelProps {
   isPlaying: boolean;
   onSelectTrack: (index: number) => void;
   onRemoveTrack: (id: string) => void;
+  /** 曲の実体をクラウドへ保存（ログイン時のみ成功。他端末で再生可能になる） */
+  onUploadTrack: (id: string) => Promise<void>;
   onAddFiles: (files: File[]) => void;
   onReorder: (from: number, to: number) => void;
   onSwitchPlaylist: (id: string) => void;
@@ -39,6 +42,7 @@ export function PlaylistPanel({
   isPlaying,
   onSelectTrack,
   onRemoveTrack,
+  onUploadTrack,
   onAddFiles,
   onReorder,
   onSwitchPlaylist,
@@ -53,6 +57,32 @@ export function PlaylistPanel({
   // 並べ替えドラッグ中の状態（fromを掴んでoverの位置へ）。
   // pointerdown直後のmoveがstate反映前に届いても取りこぼさないよう、refでも同期保持する
   const [dragState, setDragState] = useState<DragState | null>(null);
+  // クラウドアップロードの進行状態（トラックID → 'uploading' | エラーメッセージ）
+  const [uploadState, setUploadState] = useState<Record<string, string>>({});
+  const handleUpload = async (id: string) => {
+    setUploadState((prev) => ({ ...prev, [id]: 'uploading' }));
+    try {
+      await onUploadTrack(id);
+      setUploadState((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+    } catch (e) {
+      const msg =
+        e instanceof Error && /401|unauthorized/i.test(e.message)
+          ? 'ログインすると使えます'
+          : 'アップロードに失敗しました';
+      setUploadState((prev) => ({ ...prev, [id]: msg }));
+      setTimeout(() => {
+        setUploadState((prev) => {
+          const next = { ...prev };
+          delete next[id];
+          return next;
+        });
+      }, 4000);
+    }
+  };
   const dragStateRef = useRef<DragState | null>(null);
   const setDrag = (state: DragState | null) => {
     dragStateRef.current = state;
@@ -329,6 +359,33 @@ export function PlaylistPanel({
                       )}
                     </span>
                   </button>
+
+                  {/* クラウド保存: 実体ありでURL未取得のローカル曲に表示 */}
+                  {track.kind !== 'youtube' && track.fileUrl && (
+                    <span
+                      className="shrink-0 text-xs text-ink-faint"
+                      title="クラウド保存済み（他の端末でも再生できます）"
+                      aria-label="クラウド保存済み"
+                    >
+                      ☁✓
+                    </span>
+                  )}
+                  {track.kind !== 'youtube' && !track.fileUrl && track.blob && (
+                    <button
+                      type="button"
+                      className={`glass-btn h-7 shrink-0 px-2 text-xs ${
+                        uploadState[track.id] ? '' : HOVER_REVEAL
+                      }`}
+                      onClick={() => void handleUpload(track.id)}
+                      disabled={uploadState[track.id] === 'uploading'}
+                      aria-label={`${track.title} をクラウドに保存`}
+                      title="クラウドに保存（他の端末でも再生できるようになります）"
+                    >
+                      {uploadState[track.id] === 'uploading'
+                        ? '☁…'
+                        : uploadState[track.id] ?? '☁'}
+                    </button>
+                  )}
 
                   <button
                     type="button"

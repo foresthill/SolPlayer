@@ -44,6 +44,7 @@ export function AudioPlayer() {
     addYouTubeTrack,
     selectTrack,
     removeTrack,
+    uploadTrackToCloud,
     reorderPlaylist,
     next,
     previous,
@@ -175,6 +176,7 @@ export function AudioPlayer() {
             isPlaying={isPlaying}
             onSelectTrack={(index) => void selectTrack(index)}
             onRemoveTrack={removeTrack}
+            onUploadTrack={uploadTrackToCloud}
             onAddFiles={(files) => void addFiles(files)}
             onReorder={reorderPlaylist}
             onSwitchPlaylist={(id) => void switchPlaylist(id)}

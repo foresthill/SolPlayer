@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { del } from '@vercel/blob';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 
@@ -29,6 +30,8 @@ interface SyncTrack {
   videoId?: string | null;
   fileName?: string | null;
   fileSize?: number | null;
+  /// クラウド保存した実体のURL（フェーズ3）
+  fileUrl?: string | null;
   order: number;
   playlistId: string;
 }
@@ -64,6 +67,7 @@ export async function GET() {
       videoId: t.videoId,
       fileName: t.fileName,
       fileSize: t.fileSize,
+      fileUrl: t.fileUrl,
       order: t.order,
       playlistId: t.playlistId,
     })),
@@ -97,6 +101,12 @@ export async function PUT(request: Request) {
 
   const playlistIds = new Set(payload.playlists.map((p) => p.id));
 
+  // 全置換で消えるトラックのクラウド実体を後掃除するため、置換前のURLを控える
+  const before = await prisma.track.findMany({
+    where: { userId, fileUrl: { not: null } },
+    select: { fileUrl: true },
+  });
+
   await prisma.$transaction([
     // このユーザーの既存データを全置換
     prisma.track.deleteMany({ where: { userId } }),
@@ -126,6 +136,12 @@ export async function PUT(request: Request) {
             typeof t.fileSize === 'number' && Number.isFinite(t.fileSize)
               ? Math.floor(t.fileSize)
               : null,
+          fileUrl:
+            typeof t.fileUrl === 'string' &&
+            t.fileUrl.startsWith('https://') &&
+            t.fileUrl.length <= 1000
+              ? t.fileUrl
+              : null,
           order: Number(t.order) || 0,
           playlistId: String(t.playlistId),
           userId,
@@ -137,6 +153,23 @@ export async function PUT(request: Request) {
         .map((hz) => ({ hz, userId })),
     }),
   ]);
+
+  // どの端末からも参照されなくなったクラウド実体を削除（失敗しても同期は成功扱い）
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    const kept = new Set(
+      payload.tracks.map((t) => t.fileUrl).filter(Boolean) as string[]
+    );
+    const orphans = before
+      .map((t) => t.fileUrl!)
+      .filter((url) => !kept.has(url));
+    if (orphans.length > 0) {
+      try {
+        await del(orphans);
+      } catch {
+        // 掃除失敗は無視（次回の同期でも再試行される）
+      }
+    }
+  }
 
   return NextResponse.json({ ok: true });
 }

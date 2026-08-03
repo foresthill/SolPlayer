@@ -24,6 +24,7 @@
     "@prisma/client": "^6.0.0",
     "@solplayer/audio-core": "workspace:*",
     "@solplayer/shared-types": "workspace:*",
+    "@vercel/blob": "^2.6.1",
     "music-metadata": "^11.14.0",
     "next": "^15.5.19",
     "next-auth": "5.0.0-beta.32",

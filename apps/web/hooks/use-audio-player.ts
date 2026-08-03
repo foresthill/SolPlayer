@@ -5,6 +5,7 @@ import { getAudioProcessor } from '@/lib/audio/audio-context';
 import { AudioProcessor } from '@solplayer/audio-core';
 import {
   loadLibrary,
+  loadAllTracks,
   loadPlaylists,
   savePlaylist,
   deletePlaylistAndTracks,
@@ -46,6 +47,8 @@ export interface PlaylistTrack {
   artworkUrl?: string;
   /** YouTube動画ID（youtubeのみ） */
   videoId?: string;
+  /** クラウド保存した実体のURL（localのみ。実体が無い端末でのストリーミング再生用） */
+  fileUrl?: string;
   /**
    * 音源の実体（localのみ・メモリ上の参照）。
    * iOS Safariで不安定な fetch(blob:) を避け、直接デコードするために保持する
@@ -98,6 +101,8 @@ export interface UseAudioPlayerReturn {
   addYouTubeTrack: (videoId: string) => Promise<void>;
   selectTrack: (index: number) => Promise<void>;
   removeTrack: (id: string) => void;
+  /** 曲の実体をクラウドへアップロードし、URLを同期メタデータに記録する */
+  uploadTrackToCloud: (id: string) => Promise<void>;
   reorderPlaylist: (from: number, to: number) => void;
   next: () => Promise<void>;
   previous: () => Promise<void>;
@@ -219,6 +224,7 @@ function storedToPlaylistTrack(stored: StoredTrack): PlaylistTrack {
     kind: 'local',
     url: stored.blob ? URL.createObjectURL(stored.blob) : '',
     blob: stored.blob,
+    fileUrl: stored.fileUrl,
     artworkUrl: stored.artworkBlob
       ? URL.createObjectURL(stored.artworkBlob)
       : undefined,
@@ -348,10 +354,10 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
       // YouTube再生中なら止めてローカルエンジンへ切替
       getYouTubeEngine().pause();
 
-      // 同期で入ってきた「実体がこの端末に無い」トラック
-      if (!track.blob && !track.url) {
+      // 実体がこの端末に無く、クラウドにも無いトラック
+      if (!track.blob && !track.url && !track.fileUrl) {
         setPlaybackError(
-          `「${track.title}」の音源はこの端末にありません（追加した端末で再生できます。クラウド保存はフェーズ3で対応予定）`
+          `「${track.title}」の音源はこの端末にありません（追加した端末でプレイリストの☁ボタンからクラウドに置くと、ここでも再生できます）`
         );
         setDuration(0);
         return;
@@ -362,8 +368,11 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
         // blobがあれば直接デコード（iOSで不安定なfetch(blob:)を回避）
         if (track.blob) {
           await processorRef.current.loadBlob(track.blob);
-        } else {
+        } else if (track.url) {
           await processorRef.current.load(track.url);
+        } else {
+          // クラウド実体からストリーミング取得して再生
+          await processorRef.current.load(track.fileUrl!);
         }
       } catch (e) {
         if (seq !== loadSeqRef.current) return;
@@ -893,6 +902,31 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     void updateOrder(updated.map((t) => t.id)).catch(() => {});
   }, []);
 
+  const uploadTrackToCloud = useCallback(async (id: string) => {
+    const track = stateRef.current.playlist.find((t) => t.id === id);
+    if (!track || track.kind === 'youtube' || !track.blob || track.fileUrl) {
+      return;
+    }
+    // アップローダは重くないが使用時のみロード
+    const { uploadTrackBlob } = await import('@/lib/blob-client');
+    const url = await uploadTrackBlob({
+      trackId: id,
+      fileName: track.title,
+      blob: track.blob,
+    });
+    const stored = (await loadAllTracks()).find((t) => t.id === id);
+    if (stored) {
+      // saveTrackがライブラリ変更イベントを発火し、同期PUTでURLが他端末へ伝搬する
+      await saveTrack({ ...stored, fileUrl: url });
+    }
+    setPlaylist((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, fileUrl: url } : t))
+    );
+    setCurrentTrack((prev) =>
+      prev && prev.id === id ? { ...prev, fileUrl: url } : prev
+    );
+  }, []);
+
   const play = useCallback(async () => {
     const { playlist, currentTrack } = stateRef.current;
     if (!currentTrack) {
@@ -1078,6 +1112,7 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     addYouTubeTrack,
     selectTrack,
     removeTrack,
+    uploadTrackToCloud,
     reorderPlaylist,
     next,
     previous,

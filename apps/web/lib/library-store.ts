@@ -48,6 +48,8 @@ export interface StoredTrack {
   /** ローカル実体の再リンク・同期用のファイル情報（localのみ） */
   fileName?: string;
   fileSize?: number;
+  /** クラウド保存した実体のURL（フェーズ3。他端末でもストリーミング再生できる） */
+  fileUrl?: string;
   /** 所属プレイリスト。省略時はデフォルト（旧データ互換） */
   playlistId?: string;
   /** トラック種別。省略時は'local'（旧データ互換） */
