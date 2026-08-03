@@ -72,6 +72,11 @@ pnpm exec prisma migrate diff \
   （環境変数は既存デプロイに反映されないため再デプロイが必須）
 - **ビルドの `migrate deploy` が `P1002`（ロック待ち）で失敗**
   → DATABASE_URLが `-pooler` 経由になっている。直接接続URLへ差し替え
-- **`migrate deploy` がスキップされる**
-  → ビルドログに「DATABASE_URL未設定のためマイグレーションをスキップ」と出る。
-  環境変数の名前・適用環境（Production）を確認
+- **`migrate deploy` がスキップされる**（「DATABASE_URL未設定のためマイグレーションをスキップ」）
+  → 原因は主に2つ。
+  1. **turboの環境変数フィルタ**: turbo 2系はstrictモードがデフォルトで、
+     turbo.jsonの `tasks.build.env` に宣言していない環境変数をタスクへ渡さない。
+     `"env": ["DATABASE_URL"]` の宣言が必要（設定済み。消さないこと）
+  2. Vercelの環境変数の名前・適用環境（Production）の設定漏れ。
+     Sensitive指定はビルドから読めない場合があるため、それでも解決しない場合は
+     DATABASE_URLのSensitiveを外して再デプロイして切り分ける
