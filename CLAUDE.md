@@ -28,6 +28,17 @@
   ストリーミング再生＋ブラウザ内リアルタイム変換のみ可）
 - 秘密情報（APIキー・接続文字列等）はチャット・リポジトリに書かない。Vercelの環境変数で管理
 
+## 運用の教訓（ハマりどころ）
+
+- Vercelの環境変数は**既存デプロイに反映されない**。追加・変更したら必ずRedeploy
+- turbo 2系はstrictモード：ビルドで使う環境変数は turbo.json の `tasks.build.env` に宣言必須
+- **Vercel Blob（新型ストア）の接続はOIDC方式がデフォルトで、`BLOB_READ_WRITE_TOKEN` は
+  自動追加されない**。ストアの接続設定で「Add a read-write token env var to this connection」に
+  チェックを入れて発行する（@vercel/blob SDKはこのトークンを必要とする）
+- ブラウザは**ユーザー操作前のAudioContext起動を禁止**。ページ表示直後に保存済み設定を
+  自動適用する場合は userActivation を確認し、無ければ最初のクリック/キー操作で適用する
+  （操作前に音声経路へ触ると無音になる）
+
 ## 構成メモ
 
 - pnpm workspace（turboあり。ビルドは `cd apps/web && pnpm exec next build` が確実）

@@ -186,6 +186,11 @@ class TuneEngine {
     this.converting = false;
   }
 
+  /** 変換中だが対象videoが差し替わった（SPA遷移等）ときtrue */
+  needsReattach(video: HTMLVideoElement): boolean {
+    return this.converting && this.video !== null && this.video !== video;
+  }
+
   setFrequency(video: HTMLVideoElement, hz: number): boolean {
     if (!this.ensureGraph(video)) return false;
     if (hz === BASE_HZ) {
@@ -421,7 +426,7 @@ function buildUi(): TuneUi {
   styleChip(saveBtn, false);
 
   const note = document.createElement('div');
-  note.textContent = '440Hzで無変換に戻ります。音声の保存はしません。';
+  note.textContent = '440Hzで無変換に戻ります。音声の保存はしません。変換中は処理の都合上、映像より音が約0.2〜0.3秒遅れます（音楽用途では実用上問題ありません）。';
   Object.assign(note.style, {
     font: '500 10px/1.5 system-ui, sans-serif',
     opacity: '0.55',
@@ -605,7 +610,40 @@ function injectUi(): void {
   placeUi(ui.wrap);
 }
 
+/**
+ * 保存されている周波数（440以外）をページ表示時に自動適用する。
+ *
+ * ブラウザはユーザー操作前のAudioContext起動を禁止しているため、
+ * 操作前に音声経路へ触ると逆に無音になる。そこで:
+ * - 既にこのページで操作履歴があれば（SPA遷移後など）即適用
+ * - 無ければ最初のクリック/キー操作を1回だけ捕まえて適用
+ */
+function autoEngageSavedFrequency(): void {
+  if (currentHz === BASE_HZ) return;
+  const apply = () => {
+    const video = findVideo();
+    if (video && engine.setFrequency(video, currentHz)) {
+      ui?.render();
+    }
+  };
+  const activation = (
+    navigator as unknown as { userActivation?: { hasBeenActive?: boolean } }
+  ).userActivation;
+  if (activation?.hasBeenActive) {
+    apply();
+    return;
+  }
+  const onGesture = () => {
+    document.removeEventListener('pointerdown', onGesture, true);
+    document.removeEventListener('keydown', onGesture, true);
+    apply();
+  };
+  document.addEventListener('pointerdown', onGesture, true);
+  document.addEventListener('keydown', onGesture, true);
+}
+
 injectUi();
+autoEngageSavedFrequency();
 // SPA遷移でUIが消えた/配置先が変わった場合に備えて監視（過剰動作を抑えるスロットル付き）
 let injectQueued = false;
 new MutationObserver(() => {
@@ -614,6 +652,13 @@ new MutationObserver(() => {
   setTimeout(() => {
     injectQueued = false;
     injectUi();
+    // SPA遷移でvideo要素ごと差し替わった場合、変換を新しいvideoへ引き継ぐ
+    const video = findVideo();
+    if (video && currentHz !== BASE_HZ && engine.needsReattach(video)) {
+      if (engine.setFrequency(video, currentHz)) {
+        ui?.render();
+      }
+    }
   }, 500);
 }).observe(document.documentElement, { childList: true, subtree: true });
 
