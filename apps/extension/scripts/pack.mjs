@@ -34,6 +34,8 @@ manifest.browser_specific_settings = {
   gecko: {
     id: 'solplayer-tune@foresthill.github.io',
     strict_min_version: '121.0',
+    // AMOの必須申告: 本拡張はいかなるデータも収集・送信しない
+    data_collection_permissions: { required: ['none'] },
   },
 };
 writeFileSync(resolve(firefoxDir, 'manifest.json'), JSON.stringify(manifest, null, 2));
