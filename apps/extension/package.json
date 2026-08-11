@@ -1,6 +1,6 @@
 {
   "name": "@solplayer/extension",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "description": "SolPlayer Tune - YouTubeのプレイヤーに432Hz変換トグルを注入するChrome拡張",
   "scripts": {
