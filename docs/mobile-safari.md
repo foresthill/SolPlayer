@@ -23,6 +23,7 @@ iOS（iPadOS含む）のWebKitでは、YouTubeのようなストリーミング�
 
 デスクトップ（Chrome/Firefox）は従来どおりSoundTouchによるWeb Audio方式
 （テンポ不変・こちらはリップシンクが約0.2〜0.3秒ずれる）。
+2方式の比較と使い分けの全体像は [conversion-methods.md](conversion-methods.md) を参照。
 
 ## ビルド手順（Mac）
 
