@@ -13,6 +13,15 @@ YouTubeのページに「♪ 440Hz」トグルボタンを注入し、**その�
 - 音声データは保存しない（リアルタイム処理のみ。ダウンロード機能なし）
 - 440Hz（変換オフ）時は素通しバイパス（遅延・負荷ゼロ）
 
+### iOS（Safari機能拡張）だけは再生速度方式
+
+iOSのWebKitはMSE/HLS再生の`<video>`に対して`createMediaElementSource`の
+付け替えが効かない（元音が素通しのまま）ため、iOSでは自動的に
+`playbackRate = 目標Hz/440` ＋ `preservesPitch = false` の**再生速度方式**へ
+フォールバックする。432Hzで約1.8%ゆっくりになるが、映像も同期するので
+リップシンクのズレはゼロ。ビルド・実機インストール手順は
+[docs/mobile-safari.md](../../docs/mobile-safari.md) を参照。
+
 ## 検証済み（E2E実測）
 
 - 440Hz正弦波の動画 → 変換ON → **出力432.00Hz / 444.01Hz を実測確認**

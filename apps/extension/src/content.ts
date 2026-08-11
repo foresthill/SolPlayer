@@ -11,6 +11,13 @@
  * - 音声データは保存しない（リアルタイム処理のみ）
  * - DRM(EME)保護コンテンツ（購入映画等）はブラウザ仕様により無音になる
  *   → その場合は自動でバイパス（440Hz）に戻す
+ *
+ * iOS(iPadOS含む)のWebKitでは、MSE/HLSで再生される<video>に対して
+ * createMediaElementSourceの音声付け替えが効かず、元音が素通しのまま
+ * 変換されない。そのためiOSでは「再生速度方式」（レコードの回転数を
+ * 変えるのと同じ原理: playbackRate = 目標Hz/440, preservesPitch = false）
+ * で変換する。再生が hz/440 倍（432Hzで約1.8%遅く）になるが、映像も
+ * 同じだけ遅くなるためリップシンクのズレは起きない。
  */
 
 import { SoundTouch, SimpleFilter, getWebAudioNode } from 'soundtouchjs';
@@ -35,6 +42,17 @@ const PRIME_FRAMES = 8192;
 function toSemitones(baseHz: number, targetHz: number): number {
   return 12 * Math.log2(targetHz / baseHz);
 }
+
+/** iOS/iPadOS判定（iPadのデスクトップ表示はMac+タッチ有りとして名乗る） */
+const IS_IOS =
+  /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+/** preservesPitchのベンダー差異吸収用 */
+type PitchControlledVideo = HTMLVideoElement & {
+  preservesPitch?: boolean;
+  webkitPreservesPitch?: boolean;
+};
 
 /** ライブ入力のリングキュー（本体アプリのLiveStreamSourceと同方式） */
 class StreamQueue {
@@ -90,6 +108,73 @@ class TuneEngine {
   private soundtouch: InstanceType<typeof SoundTouch> | null = null;
   private video: HTMLVideoElement | null = null;
   private converting = false;
+
+  /* ---- 再生速度方式（iOSフォールバック） ---- */
+  private rateMode = IS_IOS;
+  /** サイト/ユーザーが選んだ素の再生速度（この上に変換倍率を掛ける） */
+  private baseRate = 1;
+  private rateRatio = 1;
+  /** 自分で設定した速度（ratechangeイベントの自他判定に使う） */
+  private expectedRate: number | null = null;
+
+  private onRateChange = (): void => {
+    const video = this.video;
+    if (!video) return;
+    if (
+      this.expectedRate !== null &&
+      Math.abs(video.playbackRate - this.expectedRate) < 1e-6
+    ) {
+      return; // 自分の変更
+    }
+    // サイト/ユーザーによる速度変更 → 基準速度を取り込み、倍率を掛け直す
+    this.baseRate = video.playbackRate;
+    if (this.rateRatio !== 1) this.applyRate(video);
+  };
+
+  private applyRate(video: HTMLVideoElement): void {
+    const v = video as PitchControlledVideo;
+    // 倍率1(=440Hz)なら素の状態へ戻す
+    v.preservesPitch = this.rateRatio === 1;
+    v.webkitPreservesPitch = this.rateRatio === 1;
+    this.expectedRate = this.baseRate * this.rateRatio;
+    video.playbackRate = this.expectedRate;
+  }
+
+  private detachRateVideo(): void {
+    const video = this.video;
+    if (!video) return;
+    video.removeEventListener('ratechange', this.onRateChange);
+    const v = video as PitchControlledVideo;
+    v.preservesPitch = true;
+    v.webkitPreservesPitch = true;
+    this.expectedRate = this.baseRate;
+    video.playbackRate = this.baseRate;
+  }
+
+  private setFrequencyByRate(video: HTMLVideoElement, hz: number): boolean {
+    if (this.video !== video) {
+      this.detachRateVideo();
+      this.video = video;
+      this.baseRate = video.playbackRate > 0 ? video.playbackRate : 1;
+      video.addEventListener('ratechange', this.onRateChange);
+    }
+    this.rateRatio = hz / BASE_HZ;
+    this.converting = hz !== BASE_HZ;
+    this.applyRate(video);
+    return true;
+  }
+
+  /** ユーザー操作（ジェスチャ）前でも安全に適用できるモードか */
+  isRateMode(): boolean {
+    return this.rateMode;
+  }
+
+  /** テスト用: 変換方式を強制切替（切替前に現在の変換は解除する） */
+  setRateMode(on: boolean): void {
+    if (this.rateMode === on) return;
+    if (this.video) this.setFrequency(this.video, BASE_HZ);
+    this.rateMode = on;
+  }
 
   /** 現在の対象videoに接続（初回のみcreateMediaElementSource） */
   private ensureGraph(video: HTMLVideoElement): boolean {
@@ -192,6 +277,9 @@ class TuneEngine {
   }
 
   setFrequency(video: HTMLVideoElement, hz: number): boolean {
+    if (this.rateMode) {
+      return this.setFrequencyByRate(video, hz);
+    }
     if (!this.ensureGraph(video)) return false;
     if (hz === BASE_HZ) {
       this.bypass();
@@ -426,7 +514,9 @@ function buildUi(): TuneUi {
   styleChip(saveBtn, false);
 
   const note = document.createElement('div');
-  note.textContent = '440Hzで無変換に戻ります。音声の保存はしません。変換中は処理の都合上、映像より音が約0.2〜0.3秒遅れます（音楽用途では実用上問題ありません）。';
+  note.textContent = engine.isRateMode()
+    ? '440Hzで無変換に戻ります。音声の保存はしません。iOSでは再生速度方式で変換するため、再生がわずかに変わります（432Hzで約1.8%ゆっくり。映像も同期するのでズレは生じません）。'
+    : '440Hzで無変換に戻ります。音声の保存はしません。変換中は処理の都合上、映像より音が約0.2〜0.3秒遅れます（音楽用途では実用上問題ありません）。';
   Object.assign(note.style, {
     font: '500 10px/1.5 system-ui, sans-serif',
     opacity: '0.55',
@@ -624,8 +714,20 @@ function autoEngageSavedFrequency(): void {
     const video = findVideo();
     if (video && engine.setFrequency(video, currentHz)) {
       ui?.render();
+      return true;
     }
+    return false;
   };
+  // 再生速度方式はAudioContextを使わないため、操作を待たず即適用できる。
+  // ページ表示直後はvideo要素がまだ無いことがあるので、しばらくリトライする
+  if (engine.isRateMode()) {
+    if (apply()) return;
+    let tries = 0;
+    const timer = setInterval(() => {
+      if (apply() || ++tries >= 20) clearInterval(timer);
+    }, 500);
+    return;
+  }
   const activation = (
     navigator as unknown as { userActivation?: { hasBeenActive?: boolean } }
   ).userActivation;
@@ -675,4 +777,6 @@ new MutationObserver(() => {
     }
     return ok;
   },
+  setRateMode: (on: boolean) => engine.setRateMode(on),
+  isRateMode: () => engine.isRateMode(),
 };
