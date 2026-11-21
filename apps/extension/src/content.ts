@@ -169,6 +169,11 @@ class TuneEngine {
     return this.rateMode;
   }
 
+  /** いま実際に変換が効いているか（UI表示を実態に同期させるために使う） */
+  isConverting(): boolean {
+    return this.converting;
+  }
+
   /** テスト用: 変換方式を強制切替（切替前に現在の変換は解除する） */
   setRateMode(on: boolean): void {
     if (this.rateMode === on) return;
@@ -535,14 +540,28 @@ function buildUi(): TuneUi {
   const render = () => {
     btn.textContent = `♪ ${formatHz(currentHz)}Hz`;
     const active = currentHz !== BASE_HZ;
-    btn.style.background = active ? ACTIVE_GRADIENT : 'rgba(255,255,255,0.82)';
-    btn.style.color = active ? '#fff' : INK;
-    btn.style.boxShadow = active
-      ? '0 8px 24px rgba(167,139,250,0.5)'
-      : '0 8px 24px rgba(31,36,48,0.25)';
-    btn.title = active
-      ? `${formatHz(currentHz)}Hzで変換中。クリックで設定`
-      : 'クリックでチューニング設定（SolPlayer Tune）';
+    // 「選択している」と「実際に変換が効いている」を区別して表示する。
+    // 保存値の自動適用はユーザー操作後にしか始められないため、
+    // それまでは待機中スタイルにして表示と実際の音のズレを無くす
+    const engaged = engine.isConverting();
+    btn.dataset.state = active ? (engaged ? 'on' : 'pending') : 'off';
+    btn.style.background =
+      active && engaged ? ACTIVE_GRADIENT : 'rgba(255,255,255,0.82)';
+    btn.style.color = active && engaged ? '#fff' : INK;
+    btn.style.border =
+      active && !engaged
+        ? '2px dashed #a78bfa'
+        : '1px solid rgba(255,255,255,0.7)';
+    btn.style.boxShadow =
+      active && engaged
+        ? '0 8px 24px rgba(167,139,250,0.5)'
+        : '0 8px 24px rgba(31,36,48,0.25)';
+    btn.title =
+      active && engaged
+        ? `${formatHz(currentHz)}Hzで変換中。クリックで設定`
+        : active
+          ? `${formatHz(currentHz)}Hzを選択中（ページを一度クリック/再生開始すると変換が始まります）`
+          : 'クリックでチューニング設定（SolPlayer Tune）';
 
     officialRow.replaceChildren(
       ...OFFICIAL_PRESETS.map(({ hz, label }) => {
@@ -705,40 +724,58 @@ function injectUi(): void {
  *
  * ブラウザはユーザー操作前のAudioContext起動を禁止しているため、
  * 操作前に音声経路へ触ると逆に無音になる。そこで:
+ * - 再生速度方式（iOS）はAudioContext不要なので即適用
  * - 既にこのページで操作履歴があれば（SPA遷移後など）即適用
- * - 無ければ最初のクリック/キー操作を1回だけ捕まえて適用
+ * - 無ければ最初のクリック/キー操作、または（操作後の）再生開始で適用
+ * - 適用時に動画がまだ無ければ、見つかるまでしばらくリトライする
+ *   （v0.2.2までは最初の操作時に動画が無いと諦めてしまい、
+ *    「表示は432Hzなのに音は440Hzのまま」というズレが起きていた）
  */
-function autoEngageSavedFrequency(): void {
-  if (currentHz === BASE_HZ) return;
-  const apply = () => {
-    const video = findVideo();
-    if (video && engine.setFrequency(video, currentHz)) {
-      ui?.render();
-      return true;
-    }
-    return false;
-  };
-  // 再生速度方式はAudioContextを使わないため、操作を待たず即適用できる。
-  // ページ表示直後はvideo要素がまだ無いことがあるので、しばらくリトライする
-  if (engine.isRateMode()) {
-    if (apply()) return;
-    let tries = 0;
-    const timer = setInterval(() => {
-      if (apply() || ++tries >= 20) clearInterval(timer);
-    }, 500);
-    return;
-  }
+const ENGAGE_RETRY_MS = 500;
+const ENGAGE_MAX_RETRIES = 30;
+let engageTimer: number | null = null;
+
+function hasUserActivation(): boolean {
   const activation = (
     navigator as unknown as { userActivation?: { hasBeenActive?: boolean } }
   ).userActivation;
-  if (activation?.hasBeenActive) {
-    apply();
+  return activation?.hasBeenActive === true;
+}
+
+/** 保存周波数の適用を1回試みる（成功したらUIも実態に合わせて更新） */
+function tryEngageSaved(): boolean {
+  if (currentHz === BASE_HZ) return true;
+  const video = findVideo();
+  if (video && engine.setFrequency(video, currentHz)) {
+    ui?.render();
+    return true;
+  }
+  return false;
+}
+
+/** 動画がまだ無い場合に備えて、適用をリトライ付きで開始する */
+function engageWithRetry(): void {
+  if (tryEngageSaved()) return;
+  if (engageTimer !== null) return; // リトライ中なら多重起動しない
+  let tries = 0;
+  engageTimer = window.setInterval(() => {
+    if (tryEngageSaved() || ++tries >= ENGAGE_MAX_RETRIES) {
+      if (engageTimer !== null) window.clearInterval(engageTimer);
+      engageTimer = null;
+    }
+  }, ENGAGE_RETRY_MS);
+}
+
+function autoEngageSavedFrequency(): void {
+  if (currentHz === BASE_HZ) return;
+  if (engine.isRateMode() || hasUserActivation()) {
+    engageWithRetry();
     return;
   }
   const onGesture = () => {
     document.removeEventListener('pointerdown', onGesture, true);
     document.removeEventListener('keydown', onGesture, true);
-    apply();
+    engageWithRetry();
   };
   document.addEventListener('pointerdown', onGesture, true);
   document.addEventListener('keydown', onGesture, true);
@@ -746,6 +783,23 @@ function autoEngageSavedFrequency(): void {
 
 injectUi();
 autoEngageSavedFrequency();
+
+// 再生開始も適用のトリガにする（常設の自己修復）。
+// 「選択はあるのに変換が効いていない」状態で動画が再生され始めたら適用する。
+// AudioContextはユーザー操作前に起動できないため、操作履歴がある場合のみ
+// （iOSの再生速度方式は操作不要なので常に可）
+document.addEventListener(
+  'play',
+  (e) => {
+    if (!(e.target instanceof HTMLVideoElement)) return;
+    if (currentHz === BASE_HZ || engine.isConverting()) return;
+    if (engine.isRateMode() || hasUserActivation()) {
+      engageWithRetry();
+    }
+  },
+  true
+);
+
 // SPA遷移でUIが消えた/配置先が変わった場合に備えて監視（過剰動作を抑えるスロットル付き）
 let injectQueued = false;
 new MutationObserver(() => {
@@ -754,12 +808,21 @@ new MutationObserver(() => {
   setTimeout(() => {
     injectQueued = false;
     injectUi();
-    // SPA遷移でvideo要素ごと差し替わった場合、変換を新しいvideoへ引き継ぐ
     const video = findVideo();
-    if (video && currentHz !== BASE_HZ && engine.needsReattach(video)) {
+    if (!video || currentHz === BASE_HZ) return;
+    // SPA遷移でvideo要素ごと差し替わった場合、変換を新しいvideoへ引き継ぐ
+    if (engine.needsReattach(video)) {
       if (engine.setFrequency(video, currentHz)) {
         ui?.render();
       }
+      return;
+    }
+    // 「選択はあるのに未変換」が残っていたら安全に適用できる条件下で修復する
+    if (
+      !engine.isConverting() &&
+      (engine.isRateMode() || hasUserActivation())
+    ) {
+      tryEngageSaved();
     }
   }, 500);
 }).observe(document.documentElement, { childList: true, subtree: true });
@@ -779,4 +842,5 @@ new MutationObserver(() => {
   },
   setRateMode: (on: boolean) => engine.setRateMode(on),
   isRateMode: () => engine.isRateMode(),
+  isConverting: () => engine.isConverting(),
 };
