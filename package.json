@@ -8,8 +8,17 @@
     "type-check": "turbo type-check"
   },
   "devDependencies": {
-    "turbo": "^2.3.0",
-    "typescript": "^5.7.0"
+    "turbo": "^2.11.13",
+    "typescript": "^5.9.3"
   },
-  "packageManager": "pnpm@9.0.0"
+  "packageManager": "pnpm@9.0.0",
+  "pnpm": {
+    "overrides": {
+      "postcss@<8.5.23": "^8.5.23",
+      "zod@4": "^4.6.6",
+      "effect@3": "^3.22.1",
+      "deepmerge-ts@7": "^8.0.0",
+      "esbuild@0.27": "^0.28.1"
+    }
+  }
 }
