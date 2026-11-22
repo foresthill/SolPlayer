@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SUPPORT_EMAIL } from '@/lib/support';
 
 /**
  * SolPlayer Tune（iOSアプリ/ブラウザ拡張）のサポートページ。
@@ -56,19 +57,29 @@ export default function SupportPage() {
       <section style={card}>
         <h2 style={h2}>お問い合わせ / Contact</h2>
         <p style={p}>
-          ご質問・不具合報告・ご要望は、GitHubのIssueで受け付けています
-          （無料のGitHubアカウントで投稿できます。日本語・英語どちらでもOK）:
+          ご質問・サポートのご依頼はメールでどうぞ（日本語・英語OK）:
+          <br />
+          メール / Email:{' '}
+          <a
+            href={`mailto:${SUPPORT_EMAIL}`}
+            style={{ fontWeight: 700, textDecoration: 'underline' }}
+          >
+            {SUPPORT_EMAIL}
+          </a>
+          <br />
+          For any questions or support requests, email us at the address
+          above. We usually respond within a few days.
+        </p>
+        <p style={{ ...p, marginTop: 12 }}>
+          不具合報告・ご要望はGitHubのIssueでも受け付けています / Bug reports
+          and feature requests are also welcome on GitHub:
           <br />
           <a
             href="https://github.com/foresthill/SolPlayer/issues"
-            style={{ fontWeight: 700, textDecoration: 'underline' }}
+            style={{ textDecoration: 'underline' }}
           >
             github.com/foresthill/SolPlayer/issues
           </a>
-          <br />
-          For questions, bug reports and feature requests, please open an issue
-          at the link above (any language is welcome). We usually respond
-          within a few days.
         </p>
       </section>
 
