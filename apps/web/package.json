@@ -18,28 +18,28 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",
-    "@capacitor/android": "^8.4.2",
-    "@capacitor/core": "^8.4.2",
-    "@capacitor/ios": "^8.4.2",
-    "@prisma/client": "^6.0.0",
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/core": "^8.6.2",
+    "@capacitor/ios": "^8.6.2",
+    "@prisma/client": "^6.19.3",
     "@solplayer/audio-core": "workspace:*",
     "@solplayer/shared-types": "workspace:*",
-    "@vercel/blob": "^2.6.1",
-    "music-metadata": "^11.14.0",
-    "next": "^15.5.19",
+    "@vercel/blob": "^2.9.0",
+    "music-metadata": "^11.16.1",
+    "next": "^15.5.29",
     "next-auth": "5.0.0-beta.32",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "zustand": "^5.0.0"
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "zustand": "^5.1.0"
   },
   "devDependencies": {
-    "@capacitor/cli": "^8.4.2",
-    "@tailwindcss/postcss": "^4.0.0",
-    "@types/node": "^22.0.0",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "prisma": "^6.0.0",
-    "tailwindcss": "^4.0.0",
-    "typescript": "^5.7.0"
+    "@capacitor/cli": "^8.6.2",
+    "@tailwindcss/postcss": "^4.3.5",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "prisma": "^6.19.3",
+    "tailwindcss": "^4.3.5",
+    "typescript": "^5.9.3"
   }
 }
