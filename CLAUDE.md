@@ -46,6 +46,14 @@
   （v0.2.1の自動適用修正がCWSに未反映のまま残っていた事例）
 - ヘッドレスChromiumは `userActivation.hasBeenActive` が**最初からtrue**になる。
   「操作前」の挙動をE2Eで検証するときはuserActivationをスタブする
+- **App Store Connectの契約更新警告（Agreement Update）は無料アプリでも
+  審査提出をブロックすることがある**。「無料アプリだから無視でOK」は誤りだった
+  （2026-11: 提出ボタンがグレーのまま→契約同意で即解消した実例）。
+  提出ボタンが押せないときは、メタデータを疑う前に developer.apple.com の
+  License Agreement と App Store Connect の Business → Agreements を確認する
+- **挙動を裏取りせずに断定しない（決めつけNG）**。審査・ストア・課金まわりの
+  仕様は公式ドキュメントか実地確認で裏を取ってから答える。外部AIの指摘が
+  正しかった事例が複数ある（turbo strict検出、Nightlyの手順、契約ブロック）
 
 ## 構成メモ
 
