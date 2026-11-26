@@ -50,6 +50,22 @@ cp -R dist/. "../extension-ios/SolPlayer Tune/SolPlayer Tune Extension/Resources
 5. Save → **Add for Review → Submit to App Review**
 6. リリース方法は「自動」設定なので、承認後そのまま公開される
 
+### 毎回出る定番エラー2つ（Add for Reviewが押せないとき）
+
+1. **「This build is missing export compliance information」**
+   → ビルド行の「Missing Compliance」をクリック →
+   「**None of the algorithms mentioned above**」を選択 → Save。
+   【恒久対策】Xcodeで**両ターゲット**のInfoタブに
+   `App Uses Non-Exempt Encryption`（キー名 `ITSAppUsesNonExemptEncryption`）
+   を **NO** で追加しておくと、以後この質問自体が出なくなる
+2. **「What's New in This Version - This field is required」（日英両方）**
+   → バージョンページ右上の言語切替で **Japanese と English (U.S.) の両方**に
+   「このバージョンの新機能」を入力する（片方だけだとエラーが残る）。
+   テンプレ:
+   - 日: `・（変更内容を箇条書き）`
+   - 英: `- (change summary in bullet points)`
+   ※記号は `・` `-` が安全（— • 〜 → は文字エラーになる）
+
 ## ハマったときは
 
 - **提出ボタンがグレー** → メタデータより先に契約（developer.apple.comの
