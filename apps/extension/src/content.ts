@@ -26,6 +26,7 @@ import { SoundTouch, SimpleFilter, getWebAudioNode } from 'soundtouchjs';
 const OFFICIAL_PRESETS: ReadonlyArray<{ hz: number; label: string }> = [
   { hz: 440, label: '440Hz 標準' },
   { hz: 432, label: '432Hz' },
+  { hz: 437, label: '437Hz' },
   { hz: 444, label: '444Hz' },
 ];
 const BASE_HZ = 440;
