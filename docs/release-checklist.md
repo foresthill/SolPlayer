@@ -56,3 +56,14 @@ cp -R dist/. "../extension-ios/SolPlayer Tune/SolPlayer Tune Extension/Resources
   License Agreement / ASCのBusiness → Agreements）を確認（CLAUDE.md教訓）
 - 掲載テキストの保存エラー → 記号が原因（— • 〜 → ♪ はASCII相当に置換）
 - **リポジトリの修正はストア反映まで完了ではない**（CLAUDE.md教訓）
+
+## 期限付きの予告（Appleからの警告）
+
+- **2027年4月以降のアップロードには iOS 27 SDK（Xcode 27）が必須**
+  （2026-11時点のビルドはiOS 26.5 SDK。警告のみで当面は影響なし）。
+  その時期に更新する際は、先にXcodeを27へアップデートしてからArchiveする。
+  Xcodeの大型更新はディスクを10〜20GB消費するため、DerivedData削除・
+  ゴミ箱空け・古いシミュレータランタイム削除（`xcrun simctl runtime delete`）
+  を先に行うこと
+- 年齢制限の追加質問（Location Sharing / Dating）は2027年1月15日までに回答
+  （次のバージョン提出時に出てきたら両方No）
