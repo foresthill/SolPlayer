@@ -85,8 +85,31 @@ content.js, icons/）を上書きコピーすれば良い（converterの再実�
 - 直らなければ: アプリ削除 → iPhone再起動 → Xcodeから再Run
   （Bundle ID変更後は古い登録が残って衝突することがある）
 
-## App Store配布（今後）
+## App Store配布（公開済み・2026-11）
 
-1. Xcode: Product → Archive → Distribute App → App Store Connect
-2. App Store Connectでアプリ登録（掲載文はAMO/Chrome Web Store用の英語版を流用）
-3. 審査提出。開発者Runで入れた版は7日で期限切れになるため、常用はApp Store版で
+**公開URL: https://apps.apple.com/jp/app/id6800237084**（iOS 1.0、無料・全世界）
+
+配布の経緯と要点:
+
+- Xcode: Product → Archive → Distribute App → App Store Connect でアップロード
+- 初回審査は2件のメタデータ指摘でリジェクト → 掲載情報の修正のみで通過
+  - **5.2.5**: サブタイトルに「Safari」は使えない（Apple商標）。
+    `432Hz/444Hz(528Hz)リアルタイムチューナー` に変更して解消。
+    説明文の中で機能を事実として説明する分には問題なかった
+  - **1.5**: サポートURLは「質問・問い合わせができるページ」であること。
+    Webアプリに `/support`（FAQ＋メール窓口＋GitHub Issues）を作って解消
+- 提出ボタンがグレーで押せないときは、メタデータより先に**契約（Agreement）の
+  未同意を疑う**（CLAUDE.mdの教訓参照。無料アプリでもブロックされる）
+- 公開には審査通過後に Pricing and Availability → **App Availability の国設定**が
+  必要（未設定だと「removed from sale」のまま並ばない）
+- 中国本土はICP登録・セキュリティ評価等が必要なため配信対象から外す運用
+- Apple SiliconのMacとVision ProにもiPad版として提供可能
+  （visionOS Safariは機能拡張に対応。macOSは実機確認してから
+  「Verify Compatibility」を押す）
+- 開発者Runで入れた版と共存しないよう、公開後はApp Store版に入れ替える
+
+### 更新時の流れ
+
+1. `apps/extension` で `pnpm build` → dist/ をXcodeプロジェクトのResourcesへ上書き
+2. Xcodeでバージョン/ビルド番号を上げて Archive → Upload
+3. App Store Connectで新バージョンを作成して審査提出
