@@ -63,3 +63,27 @@ Firefoxは**署名済み拡張しか恒久インストールできない**ため
 - iOSのマナースイッチで消音されなくなる（メディア再生扱いのため）
 - iOS Safariの画面オフ時の挙動はOS裁量が残る。確実な常時バックグラウンド再生は
   Capacitorネイティブ版（UIBackgroundModes: audio）で対応予定
+
+## AMO（addons.mozilla.org）バージョン提出チートシート
+
+毎回のバージョン提出で聞かれる定型項目。迷ったらここを見る。
+
+1. Developer Hub → SolPlayer Tune →「Submit a New Version」
+2. `solplayer-tune-firefox-<ver>.zip`（`pnpm package`の成果物）をアップロード
+3. 対応アプリ: **Firefox と Firefox for Android の両方にチェック**
+   （Androidは本丸。「Androidでテストしたか」は Yes, I've tested — 実機確認済み）
+4. 「ソースコードを提出する必要がありますか？」→ **常に Yes**
+   （esbuildでcontent.ts＋soundtouchjsを1ファイルにバンドルしているため）
+   - ソースzip: https://github.com/foresthill/SolPlayer/archive/refs/heads/main.zip
+   - ビルド手順の説明（英語でそのまま貼る）:
+     ```
+     Source: the extension lives in apps/extension within this monorepo.
+     Build requirements: Node.js 22, pnpm 9.
+     Steps:
+       pnpm install
+       pnpm --filter @solplayer/extension run build
+       pnpm --filter @solplayer/extension run package
+     The only bundled third-party library is soundtouchjs (from npm).
+     No minification beyond esbuild's default bundling.
+     ```
+5. Version Notes は日英併記でOK。審査は通常24時間以内
