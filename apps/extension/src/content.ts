@@ -478,13 +478,40 @@ function buildUi(): TuneUi {
     textAlign: 'left',
   } as Partial<CSSStyleDeclaration>);
 
+  // ヘッダー（タイトル＋閉じるボタン）。モバイルでは「外側タップで閉じる」が
+  // 下のリンクを誤タップしやすいため、明示的な×ボタンを置く
+  const header = document.createElement('div');
+  Object.assign(header.style, {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: '10px',
+  } as Partial<CSSStyleDeclaration>);
+
   const title = document.createElement('div');
   title.textContent = VERSION ? `SolPlayer Tune v${VERSION}` : 'SolPlayer Tune';
   Object.assign(title.style, {
     font: '700 12px/1 system-ui, sans-serif',
     letterSpacing: '0.08em',
     opacity: '0.75',
-    marginBottom: '10px',
+  } as Partial<CSSStyleDeclaration>);
+
+  const closeBtn = document.createElement('button');
+  closeBtn.id = 'solplayer-tune-close';
+  closeBtn.type = 'button';
+  closeBtn.textContent = '×';
+  closeBtn.title = '閉じる';
+  closeBtn.setAttribute('aria-label', 'チューニングパネルを閉じる');
+  Object.assign(closeBtn.style, {
+    width: '28px',
+    height: '28px',
+    borderRadius: '9999px',
+    border: '1px solid rgba(31,36,48,0.14)',
+    background: 'rgba(255,255,255,0.75)',
+    color: INK,
+    font: '600 15px/1 system-ui, sans-serif',
+    cursor: 'pointer',
+    flex: 'none',
   } as Partial<CSSStyleDeclaration>);
 
   const officialRow = document.createElement('div');
@@ -564,8 +591,13 @@ function buildUi(): TuneUi {
   } as Partial<CSSStyleDeclaration>);
 
   customRow.append(input, applyBtn, saveBtn);
-  panel.append(title, officialRow, myTitle, myRow, customTitle, customRow, note);
+  header.append(title, closeBtn);
+  panel.append(header, officialRow, myTitle, myRow, customTitle, customRow, note);
   wrap.append(btn, panel);
+
+  closeBtn.addEventListener('click', () => {
+    panel.style.display = 'none';
+  });
 
   const showError = (message: string) => {
     input.value = '';
