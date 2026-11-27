@@ -1,9 +1,8 @@
 # YouTubeを432Hzで聴く方法【iPhone・Android・PC対応／無料】
 
 > note投稿用の下書き（2026-11）。
-> 投稿前にやること: ①Chrome Web StoreとAMOのリンクを実URLに差し替え
-> ②スクリーンショットを2〜3枚挿入（パネルを開いた画面など）
-> ③最後の「作者より」を自分の言葉で調整
+> 投稿前にやること: ①スクリーンショットを2〜3枚挿入（パネルを開いた画面など）
+> ②最後の「作者より」を自分の言葉で調整（ストアリンクは差し替え済み）
 
 ---
 
@@ -36,14 +35,14 @@ YouTubeで音楽を聴くとき、「432Hzで聴きたい」と思ったこと�
 ### PC（Chrome / Edge）
 
 1. Chrome Web Storeで「SolPlayer Tune」をインストール
-   → ※リンク差し替え
+   → https://chromewebstore.google.com/detail/solplayer-tune/kkmjijfhckkmikcbnhmjlibbdghbekhe
 2. YouTubeを開くと動画の下に「♪ 440Hz」ボタンが出ます
 3. クリックして432Hzを選ぶだけ
 
 ### Android（Firefox）
 
 1. Android版Firefoxのアドオンから「SolPlayer Tune」を追加
-   → ※リンク差し替え
+   → https://addons.mozilla.org/firefox/addon/solplayer/
 2. youtube.com へのアクセスを許可
 3. あとはPCと同じ。**スマホでYouTubeを432Hz**、できます
 
@@ -70,8 +69,8 @@ YouTubeで音楽を聴くとき、「432Hzで聴きたい」と思ったこと�
 ## リンク
 
 - iPhone/iPad: https://apps.apple.com/jp/app/id6800237084
-- Chrome: ※リンク差し替え
-- Firefox / Android: ※リンク差し替え
+- Chrome: https://chromewebstore.google.com/detail/solplayer-tune/kkmjijfhckkmikcbnhmjlibbdghbekhe
+- Firefox / Android: https://addons.mozilla.org/firefox/addon/solplayer/
 - ソースコード（オープン）: https://github.com/foresthill/SolPlayer
 - サポート・問い合わせ: https://sol-player-web.vercel.app/support
 
