@@ -56,3 +56,10 @@ pnpm build        # dist/ が生成される
 - AudioWorklet化（ScriptProcessor脱却でグリッチ耐性向上）
 - SolPlayer本体との連携（周波数設定・マイプリセットの共有）
 - Chromeウェブストアでの配布パッケージ化
+
+## ライセンスと帰属
+
+- 本拡張はピッチ変換に [SoundTouchJS](https://github.com/cutterbl/SoundTouchJS)
+  （LGPL-2.1）をバンドルしている。本リポジトリはソースを公開しており、
+  上記READMEのビルド手順でライブラリを差し替えた再ビルドが可能
+- `playbackRate` / `preservesPitch` / Web Audio はW3C標準APIを使用
