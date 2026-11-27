@@ -44,6 +44,27 @@ function toSemitones(baseHz: number, targetHz: number): number {
   return 12 * Math.log2(targetHz / baseHz);
 }
 
+/**
+ * 拡張のバージョン（manifestから実行時に取得）。
+ * パネルに表示することで、実機でどのバージョンが動いているかを
+ * 確認できるようにする（E2E・サポート・ストア審査版の検証用）。
+ */
+const VERSION: string = (() => {
+  try {
+    const api = (
+      globalThis as unknown as {
+        browser?: { runtime?: { getManifest?: () => { version?: string } } };
+        chrome?: { runtime?: { getManifest?: () => { version?: string } } };
+      }
+    );
+    return (
+      (api.browser ?? api.chrome)?.runtime?.getManifest?.()?.version ?? ''
+    );
+  } catch {
+    return '';
+  }
+})();
+
 /** iOS/iPadOS判定（iPadのデスクトップ表示はMac+タッチ有りとして名乗る） */
 const IS_IOS =
   /iPad|iPhone|iPod/.test(navigator.userAgent) ||
@@ -173,6 +194,19 @@ class TuneEngine {
   /** いま実際に変換が効いているか（UI表示を実態に同期させるために使う） */
   isConverting(): boolean {
     return this.converting;
+  }
+
+  /**
+   * レートモードの自己修復。サイト側が動画ソースの読み込み直し等で
+   * preservesPitch を初期値(true)に戻すと、速度だけ変わってピッチが
+   * 変わらない「表示は432Hz・音は440Hz」状態になる（preservesPitchの
+   * リセットはイベントが発生しないため ratechange では検知できない）。
+   * 冪等な貼り直しなので、再生開始・メタデータ読込・DOM監視から
+   * 何度呼んでも副作用はない。
+   */
+  reassertRate(): void {
+    if (!this.rateMode || !this.converting || !this.video) return;
+    this.applyRate(this.video);
   }
 
   /** テスト用: 変換方式を強制切替（切替前に現在の変換は解除する） */
@@ -445,7 +479,7 @@ function buildUi(): TuneUi {
   } as Partial<CSSStyleDeclaration>);
 
   const title = document.createElement('div');
-  title.textContent = 'SolPlayer Tune';
+  title.textContent = VERSION ? `SolPlayer Tune v${VERSION}` : 'SolPlayer Tune';
   Object.assign(title.style, {
     font: '700 12px/1 system-ui, sans-serif',
     letterSpacing: '0.08em',
@@ -793,9 +827,27 @@ document.addEventListener(
   'play',
   (e) => {
     if (!(e.target instanceof HTMLVideoElement)) return;
-    if (currentHz === BASE_HZ || engine.isConverting()) return;
+    if (currentHz === BASE_HZ) return;
+    if (engine.isConverting()) {
+      // 変換中でも、サイト側にpreservesPitch等を戻されている可能性が
+      // あるため貼り直す（レートモードのみ・冪等）
+      engine.reassertRate();
+      return;
+    }
     if (engine.isRateMode() || hasUserActivation()) {
       engageWithRetry();
+    }
+  },
+  true
+);
+
+// 動画ソースの読み込み直しは playbackRate/preservesPitch を黙って初期化する
+// ことがあるため、メタデータ読込のたびに貼り直す（レートモードのみ・冪等）
+document.addEventListener(
+  'loadedmetadata',
+  (e) => {
+    if (e.target instanceof HTMLVideoElement) {
+      engine.reassertRate();
     }
   },
   true
@@ -824,7 +876,10 @@ new MutationObserver(() => {
       (engine.isRateMode() || hasUserActivation())
     ) {
       tryEngageSaved();
+      return;
     }
+    // 変換中でもレートモードの設定が戻されていないか定期的に貼り直す
+    engine.reassertRate();
   }, 500);
 }).observe(document.documentElement, { childList: true, subtree: true });
 
